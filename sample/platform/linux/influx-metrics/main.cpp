@@ -9,7 +9,6 @@ std::string
 getenvvar(const std::string& key)
 {
   char const* value = std::getenv(key.c_str());
-  std::cout << key << " = " << value << std::endl;
   return value ? std::string(value) : std::string();
 }
 
@@ -29,11 +28,8 @@ main(int argc, char** argv)
   dotenv::load(".env");
 
   std::string influxHost = getenvvar("INFLUXDB_HOST");
-  std::cout << "INFLUXDB_HOST = " << influxHost << std::endl;
   std::string influxPort = getenvvar("INFLUXDB_PORT");
-  std::cout << "INFLUXDB_PORT = " << influxPort << std::endl;
-  std::string influxDB = getenvvar("INFLUXDB_DB");
-  std::cout << "INFLUXDB_DB = " << influxDB << std::endl;
+  std::string influxDB   = getenvvar("INFLUXDB_DB");
 
   std::cout << "Port: " << influxPort << std::endl;
 
