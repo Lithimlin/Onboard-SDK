@@ -125,7 +125,7 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
         .addField("gps_lat", gpsFused.latitude)
         .addField("gps_lon", gpsFused.longitude)
         .addField("gps_alt", gpsFused.altitude)
-        .addField("rtk_connect_status", rtkConnectStatus.rtkConnected)
+        .addField("rtk_connect_status", (uint16_t)rtkConnectStatus.rtkConnected)
         .addField("rtk_lat", rtkPosition.latitude)
         .addField("rtk_lon", rtkPosition.longitude)
         .addField("rtk_hfsl", rtkPosition.HFSL)
