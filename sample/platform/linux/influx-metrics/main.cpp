@@ -32,7 +32,7 @@ main(int argc, char** argv)
   std::string influxDB   = getenvvar("INFLUXDB_DB");
 
   std::string influxUrl =
-    std::string("http://" + influxHost + ":" + influxPort + "/" + influxDB);
+    std::string("http://" + influxHost + ":" + influxPort + "?db=" + influxDB);
   std::cout << "Connecting to InfluxDB at " << influxUrl << std::endl;
 
   auto db = influxdb::InfluxDBFactory::Get(influxUrl);
