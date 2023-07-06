@@ -1,5 +1,5 @@
 BasedOnStyle: Mozilla
-Standard: Cpp03
+Standard: Cpp11
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
