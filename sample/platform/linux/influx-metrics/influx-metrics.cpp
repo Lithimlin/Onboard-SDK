@@ -7,14 +7,14 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
-static std::unique_ptr<influxdb::InfluxDB>
-connectInflux(const std::string& host,
-              const std::string& port,
-              const std::string& database)
-{
-  const std::string url = "http://" + host + ":" + port + "?db=" + database;
-  return influxdb::InfluxDBFactory::Get(url);
-}
+// static std::unique_ptr<influxdb::InfluxDB>
+// connectInflux(const std::string& host,
+//               const std::string& port,
+//               const std::string& database)
+// {
+//   const std::string url = "http://" + host + ":" + port + "?db=" + database;
+//   return influxdb::InfluxDBFactory::Get(url);
+// }
 
 void
             INThandler(int);

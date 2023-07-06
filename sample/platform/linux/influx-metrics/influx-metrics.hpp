@@ -13,10 +13,10 @@
 // InfluxDB
 #include <InfluxDBFactory.h>
 
-static std::unique_ptr<influxdb::InfluxDB>
-connectInflux(const std::string& host,
-              const std::string& port,
-              const std::string& database);
+// static std::unique_ptr<influxdb::InfluxDB>
+// connectInflux(const std::string& host,
+//               const std::string& port,
+//               const std::string& database);
 
 bool
 subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,

@@ -1,5 +1,6 @@
 #include "dotenv/dotenv.h"
 #include "influx-metrics.hpp"
+#include <InfluxDBFactory.h>
 
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
@@ -18,9 +19,17 @@ main(int argc, char** argv)
   }
 
   dotenv::load(".env");
-  auto db = connectInflux(std::getenv("INFLUXDB_HOST"),
-                          std::getenv("INFLUXDB_PORT"),
-                          std::getenv("INFLUXDB_DB"));
+  // auto db = connectInflux(std::getenv("INFLUXDB_HOST"),
+  //                         std::getenv("INFLUXDB_PORT"),
+  //                         std::getenv("INFLUXDB_DB"));
+
+  std::string influxHost = std::getenv("INFLUXDB_HOST");
+  std::string influxPort = std::getenv("INFLUXDB_PORT");
+  std::string influxDB   = std::getenv("INFLUXDB_DB");
+
+  const std::string url =
+    "http://" + influxHost + ":" + influxPort + "?db=" + influxDB;
+  auto db = influxdb::InfluxDBFactory::Get(url);
 
   if (db == nullptr)
   {
