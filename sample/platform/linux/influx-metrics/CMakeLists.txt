@@ -37,8 +37,9 @@ if (OSDK_HOTPLUG)
     FILE(GLOB SOURCE_FILES ${SOURCE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/../hal/hotplug/*.c)
 endif ()
 
-include_directories(/usr/include/influxdb-cxx)
-include_directories(/usr/local/include/influxdb-cxx)
+find_package(InfluxDB)
+# include_directories(/usr/include/influxdb-cxx)
+# include_directories(/usr/local/include/influxdb-cxx)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-# target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB)
+target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB)
