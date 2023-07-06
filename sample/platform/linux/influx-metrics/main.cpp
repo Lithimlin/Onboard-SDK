@@ -33,7 +33,10 @@ main(int argc, char** argv)
   std::string influxUrl =
     std::string("http://" + influxUser + ":" + influxPass + "@" + influxHost +
                 ":" + influxPort + "?db=" + influxDB);
-  std::cout << "Connecting to InfluxDB at " << influxUrl << std::endl;
+  std::cout << "Connecting to InfluxDB at "
+            << "http://" + influxUser + ":<REDACTED>@" + influxHost + ":" +
+                 influxPort + "?db=" + influxDB
+            << std::endl;
 
   std::unique_ptr<influxdb::InfluxDB> db =
     influxdb::InfluxDBFactory::Get(influxUrl);
