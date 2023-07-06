@@ -30,7 +30,7 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
   }
 
   int       pkgIndex    = 0;
-  int       freq        = 10; // Hz
+  int       freq        = 1; // Hz
   TopicName topicList[] = {
     TopicName::TOPIC_VELOCITY,
     TopicName::TOPIC_GPS_POSITION,
@@ -50,11 +50,12 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
   bool pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
     pkgIndex, numTopics, topicList, enableTimestamp, freq);
 
-  std::cout << "Subscribed to topics" << std::endl;
+  DDEBUG("subscribe status: %d", subscribeStatus);
+  std::cout << "Subscribing to topics..." << std::endl;
 
   if (!(pkgStatus))
   {
-    std::cout << "Subscription failed" << std::endl;
+    DERROR("Subscription failed");
     return false;
   }
 
