@@ -1,4 +1,4 @@
-#include "dotenv/dotenv.h"
+#include "dotenv.h"
 #include "influx-metrics.hpp"
 #include <InfluxDBFactory.h>
 
@@ -25,7 +25,7 @@ main(int argc, char** argv)
     return -1;
   }
 
-  // dotenv::load(".env");
+  dotenv::load(".env");
 
   std::string influxHost = getenvvar("INFLUXDB_HOST");
   std::string influxPort = getenvvar("INFLUXDB_PORT");
