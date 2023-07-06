@@ -136,8 +136,9 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
       break;
     }
     usleep(1e6 / freq);
+    std::cout << "." << std::flush;
   }
-  std::cout << "Done!\n";
+  std::cout << std::endl << "Done!" << std::endl;
 
   return true;
 }
