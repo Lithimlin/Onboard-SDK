@@ -5,6 +5,13 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
+std::string
+getenvvar(const std::string& key)
+{
+  char const* value = std::getenv(key.c_str());
+  return value ? std::string(value) : std::string();
+}
+
 int
 main(int argc, char** argv)
 {
@@ -20,12 +27,12 @@ main(int argc, char** argv)
 
   dotenv::load(".env");
 
-  std::string influxHost = std::getenv("INFLUXDB_HOST");
-  std::string influxPort = std::getenv("INFLUXDB_PORT");
-  std::string influxDB   = std::getenv("INFLUXDB_DB");
+  std::string influxHost = getenvvar("INFLUXDB_HOST");
+  std::string influxPort = getenvvar("INFLUXDB_PORT");
+  std::string influxDB   = getenvvar("INFLUXDB_DB");
 
   std::string influxUrl =
-    "http://" + influxHost + ":" + influxPort + "/" + influxDB;
+    std::string("http://" + influxHost + ":" + influxPort + "/" + influxDB);
   std::cout << "Connecting to InfluxDB at " << influxUrl << std::endl;
 
   auto db = influxdb::InfluxDBFactory::Get(influxUrl);
