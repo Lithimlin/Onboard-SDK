@@ -31,13 +31,16 @@ main(int argc, char** argv)
   std::string influxPort = getenvvar("INFLUXDB_PORT");
   std::string influxDB   = getenvvar("INFLUXDB_DB");
 
+  std::cout << "Port: " << influxPort << std::endl;
+
   std::string influxUrl =
     std::string("http://" + influxHost + ":" + influxPort + "?db=" + influxDB);
   std::cout << "Connecting to InfluxDB at " << influxUrl << std::endl;
 
-  auto db = influxdb::InfluxDBFactory::Get(influxUrl);
+  std::unique_ptr<influxdb::InfluxDB> db =
+    influxdb::InfluxDBFactory::Get(influxUrl);
 
-  if (db == nullptr)
+  if (!db)
   {
     std::cout << "Could not connect to InfluxDB, exiting.\n";
     return -1;
