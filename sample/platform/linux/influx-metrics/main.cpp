@@ -28,8 +28,6 @@ main(int argc, char** argv)
   std::string influxPort = getenvvar("INFLUXDB_PORT");
   std::string influxDB   = getenvvar("INFLUXDB_DB");
 
-  std::cout << "Port: " << influxPort << std::endl;
-
   std::string influxUrl =
     std::string("http://" + influxHost + ":" + influxPort + "?db=" + influxDB);
   std::cout << "Connecting to InfluxDB at " << influxUrl << std::endl;

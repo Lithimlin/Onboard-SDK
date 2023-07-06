@@ -52,7 +52,7 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
 
   std::cout << "Subscribed to topics" << std::endl;
 
-  if (!pkgStatus)
+  if (!(pkgStatus))
   {
     std::cout << "Subscription failed" << std::endl;
     return false;
