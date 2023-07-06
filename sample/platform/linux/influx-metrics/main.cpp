@@ -19,16 +19,17 @@ main(int argc, char** argv)
   }
 
   dotenv::load(".env");
-  // auto db = connectInflux(std::getenv("INFLUXDB_HOST"),
-  //                         std::getenv("INFLUXDB_PORT"),
-  //                         std::getenv("INFLUXDB_DB"));
 
   std::string influxHost = std::getenv("INFLUXDB_HOST");
   std::string influxPort = std::getenv("INFLUXDB_PORT");
   std::string influxDB   = std::getenv("INFLUXDB_DB");
 
-  auto db = influxdb::InfluxDBFactory::Get("http://" + influxHost + ":" +
-                                           influxPort + "?db=" + influxDB);
+  std::string influxUrl =
+    "http://" + influxHost + ":" + influxPort + "/" + influxDB;
+  std::cout << "Connecting to InfluxDB at " << influxUrl
+            << std::endl
+
+    auto db = influxdb::InfluxDBFactory::Get(influxUrl);
 
   if (db == nullptr)
   {
