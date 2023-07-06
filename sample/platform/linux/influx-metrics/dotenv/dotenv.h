@@ -252,7 +252,7 @@ load(const std::string& path)
         }
       }
 
-      setenv(key.c_str(), value.c_str(), 1);
+      std::setenv(key.c_str(), value.c_str(), 1);
     }
   }
 }
