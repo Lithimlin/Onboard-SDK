@@ -26,10 +26,9 @@ main(int argc, char** argv)
 
   std::string influxUrl =
     "http://" + influxHost + ":" + influxPort + "/" + influxDB;
-  std::cout << "Connecting to InfluxDB at " << influxUrl
-            << std::endl
+  std::cout << "Connecting to InfluxDB at " << influxUrl << std::endl;
 
-    auto db = influxdb::InfluxDBFactory::Get(influxUrl);
+  auto db = influxdb::InfluxDBFactory::Get(influxUrl);
 
   if (db == nullptr)
   {
