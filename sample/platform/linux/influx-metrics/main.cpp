@@ -27,9 +27,10 @@ main(int argc, char** argv)
   std::string influxPort = std::getenv("INFLUXDB_PORT");
   std::string influxDB   = std::getenv("INFLUXDB_DB");
 
-  const std::string url =
-    "http://" + influxHost + ":" + influxPort + "?db=" + influxDB;
-  auto db = influxdb::InfluxDBFactory::Get(url);
+  // const std::string url =
+  //   "http://" + influxHost + ":" + influxPort + "?db=" + influxDB;
+  auto db = influxdb::InfluxDBFactory::Get("http://" + influxHost + ":" +
+                                           influxPort + "?db=" + influxDB);
 
   if (db == nullptr)
   {
