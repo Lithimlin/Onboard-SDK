@@ -1,4 +1,3 @@
-#include "dotenv.h"
 #include "influx-metrics.hpp"
 #include <InfluxDBFactory.h>
 
@@ -24,8 +23,6 @@ main(int argc, char** argv)
     std::cout << "Vehicle not initialized, exiting.\n";
     return -1;
   }
-
-  dotenv::load(".env");
 
   std::string influxHost = getenvvar("INFLUXDB_HOST");
   std::string influxPort = getenvvar("INFLUXDB_PORT");
