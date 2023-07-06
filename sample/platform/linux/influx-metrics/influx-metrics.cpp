@@ -131,14 +131,14 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
 
     if (quit)
     {
-      std::cout << "Ctrl-C pressed, quit loop" << std::endl;
+      std::cout << std::endl << "Ctrl-C pressed, quit loop" << std::endl;
       influxDB->flushBatch();
       break;
     }
     usleep(1e6 / freq);
     std::cout << "." << std::flush;
   }
-  std::cout << std::endl << "Done!" << std::endl;
+  std::cout << "Done!" << std::endl;
 
   return true;
 }
