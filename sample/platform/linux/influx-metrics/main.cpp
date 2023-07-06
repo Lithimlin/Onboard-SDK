@@ -41,7 +41,7 @@ main(int argc, char** argv)
     return -1;
   }
 
-  subscribeAndWriteToInflux(vehicle, db.get());
+  subscribeAndWriteToInflux(vehicle, db.get(), 2);
   db.release();
   return 0;
 }
