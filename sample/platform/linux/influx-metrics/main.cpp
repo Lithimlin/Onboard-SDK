@@ -27,9 +27,12 @@ main(int argc, char** argv)
   std::string influxHost = getenvvar("INFLUXDB_HOST");
   std::string influxPort = getenvvar("INFLUXDB_PORT");
   std::string influxDB   = getenvvar("INFLUXDB_DB");
+  std::string influxUser = getenvvar("INFLUXDB_USER");
+  std::string influxPass = getenvvar("INFLUXDB_PASS");
 
   std::string influxUrl =
-    std::string("http://" + influxHost + ":" + influxPort + "?db=" + influxDB);
+    std::string("http://" + influxUser + ":" + influxPass + "@" + influxHost +
+                ":" + influxPort + "?db=" + influxDB);
   std::cout << "Connecting to InfluxDB at " << influxUrl << std::endl;
 
   std::unique_ptr<influxdb::InfluxDB> db =
