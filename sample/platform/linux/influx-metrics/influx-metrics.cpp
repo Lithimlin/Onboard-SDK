@@ -94,12 +94,12 @@ getMetricsAndWrite(const boost::system::error_code& e,
 
   if (quit)
   {
-    std::cout << std::endl << "Ctrl-C pressed, quit loop" << std::endl;
+    std::cout << "\nCtrl-C pressed, quit loop" << std::endl;
     influxDB->flushBatch();
     return;
   }
 
-  std::cout << "." << std::endl;
+  std::cout << "." << std::flush;
 
   timer->expires_at(timer->expiry() +
                     boost::asio::chrono::microseconds((int)1e6 / freq));
