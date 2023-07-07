@@ -102,7 +102,7 @@ getMetricsAndWrite(const boost::system::error_code& e,
   std::cout << "." << std::flush;
 
   timer->expires_at(timer->expiry() +
-                    boost::asio::chrono::microseconds((int)1e6 / freq));
+                    boost::asio::chrono::milliseconds((int)1e3 / freq));
 
   timer->async_wait(
     boost::bind(getMetricsAndWrite, timer, vehiclePtr, influxDB));
