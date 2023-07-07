@@ -13,9 +13,15 @@
 // InfluxDB
 #include <InfluxDBFactory.h>
 
+namespace influxMetrics
+{
 bool
-subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
-                          influxdb::InfluxDB* influxDB,
-                          int                 responseTimeout = 1);
+subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout = 1);
 
+void
+getMetricsAndWrite(const boost::system::error_code& e,
+                   boost::asio::steady_timer*       timer,
+                   DJI::OSDK::Vehicle*              vehiclePtr,
+                   influxdb::InfluxDB*              influxDB);
+}
 #endif
