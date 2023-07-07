@@ -33,8 +33,6 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
   int       freq        = 1; // Hz
   TopicName topicList[] = {
     TopicName::TOPIC_VELOCITY,
-    TopicName::TOPIC_GPS_POSITION,
-    TopicName::TOPIC_GPS_VELOCITY,
     TopicName::TOPIC_GPS_FUSED,
     TopicName::TOPIC_RTK_CONNECT_STATUS,
     TopicName::TOPIC_RTK_POSITION,
@@ -43,6 +41,7 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
     TopicName::TOPIC_HEIGHT_FUSION,
     TopicName::TOPIC_ALTITUDE_FUSIONED,
     TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
+    TopicName::TOPIC_STATUS_FLIGHT,
   };
   int  numTopics       = sizeof(topicList) / sizeof(topicList[0]);
   bool enableTimestamp = true;
@@ -70,26 +69,22 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
   }
 
   sleep(1);
-
-  TypeMap<TopicName::TOPIC_VELOCITY>::type              velocity;
-  TypeMap<TopicName::TOPIC_GPS_POSITION>::type          gpsPosition;
-  TypeMap<TopicName::TOPIC_GPS_VELOCITY>::type          gpsVelocity;
-  TypeMap<TopicName::TOPIC_GPS_FUSED>::type             gpsFused;
-  TypeMap<TopicName::TOPIC_RTK_CONNECT_STATUS>::type    rtkConnectStatus;
-  TypeMap<TopicName::TOPIC_RTK_POSITION>::type          rtkPosition;
-  TypeMap<TopicName::TOPIC_RTK_VELOCITY>::type          rtkVelocity;
-  TypeMap<TopicName::TOPIC_RTK_POSITION_INFO>::type     rtkPositionInfo;
-  TypeMap<TopicName::TOPIC_HEIGHT_FUSION>::type         heightFusion;
-  TypeMap<TopicName::TOPIC_ALTITUDE_FUSIONED>::type     altitudeFusioned;
-  TypeMap<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>::type altitudeOfHomepoint;
-
+  // clang-format off
+  TypeMap<TopicName::TOPIC_VELOCITY>::type                velocity; // in m/s
+  TypeMap<TopicName::TOPIC_GPS_FUSED>::type               gpsFused; // in rad (Lat,Lon), m (Alt)
+  TypeMap<TopicName::TOPIC_RTK_CONNECT_STATUS>::type      rtkConnectStatus; // bool
+  TypeMap<TopicName::TOPIC_RTK_POSITION>::type            rtkPosition; // in deg (x, y), m(z)
+  TypeMap<TopicName::TOPIC_RTK_VELOCITY>::type            rtkVelocity; // in cm/s
+  TypeMap<TopicName::TOPIC_RTK_POSITION_INFO>::type       rtkPositionInfo; // enum, see
+                     // https://developer.dji.com/onboard-api-reference/group__telem.html
+  TypeMap<TopicName::TOPIC_HEIGHT_FUSION>::type           heightFusion; // in m, estimate of current height from ground
+  TypeMap<TopicName::TOPIC_ALTITUDE_FUSIONED>::type       altitudeFusioned; // in m
+  TypeMap<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>::type   altitudeOfHomepoint; // in m
+  TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stopped, 1: on ground, 2: in air
+  // clang-format on
   while (true)
   {
     velocity = vehiclePtr->subscribe->getValue<TopicName::TOPIC_VELOCITY>();
-    gpsPosition =
-      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
-    gpsVelocity =
-      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_VELOCITY>();
     gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
     rtkConnectStatus =
       vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>();
@@ -105,30 +100,30 @@ subscribeAndWriteToInflux(DJI::OSDK::Vehicle* vehiclePtr,
       vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_FUSIONED>();
     altitudeOfHomepoint =
       vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
+    statusFlight =
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>();
 
     influxDB->write(
       influxdb::Point{ "drone_metrics" }
         .addField("velocity_x", velocity.data.x)
         .addField("velocity_y", velocity.data.y)
         .addField("velocity_z", velocity.data.z)
-        .addField("gps_position_x", gpsPosition.x)
-        .addField("gps_position_y", gpsPosition.y)
-        .addField("gps_position_z", gpsPosition.z)
         .addField("gps_lat", gpsFused.latitude)
         .addField("gps_lon", gpsFused.longitude)
         .addField("gps_alt", gpsFused.altitude)
-        .addField("rtk_connect_status", (uint16_t)rtkConnectStatus.rtkConnected)
+        .addField("rtk_connect_status", (uint8_t)rtkConnectStatus.rtkConnected)
         .addField("rtk_lat", rtkPosition.latitude)
         .addField("rtk_lon", rtkPosition.longitude)
-        .addField("rtk_hfsl", rtkPosition.HFSL)
+        .addField("rtk_height_from_sea", rtkPosition.HFSL)
         .addField("rtk_velocity_x", rtkVelocity.x)
         .addField("rtk_velocity_y", rtkVelocity.y)
         .addField("rtk_velocity_z", rtkVelocity.z)
         .addField("rtk_position_info", rtkPositionInfo)
         .addField("height_fusion", heightFusion)
         .addField("altitude_fusion", altitudeFusioned)
-        .addField("altitude_of_homepoint", altitudeOfHomepoint));
-
+        .addField("altitude_of_homepoint", altitudeOfHomepoint)
+        .addField("status_flight", statusFlight)
+        .addTag("hostname", std::getenv("HOST")));
     if (quit)
     {
       std::cout << std::endl << "Ctrl-C pressed, quit loop" << std::endl;
