@@ -10,7 +10,8 @@ using namespace DJI::OSDK::Telemetry;
 
 using boost::asio::steady_timer;
 
-static steady_timer metricsTimer;
+static boost::asio::io_context ctx;
+static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
 
 std::string
 getenvvar(const std::string& key);
@@ -53,8 +54,6 @@ main(int argc, char** argv)
     return -1;
   }
 
-  boost::asio::io_context ctx;
-  steady_timer            metricsTimer(ctx, boost::asio::chrono::seconds(1));
   metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
                                       boost::asio::placeholders::error,
                                       &metricsTimer,
@@ -72,8 +71,8 @@ main(int argc, char** argv)
 void
 INThandler(int sig)
 {
-  std::cout << "Exiting...\n";
-  influxMetrics::quit(&metricsTimer);
+  std::cout << "Exiting..." << std::endl;
+  metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
 }
 
 // functions
