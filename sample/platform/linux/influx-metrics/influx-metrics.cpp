@@ -8,13 +8,11 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
-using boost::asio::steady_timer;
-
 namespace influxMetrics
 {
 
-static bool         quitFlag = false;
-static steady_timer timer;
+static bool                      quitFlag = false;
+static boost::asio::steady_timer timer;
 
 // subscription settings
 int       pkgIndex    = 0;
@@ -50,7 +48,7 @@ TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stop
 
 void
 getMetricsAndWrite(const boost::system::error_code& e,
-                   steady_timer*                    timer,
+                   boost::asio::steady_timer*       timer,
                    DJI::OSDK::Vehicle*              vehiclePtr,
                    influxdb::InfluxDB*              influxDB)
 {
@@ -147,7 +145,7 @@ subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout)
 }
 
 void
-quit(steady_timer* timer)
+quit(boost::asio::steady_timer* timer)
 {
   quitFlag = true;
   timer->expires_after(boost::asio::chrono::milliseconds(50));
