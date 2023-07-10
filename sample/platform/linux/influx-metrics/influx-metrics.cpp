@@ -11,8 +11,7 @@ using namespace DJI::OSDK::Telemetry;
 namespace influxMetrics
 {
 
-static bool                      quitFlag = false;
-static boost::asio::steady_timer timer;
+static bool quitFlag = false;
 
 // subscription settings
 int       pkgIndex    = 0;
