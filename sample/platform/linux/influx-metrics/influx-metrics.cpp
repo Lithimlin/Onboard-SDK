@@ -1,4 +1,3 @@
-
 #include "influx-metrics.hpp"
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
@@ -104,8 +103,11 @@ getMetricsAndWrite(const boost::system::error_code& e,
   timer->expires_at(timer->expiry() +
                     boost::asio::chrono::milliseconds((int)1e3 / freq));
 
-  timer->async_wait(
-    boost::bind(getMetricsAndWrite, timer, vehiclePtr, influxDB));
+  timer->async_wait(boost::bind(getMetricsAndWrite,
+                                boost::asio::placeholders::error,
+                                timer,
+                                vehiclePtr,
+                                influxDB));
 }
 
 bool
