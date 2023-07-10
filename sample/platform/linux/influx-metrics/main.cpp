@@ -54,11 +54,15 @@ main(int argc, char** argv)
     return -1;
   }
 
+  std::cout << "Starting timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
                                       boost::asio::placeholders::error,
                                       &metricsTimer,
                                       vehicle,
                                       db.get()));
+
+  std::cout << "Running context..." << std::endl;
+  std::cout << "Press Ctrl+C to exit." << std::endl;
 
   ctx.run();
 
@@ -68,14 +72,14 @@ main(int argc, char** argv)
   return 0;
 }
 
+// functions
 void
 INThandler(int sig)
 {
-  std::cout << "Exiting..." << std::endl;
+  std::cout << "\nExiting..." << std::endl;
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
 }
 
-// functions
 std::string
 getenvvar(const std::string& key)
 {
