@@ -1,10 +1,13 @@
 #include "influx-metrics.hpp"
+#include "mission.hpp"
 #include <InfluxDBFactory.h>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
+
+namespace asio = boost::asio;
 
 std::string
 getenvvar(const std::string& key);
@@ -43,10 +46,10 @@ main(int argc, char** argv)
     return -1;
   }
 
-  boost::asio::io_context   ctx;
-  boost::asio::steady_timer timer(ctx, boost::asio::chrono::seconds(1));
+  asio::io_context   ctx;
+  asio::steady_timer timer(ctx, asio::chrono::seconds(1));
   timer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-                               boost::asio::placeholders::error,
+                               asio::placeholders::error,
                                &timer,
                                vehicle,
                                db.get()));

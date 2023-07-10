@@ -9,6 +9,9 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
+namespace asio = boost::asio;
+using asio::steady_timer;
+
 void
             INThandler(int);
 static bool quit = false;
@@ -47,7 +50,7 @@ TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stop
 
 void
 getMetricsAndWrite(const boost::system::error_code& e,
-                   boost::asio::steady_timer*       timer,
+                   steady_timer*                    timer,
                    DJI::OSDK::Vehicle*              vehiclePtr,
                    influxdb::InfluxDB*              influxDB)
 {
@@ -102,7 +105,7 @@ getMetricsAndWrite(const boost::system::error_code& e,
   std::cout << "." << std::flush;
 
   timer->expires_at(timer->expiry() +
-                    boost::asio::chrono::milliseconds((int)1e3 / freq));
+                    asio::chrono::milliseconds((int)1e3 / freq));
 
   timer->async_wait(
     boost::bind(getMetricsAndWrite, timer, vehiclePtr, influxDB));
