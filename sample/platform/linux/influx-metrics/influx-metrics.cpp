@@ -45,7 +45,7 @@ TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stop
 // clang-format on
 
 void
-getMetricsAndWrite(const boost::system::error_code& e,
+getMetricsAndWrite(const boost::system::error_code& ec,
                    boost::asio::steady_timer*       timer,
                    DJI::OSDK::Vehicle*              vehiclePtr,
                    influxdb::InfluxDB*              influxDB)
@@ -91,7 +91,7 @@ getMetricsAndWrite(const boost::system::error_code& e,
       .addField("status_flight", statusFlight)
       .addTag("hostname", std::getenv("HOST")));
 
-  if (quitFlag)
+  if (ec == boost::asio::error::operation_aborted)
   {
     std::cout << "\nCtrl-C pressed, quit loop" << std::endl;
     influxDB->flushBatch();
