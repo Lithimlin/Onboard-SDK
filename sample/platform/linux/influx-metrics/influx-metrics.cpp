@@ -8,8 +8,7 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
-namespace asio = boost::asio;
-using asio::steady_timer;
+using boost::asio::steady_timer;
 
 static bool         quitFlag = false;
 static steady_timer timer;
@@ -103,7 +102,7 @@ getMetricsAndWrite(const boost::system::error_code& e,
   std::cout << "." << std::flush;
 
   timer->expires_at(timer->expiry() +
-                    asio::chrono::milliseconds((int)1e3 / freq));
+                    boost::asio::chrono::milliseconds((int)1e3 / freq));
 
   timer->async_wait(
     boost::bind(getMetricsAndWrite, timer, vehiclePtr, influxDB));
@@ -145,8 +144,8 @@ subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout)
 }
 
 void
-quit(asio::steady_timer* timer)
+quit(steady_timer* timer)
 {
   quitFlag = true;
-  timer->expires_after(asio::chrono::milliseconds(50));
+  timer->expires_after(boost::asio::chrono::milliseconds(50));
 }

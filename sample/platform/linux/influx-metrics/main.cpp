@@ -8,9 +8,9 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
-namespace asio = boost::asio;
+using boost::asio::steady_timer;
 
-static asio::steady_timer metricsTimer;
+static steady_timer metricsTimer;
 
 std::string
 getenvvar(const std::string& key);
@@ -53,10 +53,10 @@ main(int argc, char** argv)
     return -1;
   }
 
-  asio::io_context   ctx;
-  asio::steady_timer metricsTimer(ctx, asio::chrono::seconds(1));
+  boost::asio::io_context ctx;
+  steady_timer            metricsTimer(ctx, boost::asio::chrono::seconds(1));
   metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-                                      asio::placeholders::error,
+                                      boost::asio::placeholders::error,
                                       &metricsTimer,
                                       vehicle,
                                       db.get()));
