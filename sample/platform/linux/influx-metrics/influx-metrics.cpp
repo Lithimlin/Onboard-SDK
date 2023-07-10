@@ -50,6 +50,7 @@ getMetricsAndWrite(const boost::system::error_code& ec,
                    DJI::OSDK::Vehicle*              vehiclePtr,
                    influxdb::InfluxDB*              influxDB)
 {
+  DDEBUG("--> getMetricsAndWrite\n");
   velocity = vehiclePtr->subscribe->getValue<TopicName::TOPIC_VELOCITY>();
   gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
   rtkConnectStatus =
@@ -68,6 +69,8 @@ getMetricsAndWrite(const boost::system::error_code& ec,
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
   statusFlight =
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>();
+
+  DDEBUG("Got values\n");
 
   influxDB->write(
     influxdb::Point{ "drone_metrics" }
@@ -108,6 +111,7 @@ getMetricsAndWrite(const boost::system::error_code& ec,
                                 timer,
                                 vehiclePtr,
                                 influxDB));
+  DDEBUG("<-- getMetricsAndWrite\n");
 }
 
 bool
