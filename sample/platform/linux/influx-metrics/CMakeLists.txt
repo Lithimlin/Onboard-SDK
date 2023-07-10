@@ -38,7 +38,7 @@ if (OSDK_HOTPLUG)
 endif ()
 
 find_package(InfluxDB REQUIRED)
-include_directories(/usr/include/influxdb-cxx)
+# include_directories(/usr/include/influxdb-cxx)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB)
