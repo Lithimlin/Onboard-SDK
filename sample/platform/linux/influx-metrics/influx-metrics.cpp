@@ -96,7 +96,7 @@ getMetricsAndWrite(const boost::system::error_code& ec,
 
   if (ec == boost::asio::error::operation_aborted)
   {
-    std::cout << "\nCtrl-C pressed, quit loop" << std::endl;
+    std::cout << "\nCtrl+C pressed, quit metrics loop" << std::endl;
     influxDB->flushBatch();
     return;
   }
