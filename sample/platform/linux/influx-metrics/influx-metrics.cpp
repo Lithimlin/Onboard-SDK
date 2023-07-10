@@ -3,7 +3,6 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <dji_telemetry.hpp>
-#include <signal.h>
 #include <stdlib.h>
 
 using namespace DJI::OSDK;
@@ -12,9 +11,8 @@ using namespace DJI::OSDK::Telemetry;
 namespace asio = boost::asio;
 using asio::steady_timer;
 
-void
-            INThandler(int);
-static bool quit = false;
+static bool         quitFlag = false;
+static steady_timer timer;
 
 // subscription settings
 int       pkgIndex    = 0;
@@ -95,7 +93,7 @@ getMetricsAndWrite(const boost::system::error_code& e,
       .addField("status_flight", statusFlight)
       .addTag("hostname", std::getenv("HOST")));
 
-  if (quit)
+  if (quitFlag)
   {
     std::cout << "\nCtrl-C pressed, quit loop" << std::endl;
     influxDB->flushBatch();
@@ -114,8 +112,6 @@ getMetricsAndWrite(const boost::system::error_code& e,
 bool
 subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout)
 {
-  signal(SIGINT, INThandler);
-
   // subscribe to vehicle telemetry
   ACK::ErrorCode subscribeStatus;
   subscribeStatus = vehiclePtr->subscribe->verify(responseTimeout);
@@ -149,7 +145,8 @@ subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout)
 }
 
 void
-INThandler(int sig)
+quit(asio::steady_timer* timer)
 {
-  quit = true;
+  quitFlag = true;
+  timer->expires_after(asio::chrono::milliseconds(50));
 }

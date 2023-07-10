@@ -23,5 +23,8 @@ getMetricsAndWrite(const boost::system::error_code& e,
                    boost::asio::steady_timer*       timer,
                    DJI::OSDK::Vehicle*              vehiclePtr,
                    influxdb::InfluxDB*              influxDB);
+
+void
+quit(boost::asio::steady_timer* timer);
 }
 #endif // DJIOSDK_INFLUX_METRICS_HPP

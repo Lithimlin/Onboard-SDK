@@ -3,11 +3,14 @@
 #include <InfluxDBFactory.h>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
+#include <signal.h>
 
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
 namespace asio = boost::asio;
+
+static asio::steady_timer metricsTimer;
 
 std::string
 getenvvar(const std::string& key);
@@ -15,10 +18,14 @@ getenvvar(const std::string& key);
 std::string
 getInfluxUrl();
 
+void
+INThandler(int sig);
+
 // main
 int
 main(int argc, char** argv)
 {
+  signal(SIGINT, INThandler);
 
   // Setup OSDK.
   LinuxSetup linuxEnvironment(argc, argv);
@@ -47,12 +54,12 @@ main(int argc, char** argv)
   }
 
   asio::io_context   ctx;
-  asio::steady_timer timer(ctx, asio::chrono::seconds(1));
-  timer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-                               asio::placeholders::error,
-                               &timer,
-                               vehicle,
-                               db.get()));
+  asio::steady_timer metricsTimer(ctx, asio::chrono::seconds(1));
+  metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
+                                      asio::placeholders::error,
+                                      &metricsTimer,
+                                      vehicle,
+                                      db.get()));
 
   ctx.run();
 
@@ -60,6 +67,13 @@ main(int argc, char** argv)
 
   db.release();
   return 0;
+}
+
+void
+INThandler(int sig)
+{
+  std::cout << "Exiting...\n";
+  influxMetrics::quit(&metricsTimer);
 }
 
 // functions
