@@ -2,6 +2,7 @@
 #define DJIOSDK_INFLUX_METRICS_HPP
 
 // System Includes
+#include <boost/asio.hpp>
 #include <iostream>
 
 // DJI OSDK includes

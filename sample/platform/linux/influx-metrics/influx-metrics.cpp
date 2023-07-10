@@ -10,6 +10,9 @@ using namespace DJI::OSDK::Telemetry;
 
 using boost::asio::steady_timer;
 
+namespace influxMetrics
+{
+
 static bool         quitFlag = false;
 static steady_timer timer;
 
@@ -148,4 +151,6 @@ quit(steady_timer* timer)
 {
   quitFlag = true;
   timer->expires_after(boost::asio::chrono::milliseconds(50));
+}
+
 }
