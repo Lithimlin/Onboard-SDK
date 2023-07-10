@@ -1,6 +1,5 @@
 #include "influx-metrics.hpp"
 // #include "mission.hpp"
-#include "env.hpp"
 #include <InfluxDBFactory.h>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
@@ -14,8 +13,8 @@ using boost::asio::steady_timer;
 static boost::asio::io_context ctx;
 static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
 
-// std::string
-// getenvvar(const std::string& key);
+std::string
+getenvvar(const std::string& key);
 
 std::string
 getInfluxUrl();
@@ -81,12 +80,12 @@ INThandler(int sig)
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
 }
 
-// std::string
-// getenvvar(const std::string& key)
-// {
-//   char const* value = std::getenv(key.c_str());
-//   return value ? std::string(value) : std::string();
-// }
+std::string
+getenvvar(const std::string& key)
+{
+  char const* value = std::getenv(key.c_str());
+  return value ? std::string(value) : std::string();
+}
 
 std::string
 getInfluxUrl()
