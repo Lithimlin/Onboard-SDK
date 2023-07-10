@@ -54,14 +54,14 @@ main(int argc, char** argv)
     return -1;
   }
 
-  DDEBUG("Starting timer...\n");
+  std::cout << "Starting timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
                                       boost::asio::placeholders::error,
                                       &metricsTimer,
                                       vehicle,
                                       db.get()));
 
-  DDEBUG("Running context...\n");
+  std::cout << "Running context..." << std::endl;
   std::cout << "Press Ctrl+C to exit." << std::endl;
 
   ctx.run();
