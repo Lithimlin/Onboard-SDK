@@ -24,4 +24,4 @@ getMetricsAndWrite(const boost::system::error_code& e,
                    DJI::OSDK::Vehicle*              vehiclePtr,
                    influxdb::InfluxDB*              influxDB);
 }
-#endif
+#endif // DJIOSDK_INFLUX_METRICS_HPP
