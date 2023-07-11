@@ -94,8 +94,8 @@ runHotpointMission(boost::asio::steady_timer* timer,
     return false;
   }
   float angleIncrements = 360.0f / numStops;
-  timer->expires_after(
-    boost::asio::chrono::milliseconds((int)(angleIncrements * 1000 / yawRate)));
+  timer->expires_after(boost::asio::chrono::milliseconds(
+    (int)(angleIncrements * 1000 / yawRate) + 3000));
 
   timer->async_wait(boost::bind(pauseHotpointMission,
                                 boost::asio::placeholders::error,
@@ -161,7 +161,7 @@ takeOff(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
     }
     return false;
   }
-  sleep(15);
+  sleep(10);
   return true;
 }
 
