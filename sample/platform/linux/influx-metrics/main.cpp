@@ -1,5 +1,5 @@
 #include "influx-metrics.hpp"
-// #include "mission.hpp"
+#include "mission.hpp"
 #include <InfluxDBFactory.h>
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
@@ -12,6 +12,7 @@ using boost::asio::steady_timer;
 
 static boost::asio::io_context ctx;
 static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
+static steady_timer missionTimer(ctx, boost::asio::chrono::seconds(1));
 
 std::string
 getenvvar(const std::string& key);
@@ -37,29 +38,31 @@ main(int argc, char** argv)
     return -1;
   }
 
-  std::string influxUrl = getInfluxUrl();
+  // std::string influxUrl = getInfluxUrl();
 
-  auto db = influxdb::InfluxDBFactory::Get(influxUrl);
+  // auto db = influxdb::InfluxDBFactory::Get(influxUrl);
 
-  if (!db)
-  {
-    std::cout << "Could not connect to InfluxDB, exiting.\n";
-    return -1;
-  }
+  // if (!db)
+  // {
+  //   std::cout << "Could not connect to InfluxDB, exiting.\n";
+  //   return -1;
+  // }
 
-  bool status = influxMetrics::subscribeMetrics(vehicle, 1);
-  if (!status)
-  {
-    std::cout << "Could not subscribe to metrics, exiting.\n";
-    return -1;
-  }
+  // bool status = influxMetrics::subscribeMetrics(vehicle, 1);
+  // if (!status)
+  // {
+  //   std::cout << "Could not subscribe to metrics, exiting.\n";
+  //   return -1;
+  // }
 
-  std::cout << "Starting timer..." << std::endl;
-  metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-                                      boost::asio::placeholders::error,
-                                      &metricsTimer,
-                                      vehicle,
-                                      db.get()));
+  // std::cout << "Starting timer..." << std::endl;
+  // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
+  //                                     boost::asio::placeholders::error,
+  //                                     &metricsTimer,
+  //                                     vehicle,
+  //                                     db.get()));
+
+  mission::runHotpointMission(&missionTimer, vehicle, 10.0f, 15.0f, 4, 1, 1);
 
   std::cout << "Running context..." << std::endl;
   std::cout << "Press Ctrl+C to exit." << std::endl;
@@ -68,7 +71,7 @@ main(int argc, char** argv)
 
   std::cout << "Done!" << std::endl;
 
-  db.release();
+  // db.release();
   return 0;
 }
 
@@ -78,6 +81,7 @@ INThandler(int sig)
 {
   std::cout << "\nExiting..." << std::endl;
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
+  missionTimer.expires_after(boost::asio::chrono::milliseconds(100));
 }
 
 std::string
