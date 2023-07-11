@@ -62,6 +62,9 @@ main(int argc, char** argv)
   //                                     vehicle,
   //                                     db.get()));
 
+  // Obtain Control Authority
+  vehicle->control->obtainCtrlAuthority(1);
+
   mission::runHotpointMission(&missionTimer, vehicle, 10.0f, 15.0f, 4, 1, 1);
 
   std::cout << "Running context..." << std::endl;
