@@ -55,17 +55,17 @@ main(int argc, char** argv)
   //   return -1;
   // }
 
+  // Obtain Control Authority
+  vehicle->control->obtainCtrlAuthority(1);
+
+  mission::runHotpointMission(&missionTimer, vehicle, 10.0f, 3.0f, 4, 5, 1);
+
   // std::cout << "Starting timer..." << std::endl;
   // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
   //                                     boost::asio::placeholders::error,
   //                                     &metricsTimer,
   //                                     vehicle,
   //                                     db.get()));
-
-  // Obtain Control Authority
-  vehicle->control->obtainCtrlAuthority(1);
-
-  mission::runHotpointMission(&missionTimer, vehicle, 10.0f, 15.0f, 4, 1, 1);
 
   std::cout << "Running context..." << std::endl;
   std::cout << "Press Ctrl+C to exit." << std::endl;
