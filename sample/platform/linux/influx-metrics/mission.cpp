@@ -85,7 +85,7 @@ runHotpointMission(boost::asio::steady_timer* timer,
   // metrics no longer needed
   unsubscribe(vehicle, responseTimeout);
 
-  std::cout << "Starting hotpoint mission" << std::endl;
+  std::cout << "Starting hotpoint mission..." << std::endl;
   ACK::ErrorCode ack =
     vehicle->missionManager->hpMission->start(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
@@ -115,6 +115,7 @@ initHotpointMission(DJI::OSDK::Vehicle* vehicle,
                     float               altitude,
                     int                 responseTimeout)
 {
+  std::cout << "Initializing hotpoint mission..." << std::endl;
   if (!subscribe(vehicle, responseTimeout))
   {
     std::cout << "Failed to set up subscription!" << std::endl;
@@ -146,6 +147,7 @@ isInAir(DJI::OSDK::Vehicle* vehicle)
 bool
 takeOff(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 {
+  std::cout << "Taking off..." << std::endl;
   ACK::ErrorCode ack = vehicle->control->takeoff(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
@@ -178,6 +180,7 @@ pauseHotpointMission(const boost::system::error_code& ec,
     return true;
   }
 
+  std::cout << "Pausing hotpoint mission..." << std::endl;
   ACK::ErrorCode ack =
     vehicle->missionManager->hpMission->pause(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
@@ -209,6 +212,7 @@ resumeHotpointMission(const boost::system::error_code& ec,
                       int                              waitTime,
                       int                              responseTimeout)
 {
+  std::cout << "Resuming hotpoint mission..." << std::endl;
   if (ec == boost::asio::error::operation_aborted)
   {
     stopHotpointMission(vehicle, responseTimeout);
@@ -239,6 +243,7 @@ resumeHotpointMission(const boost::system::error_code& ec,
 bool
 stopHotpointMission(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 {
+  std::cout << "Stopping hotpoint mission..." << std::endl;
   ACK::ErrorCode ack =
     vehicle->missionManager->hpMission->stop(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
@@ -252,6 +257,7 @@ stopHotpointMission(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 bool
 subscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 {
+  std::cout << "Subscribing to topics..." << std::endl;
   ACK::ErrorCode status;
   status = vehicle->subscribe->verify(responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
@@ -286,6 +292,7 @@ subscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 bool
 unsubscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 {
+  std::cout << "Unsubscribing from topics..." << std::endl;
   ACK::ErrorCode status;
   status = vehicle->subscribe->removePackage(1, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
