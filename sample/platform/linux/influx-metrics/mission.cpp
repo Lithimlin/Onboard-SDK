@@ -186,7 +186,7 @@ pauseHotpointMission(const boost::system::error_code& ec,
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(ack, __func__);
-    return false;
+    // return false;
   }
 
   timer->expires_after(boost::asio::chrono::seconds(waitTime));
@@ -223,7 +223,7 @@ resumeHotpointMission(const boost::system::error_code& ec,
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(ack, __func__);
-    return false;
+    // return false;
   }
   float angleIncrements = 360.0f / numStops;
 
