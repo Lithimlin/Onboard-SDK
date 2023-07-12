@@ -261,20 +261,6 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
   }
 }
 
-void
-waypointEventCallback(Vehicle*      vehiclePtr,
-                      RecvContainer recvFrame,
-                      UserData      userData)
-{
-  DSTATUS("%s", __func__);
-  DSTATUS("Reached waypoint %d.\n",
-          recvFrame.recvData.wayPointReachedData.waypoint_index);
-  DSTATUS("Current status is %d.\n",
-          recvFrame.recvData.wayPointReachedData.current_status);
-  DSTATUS("Incident type is %d.\n",
-          recvFrame.recvData.wayPointReachedData.incident_type);
-}
-
 bool
 subscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
