@@ -98,7 +98,7 @@ runWaypointMission(boost::asio::steady_timer* timer,
   ACK::ErrorCode ack = vehiclePtr->missionManager->init(
     DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
 
-  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+  vehiclePtr->missionManager->wpMission->setWaypointCallback(
     &WaypointEventCallBack, vehiclePtr);
 
   if (ACK::getError(ack) != ACK::SUCCESS)
