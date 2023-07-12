@@ -13,6 +13,8 @@ namespace mission
 Telemetry::TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
 static bool                                          startPositionSetup = false;
 static const float RADIUS_OF_EARTH_IN_METERS = 6371000.0f; // meters
+static const float METERS_PER_DEGREE =
+  RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
 
 bool
 subscribe(Vehicle* vehicle, int responseTimeout);
@@ -247,9 +249,8 @@ newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle)
   copyWaypointSettings(&newWp, oldWp);
   float dx = cos(angle) * radius;
   float dy = sin(angle) * radius;
-  newWp.latitude += (dx / RADIUS_OF_EARTH_IN_METERS) * (180 / M_PI);
-  newWp.longitude += (dy / RADIUS_OF_EARTH_IN_METERS) * (180 / M_PI) /
-                     cos(newWp.latitude * M_PI / 180);
+  newWp.latitude += dx / METERS_PER_DEGREE;
+  newWp.longitude += dy / METERS_PER_DEGREE / cos(newWp.latitude * M_PI / 180);
   return newWp;
 }
 
