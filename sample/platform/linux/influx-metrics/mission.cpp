@@ -62,6 +62,9 @@ isInAir(Vehicle* vehicle);
 bool
 takeOff(Vehicle* vehicle, int responseTimeout);
 
+bool
+waitTakeoffFinished(Vehicle* vehicle);
+
 static void
 WaypointEventCallBack(Vehicle*      vehicle,
                       RecvContainer recvFrame,
@@ -280,21 +283,31 @@ bool
 takeOff(Vehicle* vehicle, int responseTimeout)
 {
   std::cout << "Taking off..." << std::endl;
-  ACK::ErrorCode ack = vehicle->control->takeoff(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
+  ErrorCode::ErrorCodeType err =
+    vehicle->flightController->startTakeoffSync(responseTimeout);
+  if (err != ErrorCode::SysCommonErr::Success)
   {
-    ACK::getErrorCodeMessage(ack, __func__);
-
-    if (ack.info.cmd_set == OpenProtocolCMD::CMDSet::control &&
-        ack.data == ErrorCode::CommonACK::START_MOTOR_FAIL_MOTOR_STARTED)
-    {
-      DSTATUS("Take off command sent failed. Please Land the drone and disarm "
-              "the motors first.\n");
-    }
+    ErrorCode::getErrorCodeMsg(err);
     return false;
   }
-  sleep(10);
-  return true;
+  return waitTakeoffFinished(vehicle);
+}
+
+bool
+waitTakeoffFinished(Vehicle* vehicle)
+{
+  TypeMap<TopicName::TOPIC_STATUS_DISPLAYMODE>::type displayMode =
+    vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
+  while (displayMode == VehicleStatus::DisplayMode::MODE_ASSISTED_TAKEOFF ||
+         displayMode == VehicleStatus::DisplayMode::MODE_AUTO_TAKEOFF)
+  {
+    sleep(1);
+    displayMode = vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
+  }
+  return (displayMode == VehicleStatus::DisplayMode::MODE_P_GPS ||
+          displayMode == VehicleStatus::DisplayMode::MODE_ATTITUDE)
+           ? true
+           : false;
 }
 
 void
@@ -325,7 +338,8 @@ subscribe(Vehicle* vehicle, int responseTimeout)
 
   int       freq            = 10;
   TopicName topicList[]     = { TopicName::TOPIC_GPS_FUSED,
-                                TopicName::TOPIC_STATUS_FLIGHT };
+                                TopicName::TOPIC_STATUS_FLIGHT,
+                                TopicName::TOPIC_STATUS_DISPLAYMODE };
   int       numTopics       = sizeof(topicList) / sizeof(topicList[0]);
   bool      enableTimestamp = false;
 
