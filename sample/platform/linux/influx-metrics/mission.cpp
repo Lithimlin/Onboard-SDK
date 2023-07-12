@@ -261,7 +261,7 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
   }
 }
 
-void
+static void
 waypointEventCallback(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData)
