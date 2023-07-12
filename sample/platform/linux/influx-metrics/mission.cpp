@@ -128,8 +128,7 @@ runWaypointMission(boost::asio::steady_timer* timer,
   unsubscribe(vehicle, responseTimeout);
 
   std::cout << "Starting waypoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehicle->missionManager->wpMission->start(responseTimeout);
+  ack = vehicle->missionManager->wpMission->start(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(ack, __func__);
