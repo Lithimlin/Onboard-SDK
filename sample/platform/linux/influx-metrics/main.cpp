@@ -23,11 +23,6 @@ getInfluxUrl();
 void
 INThandler(int sig);
 
-void
-waypointEventCallback(Vehicle*      vehiclePtr,
-                      RecvContainer recvFrame,
-                      UserData      userData);
-
 // main
 int
 main(int argc, char** argv)
