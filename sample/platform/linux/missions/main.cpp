@@ -35,6 +35,11 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
+void
+missionEventCallback(Vehicle*      vehicle,
+                     RecvContainer recvFrame,
+                     UserData      userData);
+
 int
 main(int argc, char** argv)
 {
@@ -76,6 +81,12 @@ main(int argc, char** argv)
       // Waypoint call
       wayptPolygonSides = 6;
       runWaypointMission(vehicle, wayptPolygonSides, responseTimeout);
+
+      vehicle->missionManager->wpMission->setWaypointEventCallback(
+        missionEventCallback, 0);
+      while (true)
+      {
+      }
       break;
     case 'b':
       hotptInitRadius = 10;
@@ -86,4 +97,16 @@ main(int argc, char** argv)
   }
 
   return 0;
+}
+
+void
+missionEventCallback(Vehicle*      vehicle,
+                     RecvContainer recvFrame,
+                     UserData      userData)
+{
+  DSTATUS("WP Event Callback, \tincident_type:%d \twaypoint_index:%d "
+          "\tcurrent_status:%d \n",
+          recvFrame.recvData.wayPointReachedData.incident_type,
+          recvFrame.recvData.wayPointReachedData.waypoint_index,
+          recvFrame.recvData.wayPointReachedData.current_status);
 }
