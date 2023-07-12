@@ -210,6 +210,7 @@ createWaypoints(Vehicle* vehiclePtr,
   centerPoint.longitude           = gpsPosition.longitude;
   centerPoint.latitude            = gpsPosition.latitude;
   centerPoint.altitude            = altitude;
+  centerPoint.hasAction           = 1;
   centerPoint.actionNumber        = 1;
   centerPoint.actionRepeat        = 0;
   centerPoint.commandList[0]      = WP_ACTION_STAY;
