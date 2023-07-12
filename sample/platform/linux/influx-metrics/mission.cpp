@@ -249,8 +249,9 @@ newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle)
   copyWaypointSettings(&newWp, oldWp);
   float dx = cos(angle * M_PI / 180) * radius;
   float dy = sin(angle * M_PI / 180) * radius;
-  newWp.latitude += dx / METERS_PER_DEGREE;
-  newWp.longitude += dy / METERS_PER_DEGREE / cos(newWp.latitude * M_PI / 180);
+  newWp.latitude += dx / METERS_PER_DEGREE / 100;
+  newWp.longitude +=
+    dy / METERS_PER_DEGREE / 100 / cos(newWp.latitude * M_PI / 180);
   return newWp;
 }
 
