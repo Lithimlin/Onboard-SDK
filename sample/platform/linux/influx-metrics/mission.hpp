@@ -32,6 +32,11 @@ runWaypointMission(boost::asio::steady_timer* timer,
                    int                        numStops,
                    int                        waitTime,
                    int                        responseTimeout);
+
+void
+waypointEventCallback(Vehicle*      vehiclePtr,
+                      RecvContainer recvFrame,
+                      UserData      userData);
 }
 
 #endif // DJIOSDK_INFLUX_METRICS_MISSION_HPP

@@ -59,6 +59,8 @@ main(int argc, char** argv)
   vehicle->flightController->obtainJoystickCtrlAuthoritySync(1);
 
   mission::runWaypointMission(&missionTimer, vehicle, 10.0f, 5.0f, 4, 5, 1);
+  vehicle->missionManager->wpMission->setWaypointEventCallback(
+    &mission::waypointEventCallback, vehicle);
 
   // std::cout << "Starting timer..." << std::endl;
   // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,

@@ -58,10 +58,10 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
                 std::vector<WayPointSettings>& waypoints,
                 int                            responseTimeout);
 
-static void
-WaypointEventCallBack(Vehicle*      vehiclePtr,
-                      RecvContainer recvFrame,
-                      UserData      userData);
+// static void
+// waypointEventCallback(Vehicle*      vehiclePtr,
+//                       RecvContainer recvFrame,
+//                       UserData      userData);
 
 /**********************************************************************/
 
@@ -98,8 +98,8 @@ runWaypointMission(boost::asio::steady_timer* timer,
   ACK::ErrorCode ack = vehiclePtr->missionManager->init(
     DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
 
-  vehiclePtr->missionManager->wpMission->setWaypointCallback(
-    &WaypointEventCallBack, vehiclePtr);
+  // vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+  //   &waypointEventCallback, vehiclePtr);
 
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
@@ -261,8 +261,8 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
   }
 }
 
-void
-WaypointEventCallBack(Vehicle*      vehiclePtr,
+static void
+waypointEventCallback(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData)
 {
