@@ -27,7 +27,7 @@ INThandler(int sig);
 int
 main(int argc, char** argv)
 {
-  signal(SIGINT, INThandler);
+  // signal(SIGINT, INThandler);
 
   // Setup OSDK.
   LinuxSetup linuxEnvironment(argc, argv);
