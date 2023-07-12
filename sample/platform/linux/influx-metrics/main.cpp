@@ -60,7 +60,7 @@ main(int argc, char** argv)
 
   mission::runWaypointMission(&missionTimer, vehicle, 10.0f, 5.0f, 4, 5, 1);
   vehicle->missionManager->wpMission->setWaypointEventCallback(
-    &waypointEventCallback, vehicle);
+    &mission::waypointEventCallback, vehicle);
 
   // std::cout << "Starting timer..." << std::endl;
   // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
@@ -91,20 +91,6 @@ INThandler(int sig)
   std::cout << "\nExiting..." << std::endl;
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
   missionTimer.expires_after(boost::asio::chrono::milliseconds(100));
-}
-
-void
-waypointEventCallback(Vehicle*      vehiclePtr,
-                      RecvContainer recvFrame,
-                      UserData      userData)
-{
-  DSTATUS("%s", __func__);
-  DSTATUS("Reached waypoint %d.\n",
-          recvFrame.recvData.wayPointReachedData.waypoint_index);
-  DSTATUS("Current status is %d.\n",
-          recvFrame.recvData.wayPointReachedData.current_status);
-  DSTATUS("Incident type is %d.\n",
-          recvFrame.recvData.wayPointReachedData.incident_type);
 }
 
 std::string
