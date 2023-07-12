@@ -1,6 +1,6 @@
 #include "mission.hpp"
-#include <boost/asio.hpp>
-#include <boost/bind/bind.hpp>
+// #include <boost/asio.hpp>
+// #include <boost/bind/bind.hpp>
 #include <dji_telemetry.hpp>
 #include <stdlib.h>
 
@@ -12,110 +12,77 @@ namespace mission
 
 Telemetry::TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
 static bool                                          startPositionSetup = false;
-static const float                                   yawRate = 15.0f; // deg/sec
+static const float RADIUS_OF_EARTH_IN_METERS = 6371000.0f; // meters
 
 bool
-subscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout);
+subscribe(Vehicle* vehicle, int responseTimeout);
 bool
-unsubscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout);
+unsubscribe(Vehicle* vehicle, int responseTimeout);
+
+void
+setWaypointDefaults(WayPointSettings* wp);
+
+void
+copyWaypointSettings(WayPointSettings* dst, const WayPointSettings* src);
+
+void
+setWaypointInitDefaults(WayPointInitSettings* fdata);
+
+std::vector<WayPointSettings>
+createWaypoints(Vehicle* vehicle,
+                float    radius,
+                float    altitude,
+                int      numWaypoints,
+                int      waitTime);
+
+std::vector<WayPointSettings>
+generateWaypoints(WayPointSettings* centerPoint,
+                  float             radius,
+                  int               numWaypoints);
+
+/**
+ * @brief This function is used to generate a new waypoint that is displaced
+ * from another waypoint by a radius and angle.
+ * @param oldWp Pointer to the old waypoint to take as a base
+ * @param radius The radius of the displacement in meters
+ * @param angle The angle of the displacement in degrees
+ * @return A new waypoint struct containing the displacement
+ */
+WayPointSettings
+newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle);
+
+void
+uploadWaypoints(Vehicle*                       vehicle,
+                std::vector<WayPointSettings>& waypoints,
+                int                            responseTimeout);
 
 bool
-initHotpointMission(DJI::OSDK::Vehicle* vehicle,
-                    float               radius,
-                    float               altitude,
-                    int                 responseTimeout);
+isInAir(Vehicle* vehicle);
 
 bool
-isInAir(DJI::OSDK::Vehicle* vehicle);
+takeOff(Vehicle* vehicle, int responseTimeout);
+
+static void
+WaypointEventCallBack(Vehicle*      vehicle,
+                      RecvContainer recvFrame,
+                      UserData      userData);
 
 bool
-takeOff(DJI::OSDK::Vehicle* vehicle, int responseTimeout);
-
-bool
-pauseHotpointMission(const boost::system::error_code& ec,
-                     boost::asio::steady_timer*       timer,
-                     DJI::OSDK::Vehicle*              vehicle,
-                     int                              stopIndex,
-                     int                              numStops,
-                     int                              waitTime,
-                     int                              responseTimeout);
-
-bool
-resumeHotpointMission(const boost::system::error_code& ec,
-                      boost::asio::steady_timer*       timer,
-                      DJI::OSDK::Vehicle*              vehicle,
-                      int                              stopIndex,
-                      int                              numStops,
-                      int                              waitTime,
-                      int                              responseTimeout);
-
-bool
-stopHotpointMission(DJI::OSDK::Vehicle* vehicle, int responseTimeout);
-
-bool
-runHotpointMission(boost::asio::steady_timer* timer,
-                   DJI::OSDK::Vehicle*        vehicle,
-                   float                      radius,   // in meters
-                   float                      altitude, // in meters
-                   int                        numStops, // in a full circle
-                   int                        waitTime, // in seconds
+runWaypointMission(boost::asio::steady_timer* timer,
+                   Vehicle*                   vehicle,
+                   float                      radius,
+                   float                      altitude,
+                   int                        numStops,
+                   int                        waitTime,
                    int                        responseTimeout)
 {
   if (!vehicle->isM210V2() && !vehicle->isM300())
   {
-    std::cout << "This hotpoint mission is only supported "
+    std::cout << "This waypoint mission is only supported "
               << "on M210V2 and M300." << std::endl;
     return false;
   }
-  // init mission
-  bool status = initHotpointMission(vehicle, radius, altitude, responseTimeout);
-  if (!status)
-  {
-    return false;
-  }
-  // Optional takeoff
-  if (!isInAir(vehicle))
-  {
-    status = takeOff(vehicle, responseTimeout);
-    if (!status)
-    {
-      return false;
-    }
-  }
-  // metrics no longer needed
-  unsubscribe(vehicle, responseTimeout);
 
-  std::cout << "Starting hotpoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehicle->missionManager->hpMission->start(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    return false;
-  }
-  float angleIncrements = 360.0f / numStops;
-  timer->expires_after(boost::asio::chrono::milliseconds(
-    (int)(angleIncrements * 1000 / yawRate) + 3000));
-
-  timer->async_wait(boost::bind(pauseHotpointMission,
-                                boost::asio::placeholders::error,
-                                timer,
-                                vehicle,
-                                0,
-                                numStops,
-                                waitTime,
-                                responseTimeout));
-
-  return true;
-}
-
-bool
-initHotpointMission(DJI::OSDK::Vehicle* vehicle,
-                    float               radius,
-                    float               altitude,
-                    int                 responseTimeout)
-{
-  std::cout << "Initializing hotpoint mission..." << std::endl;
   if (!subscribe(vehicle, responseTimeout))
   {
     std::cout << "Failed to set up subscription!" << std::endl;
@@ -123,29 +90,195 @@ initHotpointMission(DJI::OSDK::Vehicle* vehicle,
   }
   sleep(1);
 
-  vehicle->missionManager->init(
-    DJI_MISSION_TYPE::HOTPOINT, responseTimeout, NULL);
+  // init mission
+  std::cout << "Initializing waypoint mission..." << std::endl;
+  WayPointInitSettings fdata;
+  setWaypointInitDefaults(&fdata);
+
+  fdata.indexNumber = numStops;
+
+  ACK::ErrorCode ack = vehicle->missionManager->init(
+    DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
+
+  vehicle->missionManager->wpMission->setWaypointEventCallback(
+    &WaypointEventCallBack, vehicle);
+
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+  }
   vehicle->missionManager->printInfo();
 
-  gpsPosition = vehicle->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
-  vehicle->missionManager->hpMission->setHotPoint(
-    gpsPosition.longitude, gpsPosition.latitude, altitude);
+  std::vector<WayPointSettings> waypoints =
+    createWaypoints(vehicle, radius, altitude, numStops, waitTime);
 
-  vehicle->missionManager->hpMission->setRadius(radius);
-  vehicle->missionManager->hpMission->setYawRate(yawRate);
-  vehicle->missionManager->hpMission->setClockwise(false);
+  uploadWaypoints(vehicle, waypoints, responseTimeout);
+
+  // // Optional takeoff
+  // if (!isInAir(vehicle))
+  // {
+  //   bool status = takeOff(vehicle, responseTimeout);
+  //   if (!status)
+  //   {
+  //     return false;
+  //   }
+  // }
+
+  // metrics no longer needed
+  unsubscribe(vehicle, responseTimeout);
+
+  std::cout << "Starting waypoint mission..." << std::endl;
+  ACK::ErrorCode ack =
+    vehicle->missionManager->wpMission->start(responseTimeout);
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+    return false;
+  }
 
   return true;
 }
 
+void
+setWaypointDefaults(WayPointSettings* wp)
+{
+  wp->damping         = 0;
+  wp->yaw             = 0;
+  wp->gimbalPitch     = 0;
+  wp->turnMode        = 0;
+  wp->hasAction       = 0;
+  wp->actionTimeLimit = 100;
+  wp->actionNumber    = 0;
+  wp->actionRepeat    = 0;
+  memset(wp->commandList, WP_ACTION_STAY, sizeof(wp->commandList));
+  memset(wp->commandParameter, 0, sizeof(wp->commandParameter));
+}
+
+void
+copyWaypointSettings(WayPointSettings* dst, const WayPointSettings* src)
+{
+  dst->longitude       = src->longitude;
+  dst->latitude        = src->latitude;
+  dst->altitude        = src->altitude;
+  dst->damping         = src->damping;
+  dst->yaw             = src->yaw;
+  dst->gimbalPitch     = src->gimbalPitch;
+  dst->turnMode        = src->turnMode;
+  dst->hasAction       = src->hasAction;
+  dst->actionTimeLimit = src->actionTimeLimit;
+  dst->actionNumber    = src->actionNumber;
+  dst->actionRepeat    = src->actionRepeat;
+  memcpy(dst->commandList, src->commandList, sizeof(src->commandList));
+  memcpy(dst->commandParameter,
+         src->commandParameter,
+         sizeof(src->commandParameter));
+}
+
+void
+setWaypointInitDefaults(WayPointInitSettings* fdata)
+{
+  fdata->maxVelocity    = 10;
+  fdata->idleVelocity   = 5;
+  fdata->finishAction   = 0;
+  fdata->executiveTimes = 1;
+  fdata->yawMode        = 0;
+  fdata->traceMode      = 0;
+  fdata->RCLostAction   = 1;
+  fdata->gimbalPitch    = 0;
+  fdata->latitude       = 0;
+  fdata->longitude      = 0;
+  fdata->altitude       = 0;
+}
+
+std::vector<WayPointSettings>
+createWaypoints(Vehicle* vehicle,
+                float    radius,
+                float    altitude,
+                int      numWaypoints,
+                int      waitTime)
+{
+  std::cout << "Creating waypoints..." << std::endl;
+  WayPointSettings centerPoint;
+  setWaypointDefaults(&centerPoint);
+
+  Telemetry::TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
+  gpsPosition = vehicle->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+  centerPoint.longitude           = gpsPosition.longitude;
+  centerPoint.latitude            = gpsPosition.latitude;
+  centerPoint.altitude            = altitude;
+  centerPoint.actionNumber        = 1;
+  centerPoint.actionRepeat        = 0;
+  centerPoint.commandList[0]      = WP_ACTION_STAY;
+  centerPoint.commandParameter[0] = waitTime * 1000;
+  printf("Creating %d waypoints around center (LLA): %f\t%f\t%f\n",
+         numWaypoints,
+         centerPoint.longitude,
+         centerPoint.latitude,
+         centerPoint.altitude);
+
+  return generateWaypoints(&centerPoint, radius, numWaypoints);
+}
+
+std::vector<WayPointSettings>
+generateWaypoints(WayPointSettings* centerPoint, float radius, int numWaypoints)
+{
+  std::cout << "Generating waypoints..." << std::endl;
+  std::vector<WayPointSettings> waypoints;
+  waypoints.reserve(numWaypoints);
+
+  for (int i = 0; i < numWaypoints; i++)
+  {
+    WayPointSettings wp =
+      newDisplacedWaypoint(centerPoint, radius, 360.0f / numWaypoints * i);
+    wp.index = i;
+
+    waypoints.push_back(wp);
+  }
+
+  return waypoints;
+}
+
+WayPointSettings
+newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle)
+{
+  WayPointSettings newWp;
+  copyWaypointSettings(&newWp, oldWp);
+  float dx = cos(angle) * radius;
+  float dy = sin(angle) * radius;
+  newWp.latitude += (dx / RADIUS_OF_EARTH_IN_METERS) * (180 / M_PI);
+  newWp.longitude += (dy / RADIUS_OF_EARTH_IN_METERS) * (180 / M_PI) /
+                     cos(newWp.latitude * M_PI / 180);
+  return newWp;
+}
+
+void
+uploadWaypoints(Vehicle*                       vehicle,
+                std::vector<WayPointSettings>& waypoints,
+                int                            responseTimeout)
+{
+  std::cout << "Uploading waypoints..." << std::endl;
+  for (auto waypoint : waypoints)
+  {
+    printf("Uploading waypoint %d at (LLA): %f\t%f\t%f\n",
+           waypoint.index,
+           waypoint.longitude,
+           waypoint.latitude,
+           waypoint.altitude);
+    ACK::WayPointIndex wpIndexACK =
+      vehicle->missionManager->wpMission->uploadIndexData(&waypoint,
+                                                          responseTimeout);
+    ACK::getErrorCodeMessage(wpIndexACK.ack, __func__);
+  }
+}
+
 bool
-isInAir(DJI::OSDK::Vehicle* vehicle)
+isInAir(Vehicle* vehicle)
 {
   return vehicle->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>() == 2;
 }
 
 bool
-takeOff(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
+takeOff(Vehicle* vehicle, int responseTimeout)
 {
   std::cout << "Taking off..." << std::endl;
   ACK::ErrorCode ack = vehicle->control->takeoff(responseTimeout);
@@ -165,97 +298,22 @@ takeOff(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
   return true;
 }
 
-bool
-pauseHotpointMission(const boost::system::error_code& ec,
-                     boost::asio::steady_timer*       timer,
-                     DJI::OSDK::Vehicle*              vehicle,
-                     int                              stopIndex,
-                     int                              numStops,
-                     int                              waitTime,
-                     int                              responseTimeout)
+void
+WaypointEventCallBack(Vehicle*      vehicle,
+                      RecvContainer recvFrame,
+                      UserData      userData)
 {
-  if (++stopIndex == numStops || ec == boost::asio::error::operation_aborted)
-  {
-    stopHotpointMission(vehicle, responseTimeout);
-    return true;
-  }
-
-  std::cout << "Pausing hotpoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehicle->missionManager->hpMission->pause(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    // return false;
-  }
-
-  timer->expires_after(boost::asio::chrono::seconds(waitTime));
-  timer->async_wait(boost::bind(resumeHotpointMission,
-                                boost::asio::placeholders::error,
-                                timer,
-                                vehicle,
-                                stopIndex,
-                                numStops,
-                                waitTime,
-                                responseTimeout));
-  return true;
-}
-// target: 4
-// start (0), pause (0->1), resume (1), pause (1->2), resume (2), pause (2->2),
-// resume (3), pause (3->4)
-bool
-resumeHotpointMission(const boost::system::error_code& ec,
-                      boost::asio::steady_timer*       timer,
-                      DJI::OSDK::Vehicle*              vehicle,
-                      int                              stopIndex,
-                      int                              numStops,
-                      int                              waitTime,
-                      int                              responseTimeout)
-{
-  std::cout << "Resuming hotpoint mission..." << std::endl;
-  if (ec == boost::asio::error::operation_aborted)
-  {
-    stopHotpointMission(vehicle, responseTimeout);
-    return true;
-  }
-  ACK::ErrorCode ack =
-    vehicle->missionManager->hpMission->resume(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    // return false;
-  }
-  float angleIncrements = 360.0f / numStops;
-
-  timer->expires_after(
-    boost::asio::chrono::milliseconds((int)(angleIncrements * 1000 / yawRate)));
-  timer->async_wait(boost::bind(pauseHotpointMission,
-                                boost::asio::placeholders::error,
-                                timer,
-                                vehicle,
-                                stopIndex,
-                                numStops,
-                                waitTime,
-                                responseTimeout));
-  return true;
+  DSTATUS("%s", __func__);
+  DSTATUS("Reached waypoint %d.\n",
+          recvFrame.recvData.wayPointReachedData.waypoint_index);
+  DSTATUS("Current status is %d.\n",
+          recvFrame.recvData.wayPointReachedData.current_status);
+  DSTATUS("Incident type is %d.\n",
+          recvFrame.recvData.wayPointReachedData.incident_type);
 }
 
 bool
-stopHotpointMission(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
-{
-  std::cout << "Stopping hotpoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehicle->missionManager->hpMission->stop(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    return false;
-  }
-  return true;
-}
-
-bool
-subscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
+subscribe(Vehicle* vehicle, int responseTimeout)
 {
   std::cout << "Subscribing to topics..." << std::endl;
   ACK::ErrorCode status;
@@ -290,7 +348,7 @@ subscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 }
 
 bool
-unsubscribe(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
+unsubscribe(Vehicle* vehicle, int responseTimeout)
 {
   std::cout << "Unsubscribing from topics..." << std::endl;
   ACK::ErrorCode status;

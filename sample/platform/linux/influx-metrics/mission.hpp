@@ -13,8 +13,19 @@
 
 namespace mission
 {
+/**
+ * @brief Run a new waypoint mission.
+ * @param timer           currently unused
+ * @param vehicle         Pointer to the vehicle
+ * @param radius          The radius of the waypoints in meters
+ * @param altitude        The altitude of the mission in meters
+ * @param numStops        The number of waypoints in the mission
+ * @param waitTime        The time to wait between waypoints in seconds
+ * @param responseTimeout The response timeout in seconds
+ * @return true if the mission was successfully started, false otherwise
+ */
 bool
-runHotpointMission(boost::asio::steady_timer* timer,
+runWaypointMission(boost::asio::steady_timer* timer,
                    DJI::OSDK::Vehicle*        vehiclePtr,
                    float                      radius,
                    float                      altitude,

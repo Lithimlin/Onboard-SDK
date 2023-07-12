@@ -58,7 +58,7 @@ main(int argc, char** argv)
   // Obtain Control Authority
   vehicle->control->obtainCtrlAuthority(1);
 
-  mission::runHotpointMission(&missionTimer, vehicle, 10.0f, 5.0f, 4, 5, 1);
+  mission::runWaypointMission(&missionTimer, vehicle, 10.0f, 5.0f, 4, 5, 1);
 
   // std::cout << "Starting timer..." << std::endl;
   // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
