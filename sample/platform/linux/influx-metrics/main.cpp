@@ -67,10 +67,14 @@ main(int argc, char** argv)
   //                                     vehicle,
   //                                     db.get()));
 
-  std::cout << "Running context..." << std::endl;
+  // std::cout << "Running context..." << std::endl;
   std::cout << "Press Ctrl+C to exit." << std::endl;
 
-  ctx.run();
+  // ctx.run();
+  while (true)
+  {
+    OsdkOsal_TaskSleepMs(1000);
+  }
 
   std::cout << "Done!" << std::endl;
 
