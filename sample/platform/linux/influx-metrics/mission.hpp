@@ -16,7 +16,7 @@ namespace mission
 /**
  * @brief Run a new waypoint mission.
  * @param timer           currently unused
- * @param vehicle         Pointer to the vehicle
+ * @param vehiclePtr      Pointer to the vehicle
  * @param radius          The radius of the waypoints in meters
  * @param altitude        The altitude of the mission in meters
  * @param numStops        The number of waypoints in the mission

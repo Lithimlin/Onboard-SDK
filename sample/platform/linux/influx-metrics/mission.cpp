@@ -17,9 +17,9 @@ static const float METERS_PER_DEGREE =
   RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
 
 bool
-subscribe(Vehicle* vehicle, int responseTimeout);
+subscribe(Vehicle* vehiclePtr, int responseTimeout);
 bool
-unsubscribe(Vehicle* vehicle, int responseTimeout);
+unsubscribe(Vehicle* vehiclePtr, int responseTimeout);
 
 void
 setWaypointDefaults(WayPointSettings* wp);
@@ -31,7 +31,7 @@ void
 setWaypointInitDefaults(WayPointInitSettings* fdata);
 
 std::vector<WayPointSettings>
-createWaypoints(Vehicle* vehicle,
+createWaypoints(Vehicle* vehiclePtr,
                 float    radius,
                 float    altitude,
                 int      numWaypoints,
@@ -54,41 +54,41 @@ WayPointSettings
 newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle);
 
 void
-uploadWaypoints(Vehicle*                       vehicle,
+uploadWaypoints(Vehicle*                       vehiclePtr,
                 std::vector<WayPointSettings>& waypoints,
                 int                            responseTimeout);
 
 bool
-isInAir(Vehicle* vehicle);
+isInAir(Vehicle* vehiclePtr);
 
 bool
-takeOff(Vehicle* vehicle, int responseTimeout);
+takeOff(Vehicle* vehiclePtr, int responseTimeout);
 
 bool
-waitTakeoffFinished(Vehicle* vehicle);
+waitTakeoffFinished(Vehicle* vehiclePtr);
 
 static void
-WaypointEventCallBack(Vehicle*      vehicle,
+WaypointEventCallBack(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData);
 
 bool
 runWaypointMission(boost::asio::steady_timer* timer,
-                   Vehicle*                   vehicle,
+                   Vehicle*                   vehiclePtr,
                    float                      radius,
                    float                      altitude,
                    int                        numStops,
                    int                        waitTime,
                    int                        responseTimeout)
 {
-  if (!vehicle->isM210V2() && !vehicle->isM300())
+  if (!vehiclePtr->isM210V2() && !vehiclePtr->isM300())
   {
     std::cout << "This waypoint mission is only supported "
               << "on M210V2 and M300." << std::endl;
     return false;
   }
 
-  if (!subscribe(vehicle, responseTimeout))
+  if (!subscribe(vehiclePtr, responseTimeout))
   {
     std::cout << "Failed to set up subscription!" << std::endl;
     return false;
@@ -102,27 +102,27 @@ runWaypointMission(boost::asio::steady_timer* timer,
 
   fdata.indexNumber = numStops;
 
-  ACK::ErrorCode ack = vehicle->missionManager->init(
+  ACK::ErrorCode ack = vehiclePtr->missionManager->init(
     DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
 
-  vehicle->missionManager->wpMission->setWaypointEventCallback(
-    &WaypointEventCallBack, vehicle);
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    &WaypointEventCallBack, vehiclePtr);
 
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(ack, __func__);
   }
-  vehicle->missionManager->printInfo();
+  vehiclePtr->missionManager->printInfo();
 
   std::vector<WayPointSettings> waypoints =
-    createWaypoints(vehicle, radius, altitude, numStops, waitTime);
+    createWaypoints(vehiclePtr, radius, altitude, numStops, waitTime);
 
-  uploadWaypoints(vehicle, waypoints, responseTimeout);
+  uploadWaypoints(vehiclePtr, waypoints, responseTimeout);
 
   // // Optional takeoff
-  // if (!isInAir(vehicle))
+  // if (!isInAir(vehiclePtr))
   // {
-  //   bool status = takeOff(vehicle, responseTimeout);
+  //   bool status = takeOff(vehiclePtr, responseTimeout);
   //   if (!status)
   //   {
   //     return false;
@@ -130,10 +130,10 @@ runWaypointMission(boost::asio::steady_timer* timer,
   // }
 
   // metrics no longer needed
-  unsubscribe(vehicle, responseTimeout);
+  unsubscribe(vehiclePtr, responseTimeout);
 
   std::cout << "Starting waypoint mission..." << std::endl;
-  ack = vehicle->missionManager->wpMission->start(responseTimeout);
+  ack = vehiclePtr->missionManager->wpMission->start(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(ack, __func__);
@@ -195,7 +195,7 @@ setWaypointInitDefaults(WayPointInitSettings* fdata)
 }
 
 std::vector<WayPointSettings>
-createWaypoints(Vehicle* vehicle,
+createWaypoints(Vehicle* vehiclePtr,
                 float    radius,
                 float    altitude,
                 int      numWaypoints,
@@ -206,7 +206,7 @@ createWaypoints(Vehicle* vehicle,
   setWaypointDefaults(&centerPoint);
 
   Telemetry::TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
-  gpsPosition = vehicle->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+  gpsPosition = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
   centerPoint.longitude           = gpsPosition.longitude;
   centerPoint.latitude            = gpsPosition.latitude;
   centerPoint.altitude            = altitude;
@@ -255,7 +255,7 @@ newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle)
 }
 
 void
-uploadWaypoints(Vehicle*                       vehicle,
+uploadWaypoints(Vehicle*                       vehiclePtr,
                 std::vector<WayPointSettings>& waypoints,
                 int                            responseTimeout)
 {
@@ -268,42 +268,42 @@ uploadWaypoints(Vehicle*                       vehicle,
            waypoint.latitude,
            waypoint.altitude);
     ACK::WayPointIndex wpIndexACK =
-      vehicle->missionManager->wpMission->uploadIndexData(&waypoint,
-                                                          responseTimeout);
+      vehiclePtr->missionManager->wpMission->uploadIndexData(&waypoint,
+                                                             responseTimeout);
     ACK::getErrorCodeMessage(wpIndexACK.ack, __func__);
   }
 }
 
 bool
-isInAir(Vehicle* vehicle)
+isInAir(Vehicle* vehiclePtr)
 {
-  return vehicle->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>() == 2;
+  return vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>() == 2;
 }
 
 bool
-takeOff(Vehicle* vehicle, int responseTimeout)
+takeOff(Vehicle* vehiclePtr, int responseTimeout)
 {
   std::cout << "Taking off..." << std::endl;
   ErrorCode::ErrorCodeType err =
-    vehicle->flightController->startTakeoffSync(responseTimeout);
+    vehiclePtr->flightController->startTakeoffSync(responseTimeout);
   if (err != ErrorCode::SysCommonErr::Success)
   {
     ErrorCode::getErrorCodeMsg(err);
     return false;
   }
-  return waitTakeoffFinished(vehicle);
+  return waitTakeoffFinished(vehiclePtr);
 }
 
 bool
-waitTakeoffFinished(Vehicle* vehicle)
+waitTakeoffFinished(Vehicle* vehiclePtr)
 {
   TypeMap<TopicName::TOPIC_STATUS_DISPLAYMODE>::type displayMode =
-    vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
+    vehiclePtr->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
   while (displayMode == VehicleStatus::DisplayMode::MODE_ASSISTED_TAKEOFF ||
          displayMode == VehicleStatus::DisplayMode::MODE_AUTO_TAKEOFF)
   {
     sleep(1);
-    displayMode = vehicle->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
+    displayMode = vehiclePtr->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
   }
   return (displayMode == VehicleStatus::DisplayMode::MODE_P_GPS ||
           displayMode == VehicleStatus::DisplayMode::MODE_ATTITUDE)
@@ -312,7 +312,7 @@ waitTakeoffFinished(Vehicle* vehicle)
 }
 
 void
-WaypointEventCallBack(Vehicle*      vehicle,
+WaypointEventCallBack(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData)
 {
@@ -326,11 +326,11 @@ WaypointEventCallBack(Vehicle*      vehicle,
 }
 
 bool
-subscribe(Vehicle* vehicle, int responseTimeout)
+subscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
   std::cout << "Subscribing to topics..." << std::endl;
   ACK::ErrorCode status;
-  status = vehicle->subscribe->verify(responseTimeout);
+  status = vehiclePtr->subscribe->verify(responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(status, __func__);
@@ -344,29 +344,29 @@ subscribe(Vehicle* vehicle, int responseTimeout)
   int       numTopics       = sizeof(topicList) / sizeof(topicList[0]);
   bool      enableTimestamp = false;
 
-  bool pkgStatus = vehicle->subscribe->initPackageFromTopicList(
+  bool pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
     1, numTopics, topicList, enableTimestamp, freq);
   if (!pkgStatus)
   {
     return false;
   }
 
-  status = vehicle->subscribe->startPackage(1, responseTimeout);
+  status = vehiclePtr->subscribe->startPackage(1, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(status, __func__);
-    unsubscribe(vehicle, responseTimeout);
+    unsubscribe(vehiclePtr, responseTimeout);
     return false;
   }
   return true;
 }
 
 bool
-unsubscribe(Vehicle* vehicle, int responseTimeout)
+unsubscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
   std::cout << "Unsubscribing from topics..." << std::endl;
   ACK::ErrorCode status;
-  status = vehicle->subscribe->removePackage(1, responseTimeout);
+  status = vehiclePtr->subscribe->removePackage(1, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     std::cout << "Error unsubscribing; please restart the drone/FC to get "
