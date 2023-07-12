@@ -58,19 +58,12 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
                 std::vector<WayPointSettings>& waypoints,
                 int                            responseTimeout);
 
-bool
-isInAir(Vehicle* vehiclePtr);
-
-bool
-takeOff(Vehicle* vehiclePtr, int responseTimeout);
-
-bool
-waitTakeoffFinished(Vehicle* vehiclePtr);
-
 static void
 WaypointEventCallBack(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData);
+
+/**********************************************************************/
 
 bool
 runWaypointMission(boost::asio::steady_timer* timer,
@@ -119,16 +112,6 @@ runWaypointMission(boost::asio::steady_timer* timer,
 
   uploadWaypoints(vehiclePtr, waypoints, responseTimeout);
 
-  // // Optional takeoff
-  // if (!isInAir(vehiclePtr))
-  // {
-  //   bool status = takeOff(vehiclePtr, responseTimeout);
-  //   if (!status)
-  //   {
-  //     return false;
-  //   }
-  // }
-
   // metrics no longer needed
   unsubscribe(vehiclePtr, responseTimeout);
 
@@ -142,6 +125,8 @@ runWaypointMission(boost::asio::steady_timer* timer,
 
   return true;
 }
+
+/*****************************************************************************/
 
 void
 setWaypointDefaults(WayPointSettings* wp)
@@ -274,43 +259,6 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
                                                              responseTimeout);
     ACK::getErrorCodeMessage(wpIndexACK.ack, __func__);
   }
-}
-
-bool
-isInAir(Vehicle* vehiclePtr)
-{
-  return vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>() == 2;
-}
-
-bool
-takeOff(Vehicle* vehiclePtr, int responseTimeout)
-{
-  std::cout << "Taking off..." << std::endl;
-  ErrorCode::ErrorCodeType err =
-    vehiclePtr->flightController->startTakeoffSync(responseTimeout);
-  if (err != ErrorCode::SysCommonErr::Success)
-  {
-    ErrorCode::getErrorCodeMsg(err);
-    return false;
-  }
-  return waitTakeoffFinished(vehiclePtr);
-}
-
-bool
-waitTakeoffFinished(Vehicle* vehiclePtr)
-{
-  TypeMap<TopicName::TOPIC_STATUS_DISPLAYMODE>::type displayMode =
-    vehiclePtr->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
-  while (displayMode == VehicleStatus::DisplayMode::MODE_ASSISTED_TAKEOFF ||
-         displayMode == VehicleStatus::DisplayMode::MODE_AUTO_TAKEOFF)
-  {
-    sleep(1);
-    displayMode = vehiclePtr->subscribe->getValue<TOPIC_STATUS_DISPLAYMODE>();
-  }
-  return (displayMode == VehicleStatus::DisplayMode::MODE_P_GPS ||
-          displayMode == VehicleStatus::DisplayMode::MODE_ATTITUDE)
-           ? true
-           : false;
 }
 
 void
