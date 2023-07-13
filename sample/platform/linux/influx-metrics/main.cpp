@@ -31,7 +31,7 @@ main(int argc, char** argv)
 
   int responseTimeout = 1;
 
-  // Setup OSDK.
+  // Setup OSDK
   LinuxSetup linuxEnvironment(argc, argv);
   Vehicle*   vehicle = linuxEnvironment.getVehicle();
   if (vehicle == nullptr)
@@ -40,10 +40,9 @@ main(int argc, char** argv)
     return -1;
   }
 
+  // Setup InfluxDB
   std::string influxUrl = getInfluxUrl();
-
-  auto db = influxdb::InfluxDBFactory::Get(influxUrl);
-
+  auto        db        = influxdb::InfluxDBFactory::Get(influxUrl);
   if (!db)
   {
     std::cout << "Could not connect to InfluxDB, exiting.\n";
@@ -52,7 +51,7 @@ main(int argc, char** argv)
 
   // Obtain Control Authority
   vehicle->flightController->obtainJoystickCtrlAuthoritySync(responseTimeout);
-
+  // Setup Waypoint Mission
   float radius   = 25.0f;
   float altitude = 10.0f;
   int   numStops = 8;
@@ -60,24 +59,26 @@ main(int argc, char** argv)
   mission::runWaypointMission(
     vehicle, radius, altitude, numStops, waitTime, responseTimeout);
 
-  bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
-  if (!status)
-  {
-    std::cout << "Could not subscribe to metrics, exiting.\n";
-    return -1;
-  }
+  // Setup Metrics
+  // bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
+  // if (!status)
+  // {
+  //   std::cout << "Could not subscribe to metrics, exiting.\n";
+  //   return -1;
+  // }
 
-  std::cout << "Starting timer..." << std::endl;
-  metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-                                      boost::asio::placeholders::error,
-                                      &metricsTimer,
-                                      vehicle,
-                                      db.get()));
+  // Start Metrics Timer
+  // std::cout << "Starting timer..." << std::endl;
+  // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
+  //                                     boost::asio::placeholders::error,
+  //                                     &metricsTimer,
+  //                                     vehicle,
+  //                                     db.get()));
 
-  std::cout << "Running context..." << std::endl;
-  std::cout << "Press Ctrl+C to exit." << std::endl;
+  // std::cout << "Running context..." << std::endl;
+  // std::cout << "Press Ctrl+C to exit." << std::endl;
 
-  ctx.run();
+  // ctx.run();
   while (!quit)
   {
   }
