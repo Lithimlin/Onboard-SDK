@@ -79,10 +79,10 @@ runWaypointMission(Vehicle* vehiclePtr,
     return false;
   }
 
-  if (subscribe(vehiclePtr, responseTimeout))
-  {
-    sleep(1);
-  }
+  // if (subscribe(vehiclePtr, responseTimeout))
+  // {
+  //   sleep(1);
+  // }
 
   // init mission
   std::cout << "Initializing waypoint mission..." << std::endl;
@@ -109,7 +109,7 @@ runWaypointMission(Vehicle* vehiclePtr,
   uploadWaypoints(vehiclePtr, waypoints, responseTimeout);
 
   // metrics no longer needed
-  unsubscribe(vehiclePtr, responseTimeout);
+  // unsubscribe(vehiclePtr, responseTimeout);
 
   std::cout << "Starting waypoint mission..." << std::endl;
   ack = vehiclePtr->missionManager->wpMission->start(responseTimeout);
