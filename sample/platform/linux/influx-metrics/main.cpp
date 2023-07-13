@@ -90,7 +90,7 @@ main(int argc, char** argv)
 
   std::cout << "Done!" << std::endl;
 
-  // db.release();
+  db.release();
   return 0;
 }
 
