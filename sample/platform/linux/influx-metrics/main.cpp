@@ -27,7 +27,7 @@ INThandler(int sig);
 int
 main(int argc, char** argv)
 {
-  // signal(SIGINT, INThandler);
+  signal(SIGINT, INThandler);
 
   int responseTimeout = 1;
 
