@@ -79,12 +79,10 @@ runWaypointMission(Vehicle* vehiclePtr,
     return false;
   }
 
-  if (!subscribe(vehiclePtr, responseTimeout))
+  if (subscribe(vehiclePtr, responseTimeout))
   {
-    std::cout << "Failed to set up subscription!" << std::endl;
-    return false;
+    sleep(1);
   }
-  sleep(1);
 
   // init mission
   std::cout << "Initializing waypoint mission..." << std::endl;
@@ -323,8 +321,8 @@ unsubscribe(Vehicle* vehiclePtr, int responseTimeout)
   status = vehiclePtr->subscribe->removePackage(1, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
-    std::cout << "Error unsubscribing; please restart the drone/FC to get "
-                 "back to a clean state.\n";
+    // std::cout << "Error unsubscribing; please restart the drone/FC to get "
+    //              "back to a clean state.\n";
     return false;
   }
   return true;
