@@ -85,7 +85,6 @@ main(int argc, char** argv)
   // ctx.run();
   while (true)
   {
-    OsdkOsal_TaskSleepMs(1000);
   }
 
   std::cout << "Done!" << std::endl;
