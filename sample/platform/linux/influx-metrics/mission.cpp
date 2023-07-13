@@ -294,9 +294,7 @@ subscribe(Vehicle* vehiclePtr, int responseTimeout)
   }
 
   int       freq            = 10;
-  TopicName topicList[]     = { TopicName::TOPIC_GPS_FUSED,
-                                TopicName::TOPIC_STATUS_FLIGHT,
-                                TopicName::TOPIC_STATUS_DISPLAYMODE };
+  TopicName topicList[]     = { TopicName::TOPIC_GPS_FUSED };
   int       numTopics       = sizeof(topicList) / sizeof(topicList[0]);
   bool      enableTimestamp = false;
 
