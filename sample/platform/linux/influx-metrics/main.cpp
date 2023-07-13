@@ -42,20 +42,20 @@ main(int argc, char** argv)
 
   std::string influxUrl = getInfluxUrl();
 
-  auto db = influxdb::InfluxDBFactory::Get(influxUrl);
+  // auto db = influxdb::InfluxDBFactory::Get(influxUrl);
 
-  if (!db)
-  {
-    std::cout << "Could not connect to InfluxDB, exiting.\n";
-    return -1;
-  }
+  // if (!db)
+  // {
+  //   std::cout << "Could not connect to InfluxDB, exiting.\n";
+  //   return -1;
+  // }
 
-  bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
-  if (!status)
-  {
-    std::cout << "Could not subscribe to metrics, exiting.\n";
-    return -1;
-  }
+  // bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
+  // if (!status)
+  // {
+  //   std::cout << "Could not subscribe to metrics, exiting.\n";
+  //   return -1;
+  // }
 
   // Obtain Control Authority
   vehicle->flightController->obtainJoystickCtrlAuthoritySync(responseTimeout);
@@ -84,7 +84,7 @@ main(int argc, char** argv)
 
   std::cout << "Done!" << std::endl;
 
-  db.release();
+  // db.release();
   return 0;
 }
 
