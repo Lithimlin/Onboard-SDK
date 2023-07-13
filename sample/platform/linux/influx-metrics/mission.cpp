@@ -7,6 +7,8 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
+#define PACKAGE_ID 1
+
 namespace mission
 {
 
@@ -316,13 +318,13 @@ subscribe(Vehicle* vehiclePtr, int responseTimeout)
   bool      enableTimestamp = false;
 
   bool pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
-    0, numTopics, topicList, enableTimestamp, freq);
+    PACKAGE_ID, numTopics, topicList, enableTimestamp, freq);
   if (!pkgStatus)
   {
     return false;
   }
 
-  status = vehiclePtr->subscribe->startPackage(0, responseTimeout);
+  status = vehiclePtr->subscribe->startPackage(PACKAGE_ID, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(status, __func__);
@@ -337,11 +339,12 @@ unsubscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
   std::cout << "Unsubscribing from topics..." << std::endl;
   ACK::ErrorCode status;
-  status = vehiclePtr->subscribe->removePackage(0, responseTimeout);
+  status = vehiclePtr->subscribe->removePackage(PACKAGE_ID, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
-    // std::cout << "Error unsubscribing; please restart the drone/FC to get "
-    //              "back to a clean state.\n";
+    ACK::getErrorCodeMessage(status, __func__);
+    std::cout << "Error unsubscribing; please restart the drone/FC to get "
+                 "back to a clean state.\n";
     return false;
   }
   return true;
