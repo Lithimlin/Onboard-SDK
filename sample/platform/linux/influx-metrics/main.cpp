@@ -67,12 +67,12 @@ main(int argc, char** argv)
   mission::runWaypointMission(
     vehicle, radius, altitude, numStops, waitTime, responseTimeout);
 
-  std::cout << "Starting timer..." << std::endl;
-  metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-                                      boost::asio::placeholders::error,
-                                      &metricsTimer,
-                                      vehicle,
-                                      db.get()));
+  // std::cout << "Starting timer..." << std::endl;
+  // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
+  //                                     boost::asio::placeholders::error,
+  //                                     &metricsTimer,
+  //                                     vehicle,
+  //                                     db.get()));
 
   std::cout << "Running context..." << std::endl;
   std::cout << "Press Ctrl+C to exit." << std::endl;
