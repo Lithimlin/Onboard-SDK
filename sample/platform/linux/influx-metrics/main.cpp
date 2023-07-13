@@ -107,12 +107,14 @@ INThandler(int sig)
 std::string
 getenvvar(const std::string& key, const bool required)
 {
-  char* value = std::getenv(key.c_str());
+  char*       value = std::getenv(key.c_str());
+  std::string result;
   if (required && !value)
   {
     std::cout << "Could not find environment variable: " << key << std::endl;
     std::cout << "Please enter a value:" << std::endl;
-    std::cin >> value;
+    std::cin >> result;
+    return result;
   }
   return value ? std::string(value) : std::string();
 }
