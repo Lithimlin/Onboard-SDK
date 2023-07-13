@@ -29,6 +29,8 @@ main(int argc, char** argv)
 {
   // signal(SIGINT, INThandler);
 
+  int responseTimeout = 1;
+
   // Setup OSDK.
   LinuxSetup linuxEnvironment(argc, argv);
   Vehicle*   vehicle = linuxEnvironment.getVehicle();
@@ -48,7 +50,7 @@ main(int argc, char** argv)
   //   return -1;
   // }
 
-  // bool status = influxMetrics::subscribeMetrics(vehicle, 1);
+  // bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
   // if (!status)
   // {
   //   std::cout << "Could not subscribe to metrics, exiting.\n";
@@ -56,9 +58,19 @@ main(int argc, char** argv)
   // }
 
   // Obtain Control Authority
-  vehicle->flightController->obtainJoystickCtrlAuthoritySync(1);
+  vehicle->flightController->obtainJoystickCtrlAuthoritySync(responseTimeout);
 
-  mission::runWaypointMission(&missionTimer, vehicle, 10.0f, 5.0f, 4, 5, 1);
+  float radius   = 25.0f;
+  float altitude = 10.0f;
+  int   numStops = 8;
+  int   waitTime = 10;
+  mission::runWaypointMission(&missionTimer,
+                              vehicle,
+                              radius,
+                              altitude,
+                              numStops,
+                              waitTime,
+                              responseTimeout);
 
   // std::cout << "Starting timer..." << std::endl;
   // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
