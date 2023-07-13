@@ -147,10 +147,4 @@ subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout)
   return true;
 }
 
-TypeMap<TopicName::TOPIC_GPS_FUSED>::type
-getGpsPosition(Vehicle* vehiclePtr)
-{
-  return vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
-}
-
 }

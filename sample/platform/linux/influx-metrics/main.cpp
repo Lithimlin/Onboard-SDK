@@ -50,13 +50,6 @@ main(int argc, char** argv)
     return -1;
   }
 
-  bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
-  if (!status)
-  {
-    std::cout << "Could not subscribe to metrics, exiting.\n";
-    return -1;
-  }
-
   // Obtain Control Authority
   vehicle->flightController->obtainJoystickCtrlAuthoritySync(responseTimeout);
 
@@ -67,12 +60,19 @@ main(int argc, char** argv)
   mission::runWaypointMission(
     vehicle, radius, altitude, numStops, waitTime, responseTimeout);
 
-  // std::cout << "Starting timer..." << std::endl;
-  // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-  //                                     boost::asio::placeholders::error,
-  //                                     &metricsTimer,
-  //                                     vehicle,
-  //                                     db.get()));
+  bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
+  if (!status)
+  {
+    std::cout << "Could not subscribe to metrics, exiting.\n";
+    return -1;
+  }
+
+  std::cout << "Starting timer..." << std::endl;
+  metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
+                                      boost::asio::placeholders::error,
+                                      &metricsTimer,
+                                      vehicle,
+                                      db.get()));
 
   std::cout << "Running context..." << std::endl;
   std::cout << "Press Ctrl+C to exit." << std::endl;
