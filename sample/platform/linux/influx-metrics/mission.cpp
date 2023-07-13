@@ -80,10 +80,10 @@ runWaypointMission(Vehicle* vehiclePtr,
     return false;
   }
 
-  if (subscribe(vehiclePtr, responseTimeout))
-  {
-    sleep(1);
-  }
+  // if (subscribe(vehiclePtr, responseTimeout))
+  // {
+  //   sleep(1);
+  // }
 
   // init mission
   std::cout << "Initializing waypoint mission..." << std::endl;
