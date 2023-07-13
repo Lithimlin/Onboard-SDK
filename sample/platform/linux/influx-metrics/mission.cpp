@@ -7,7 +7,7 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
-#define PACKAGE_ID 1
+#define PACKAGE_ID 0
 
 namespace mission
 {
