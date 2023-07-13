@@ -266,9 +266,9 @@ waypointReachedCallback(Vehicle*      vehiclePtr,
                         RecvContainer recvFrame,
                         UserData      userData)
 {
-  DSTATUS("Reached waypoint %d.\n",
+  DSTATUS("Reached waypoint %d.",
           recvFrame.recvData.wayPointReachedData.waypoint_index);
-  DSTATUS("Current status is %d.\n",
+  DSTATUS("Current status is %d.",
           recvFrame.recvData.wayPointReachedData.current_status);
   DSTATUS("Incident type is %d.\n",
           recvFrame.recvData.wayPointReachedData.incident_type);
