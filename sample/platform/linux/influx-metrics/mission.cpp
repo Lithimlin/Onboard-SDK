@@ -231,7 +231,7 @@ newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle)
   copyWaypointSettings(&newWp, oldWp);
   float dx = cos(angle * M_PI / 180) * radius;
   float dy = sin(angle * M_PI / 180) * radius;
-  printf("Displacing center by (%f, %f)\n", dx, dy);
+  // printf("Displacing center by (%f, %f)\n", dx, dy);
   newWp.latitude += dx / METERS_PER_DEGREE / 56;
   newWp.longitude +=
     dy / METERS_PER_DEGREE / 41 / cos(newWp.latitude * M_PI / 180);
@@ -246,15 +246,18 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
   std::cout << "Uploading waypoints..." << std::endl;
   for (auto waypoint : waypoints)
   {
-    printf("Uploading waypoint %d at (LLA): %f\t%f\t%f\n",
-           waypoint.index,
-           waypoint.longitude,
-           waypoint.latitude,
-           waypoint.altitude);
+    // printf("Uploading waypoint %d at (LLA): %f\t%f\t%f\n",
+    //        waypoint.index,
+    //        waypoint.longitude,
+    //        waypoint.latitude,
+    //        waypoint.altitude);
     ACK::WayPointIndex wpIndexACK =
       vehiclePtr->missionManager->wpMission->uploadIndexData(&waypoint,
                                                              responseTimeout);
-    ACK::getErrorCodeMessage(wpIndexACK.ack, __func__);
+    if (ACK::getError(wpIndexACK.ack) != ACK::SUCCESS)
+    {
+      ACK::getErrorCodeMessage(wpIndexACK.ack, __func__);
+    }
   }
 }
 
@@ -271,12 +274,25 @@ waypointReachedCallback(Vehicle*      vehiclePtr,
     return;
   }
 
-  DSTATUS("Reached waypoint %d.",
-          recvFrame.recvData.wayPointReachedData.waypoint_index);
-  DSTATUS("Current status is %d.",
-          recvFrame.recvData.wayPointReachedData.current_status);
-  DSTATUS("Incident type is %d.\n",
-          recvFrame.recvData.wayPointReachedData.incident_type);
+  if (recvFrame.recvData.wayPointReachedData.incident_type !=
+      WayPointIncidentType::NAVI_MISSION_WP_REACH_POINT)
+  {
+
+    return;
+  }
+
+  if (recvFrame.recvData.wayPointReachedData.current_status == 4)
+  {
+    DSTATUS("Waiting at waypoint %d",
+            recvFrame.recvData.wayPointReachedData.waypoint_index);
+    return;
+  }
+  else if (recvFrame.recvData.wayPointReachedData.current_status == 6)
+  {
+    DSTATUS("Departing from waypoint %d",
+            recvFrame.recvData.wayPointReachedData.waypoint_index);
+    return;
+  }
 }
 
 bool
