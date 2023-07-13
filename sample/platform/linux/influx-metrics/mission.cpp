@@ -238,7 +238,7 @@ newDisplacedWaypoint(WayPointSettings* oldWp, float radius, float angle)
   printf("Displacing center by (%f, %f)\n", dx, dy);
   newWp.latitude += dx / METERS_PER_DEGREE / 50;
   newWp.longitude +=
-    dy / METERS_PER_DEGREE / 50 / cos(newWp.latitude * M_PI / 180);
+    dy / METERS_PER_DEGREE / 50 / cos(oldWp->latitude * M_PI / 180);
   return newWp;
 }
 
