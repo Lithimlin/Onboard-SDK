@@ -13,7 +13,6 @@ using boost::asio::steady_timer;
 static bool                    quit = false;
 static boost::asio::io_context ctx;
 static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
-static steady_timer missionTimer(ctx, boost::asio::chrono::seconds(1));
 
 std::string
 getenvvar(const std::string& key, const bool required = true);
@@ -65,13 +64,8 @@ main(int argc, char** argv)
   float altitude = 10.0f;
   int   numStops = 8;
   int   waitTime = 10;
-  mission::runWaypointMission(&missionTimer,
-                              vehicle,
-                              radius,
-                              altitude,
-                              numStops,
-                              waitTime,
-                              responseTimeout);
+  mission::runWaypointMission(
+    vehicle, radius, altitude, numStops, waitTime, responseTimeout);
 
   std::cout << "Starting timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
@@ -100,7 +94,6 @@ INThandler(int sig)
 {
   std::cout << "\nExiting..." << std::endl;
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
-  missionTimer.expires_after(boost::asio::chrono::milliseconds(100));
   quit = true;
 }
 

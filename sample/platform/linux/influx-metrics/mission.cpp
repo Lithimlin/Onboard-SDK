@@ -1,6 +1,5 @@
 #include "mission.hpp"
-// #include <boost/asio.hpp>
-// #include <boost/bind/bind.hpp>
+#include <cmath>
 #include <dji_telemetry.hpp>
 #include <stdlib.h>
 
@@ -66,13 +65,12 @@ waypointReachedCallback(Vehicle*      vehiclePtr,
 /**********************************************************************/
 
 bool
-runWaypointMission(boost::asio::steady_timer* timer,
-                   Vehicle*                   vehiclePtr,
-                   float                      radius,
-                   float                      altitude,
-                   int                        numStops,
-                   int                        waitTime,
-                   int                        responseTimeout)
+runWaypointMission(Vehicle* vehiclePtr,
+                   float    radius,
+                   float    altitude,
+                   int      numStops,
+                   int      waitTime,
+                   int      responseTimeout)
 {
   if (!vehiclePtr->isM210V2() && !vehiclePtr->isM300())
   {

@@ -2,8 +2,6 @@
 #define DJIOSDK_INFLUX_METRICS_MISSION_HPP
 
 // System Includes
-#include <boost/asio.hpp>
-#include <iostream>
 
 // DJI OSDK includes
 #include <dji_vehicle.hpp>
@@ -25,13 +23,12 @@ namespace mission
  * @return true if the mission was successfully started, false otherwise
  */
 bool
-runWaypointMission(boost::asio::steady_timer* timer,
-                   DJI::OSDK::Vehicle*        vehiclePtr,
-                   float                      radius,
-                   float                      altitude,
-                   int                        numStops,
-                   int                        waitTime,
-                   int                        responseTimeout);
+runWaypointMission(DJI::OSDK::Vehicle* vehiclePtr,
+                   float               radius,
+                   float               altitude,
+                   int                 numStops,
+                   int                 waitTime,
+                   int                 responseTimeout);
 }
 
 #endif // DJIOSDK_INFLUX_METRICS_MISSION_HPP
