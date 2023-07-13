@@ -296,14 +296,14 @@ subscribe(Vehicle* vehiclePtr, int responseTimeout)
   bool      enableTimestamp = false;
 
   bool pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
-    1, numTopics, topicList, enableTimestamp, freq);
+    0, numTopics, topicList, enableTimestamp, freq);
   if (!pkgStatus)
   {
     return false;
   }
   std::cout << "Subscribing to topics..." << std::endl;
 
-  status = vehiclePtr->subscribe->startPackage(1, responseTimeout);
+  status = vehiclePtr->subscribe->startPackage(0, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(status, __func__);
