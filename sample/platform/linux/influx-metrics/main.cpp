@@ -10,6 +10,7 @@ using namespace DJI::OSDK::Telemetry;
 
 using boost::asio::steady_timer;
 
+static bool                    quit = false;
 static boost::asio::io_context ctx;
 static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
 static steady_timer missionTimer(ctx, boost::asio::chrono::seconds(1));
@@ -83,7 +84,7 @@ main(int argc, char** argv)
   std::cout << "Press Ctrl+C to exit." << std::endl;
 
   ctx.run();
-  while (true)
+  while (!quit)
   {
   }
 
@@ -100,6 +101,7 @@ INThandler(int sig)
   std::cout << "\nExiting..." << std::endl;
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
   missionTimer.expires_after(boost::asio::chrono::milliseconds(100));
+  quit = true;
 }
 
 std::string
