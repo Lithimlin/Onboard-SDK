@@ -197,9 +197,9 @@ createWaypoints(Vehicle* vehiclePtr,
   centerPoint.altitude            = altitude;
   centerPoint.hasAction           = 1;
   centerPoint.actionNumber        = 1;
-  centerPoint.actionRepeat        = 100;
+  centerPoint.actionRepeat        = 4;
   centerPoint.commandList[0]      = WP_ACTION_STAY;
-  centerPoint.commandParameter[0] = waitTime * 10;
+  centerPoint.commandParameter[0] = waitTime * 250;
   printf("Creating %d waypoints around center (LLA): %f\t%f\t%f\n",
          numWaypoints,
          centerPoint.longitude,
