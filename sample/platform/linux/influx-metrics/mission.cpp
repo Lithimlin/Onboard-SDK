@@ -333,7 +333,7 @@ bool
 unsubscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
   ACK::ErrorCode status;
-  status = vehiclePtr->subscribe->removePackage(1, responseTimeout);
+  status = vehiclePtr->subscribe->removePackage(0, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     // std::cout << "Error unsubscribing; please restart the drone/FC to get "
