@@ -50,12 +50,12 @@ main(int argc, char** argv)
     return -1;
   }
 
-  // bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
-  // if (!status)
-  // {
-  //   std::cout << "Could not subscribe to metrics, exiting.\n";
-  //   return -1;
-  // }
+  bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
+  if (!status)
+  {
+    std::cout << "Could not subscribe to metrics, exiting.\n";
+    return -1;
+  }
 
   // Obtain Control Authority
   vehicle->flightController->obtainJoystickCtrlAuthoritySync(responseTimeout);
