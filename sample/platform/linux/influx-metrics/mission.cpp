@@ -79,10 +79,10 @@ runWaypointMission(Vehicle* vehiclePtr,
     return false;
   }
 
-  // if (subscribe(vehiclePtr, responseTimeout))
-  // {
-  //   sleep(1);
-  // }
+  if (subscribe(vehiclePtr, responseTimeout))
+  {
+    sleep(1);
+  }
 
   // init mission
   std::cout << "Initializing waypoint mission..." << std::endl;
@@ -109,7 +109,7 @@ runWaypointMission(Vehicle* vehiclePtr,
   uploadWaypoints(vehiclePtr, waypoints, responseTimeout);
 
   // metrics no longer needed
-  // unsubscribe(vehiclePtr, responseTimeout);
+  unsubscribe(vehiclePtr, responseTimeout);
 
   std::cout << "Starting waypoint mission..." << std::endl;
   ack = vehiclePtr->missionManager->wpMission->start(responseTimeout);
@@ -282,7 +282,6 @@ waypointReachedCallback(Vehicle*      vehiclePtr,
 bool
 subscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
-  std::cout << "Subscribing to topics..." << std::endl;
   ACK::ErrorCode status;
   status = vehiclePtr->subscribe->verify(responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
@@ -302,6 +301,7 @@ subscribe(Vehicle* vehiclePtr, int responseTimeout)
   {
     return false;
   }
+  std::cout << "Subscribing to topics..." << std::endl;
 
   status = vehiclePtr->subscribe->startPackage(1, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
@@ -316,7 +316,6 @@ subscribe(Vehicle* vehiclePtr, int responseTimeout)
 bool
 unsubscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
-  std::cout << "Unsubscribing from topics..." << std::endl;
   ACK::ErrorCode status;
   status = vehiclePtr->subscribe->removePackage(1, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
@@ -325,6 +324,7 @@ unsubscribe(Vehicle* vehiclePtr, int responseTimeout)
     //              "back to a clean state.\n";
     return false;
   }
+  std::cout << "Unsubscribing from topics..." << std::endl;
   return true;
 }
 }
