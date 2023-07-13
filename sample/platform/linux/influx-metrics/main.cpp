@@ -15,7 +15,7 @@ static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
 static steady_timer missionTimer(ctx, boost::asio::chrono::seconds(1));
 
 std::string
-getenvvar(const std::string& key);
+getenvvar(const std::string& key, const bool required = true);
 
 std::string
 getInfluxUrl();
@@ -104,9 +104,15 @@ INThandler(int sig)
 }
 
 std::string
-getenvvar(const std::string& key)
+getenvvar(const std::string& key, const bool required = true)
 {
-  char const* value = std::getenv(key.c_str());
+  char* value = std::getenv(key.c_str());
+  if (required && !value)
+  {
+    std::cout << "Could not find environment variable: " << key << std::endl;
+    std::cout << "Please enter a value:" << std::endl;
+    std::cin >> value;
+  }
   return value ? std::string(value) : std::string();
 }
 
