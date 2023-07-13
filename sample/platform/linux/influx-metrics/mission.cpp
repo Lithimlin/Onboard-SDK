@@ -266,8 +266,9 @@ waypointReachedCallback(Vehicle*      vehiclePtr,
                         RecvContainer recvFrame,
                         UserData      userData)
 {
-  if (recvFrame.recvData.wayPointReachedData.current_status ==
-      WayPointIncidentType::NAVI_MISSION_FINISH)
+  if (recvFrame.recvData.wayPointReachedData.incident_type ==
+        WayPointIncidentType::NAVI_MISSION_FINISH &&
+      recvFrame.recvData.wayPointReachedData.current_status == 0)
   {
     DSTATUS("Mission finished.");
     return;
