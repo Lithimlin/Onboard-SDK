@@ -1,4 +1,5 @@
 #include "mission.hpp"
+#include "influx-metrics.hpp"
 #include <cmath>
 #include <dji_telemetry.hpp>
 #include <stdlib.h>
@@ -9,9 +10,9 @@ using namespace DJI::OSDK::Telemetry;
 namespace mission
 {
 
-Telemetry::TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
-static bool                                          startPositionSetup = false;
-static const float RADIUS_OF_EARTH_IN_METERS = 6371000.0f;
+TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
+static bool                               startPositionSetup = false;
+static const float RADIUS_OF_EARTH_IN_METERS                 = 6371000.0f;
 static const float METERS_PER_DEGREE =
   RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
 
@@ -109,7 +110,7 @@ runWaypointMission(Vehicle* vehiclePtr,
   uploadWaypoints(vehiclePtr, waypoints, responseTimeout);
 
   // metrics no longer needed
-  unsubscribe(vehiclePtr, responseTimeout);
+  // unsubscribe(vehiclePtr, responseTimeout);
 
   std::cout << "Starting waypoint mission..." << std::endl;
   ack = vehiclePtr->missionManager->wpMission->start(responseTimeout);
@@ -186,8 +187,8 @@ createWaypoints(Vehicle* vehiclePtr,
   WayPointSettings centerPoint;
   setWaypointDefaults(&centerPoint);
 
-  Telemetry::TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
-  gpsPosition = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+  TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
+  gpsPosition                     = influxMetrics::getGpsPosition(vehiclePtr);
   centerPoint.longitude           = gpsPosition.longitude;
   centerPoint.latitude            = gpsPosition.latitude;
   centerPoint.altitude            = altitude;

@@ -10,8 +10,6 @@ using namespace DJI::OSDK::Telemetry;
 namespace influxMetrics
 {
 
-static bool quitFlag = false;
-
 // subscription settings
 int       pkgIndex    = 0;
 int       freq        = 1; // Hz
@@ -149,11 +147,10 @@ subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout)
   return true;
 }
 
-void
-quit(boost::asio::steady_timer* timer)
+TypeMap<TopicName::TOPIC_GPS_FUSED>::type
+getGpsPosition(Vehicle* vehiclePtr)
 {
-  quitFlag = true;
-  timer->expires_after(boost::asio::chrono::milliseconds(50));
+  return vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
 }
 
 }

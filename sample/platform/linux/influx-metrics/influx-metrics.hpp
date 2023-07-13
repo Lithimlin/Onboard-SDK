@@ -19,13 +19,15 @@ namespace influxMetrics
 bool
 subscribeMetrics(DJI::OSDK::Vehicle* vehiclePtr, int responseTimeout = 1);
 
+DJI::OSDK::Telemetry::TypeMap<
+  DJI::OSDK::Telemetry::TopicName::TOPIC_GPS_FUSED>::type
+getGpsPosition(Vehicle* vehiclePtr);
+
 void
 getMetricsAndWrite(const boost::system::error_code& e,
                    boost::asio::steady_timer*       timer,
                    DJI::OSDK::Vehicle*              vehiclePtr,
                    influxdb::InfluxDB*              influxDB);
 
-void
-quit(boost::asio::steady_timer* timer);
 }
 #endif // DJIOSDK_INFLUX_METRICS_HPP
