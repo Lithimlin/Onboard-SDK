@@ -105,7 +105,7 @@ INThandler(int sig)
 }
 
 std::string
-getenvvar(const std::string& key, const bool required = true)
+getenvvar(const std::string& key, const bool required)
 {
   char* value = std::getenv(key.c_str());
   if (required && !value)
