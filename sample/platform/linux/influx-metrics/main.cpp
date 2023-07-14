@@ -60,25 +60,25 @@ main(int argc, char** argv)
     vehicle, radius, altitude, numStops, waitTime, responseTimeout);
 
   // Setup Metrics
-  // bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
-  // if (!status)
-  // {
-  //   std::cout << "Could not subscribe to metrics, exiting.\n";
-  //   return -1;
-  // }
+  bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
+  if (!status)
+  {
+    std::cout << "Could not subscribe to metrics, exiting.\n";
+    return -1;
+  }
 
   // Start Metrics Timer
-  // std::cout << "Starting timer..." << std::endl;
-  // metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
-  //                                     boost::asio::placeholders::error,
-  //                                     &metricsTimer,
-  //                                     vehicle,
-  //                                     db.get()));
+  std::cout << "Starting timer..." << std::endl;
+  metricsTimer.async_wait(boost::bind(influxMetrics::getMetricsAndWrite,
+                                      boost::asio::placeholders::error,
+                                      &metricsTimer,
+                                      vehicle,
+                                      db.get()));
 
-  // std::cout << "Running context..." << std::endl;
-  // std::cout << "Press Ctrl+C to exit." << std::endl;
+  std::cout << "Running context..." << std::endl;
+  std::cout << "Press Ctrl+C to exit." << std::endl;
 
-  // ctx.run();
+  ctx.run();
   while (!quit)
   {
   }
