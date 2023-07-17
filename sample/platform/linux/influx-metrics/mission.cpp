@@ -16,6 +16,7 @@ TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
 static bool                               startPositionSetup = false;
 const float RADIUS_OF_EARTH_IN_METERS                        = 6371000.0f;
 const float METERS_PER_DEGREE = RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
+static WayPointSettings centerPoint;
 
 bool
 subscribe(Vehicle* vehiclePtr, int responseTimeout);
@@ -187,25 +188,28 @@ createWaypoints(Vehicle* vehiclePtr,
                 int      waitTime)
 {
   std::cout << "Creating waypoints..." << std::endl;
-  WayPointSettings centerPoint;
-  setWaypointDefaults(&centerPoint);
+  if (!startPositionSetup)
+  {
+    setWaypointDefaults(&centerPoint);
 
-  TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
-  gpsPosition = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
-  centerPoint.longitude           = gpsPosition.longitude;
-  centerPoint.latitude            = gpsPosition.latitude;
-  centerPoint.altitude            = altitude;
-  centerPoint.hasAction           = 1;
-  centerPoint.actionNumber        = 1;
-  centerPoint.actionRepeat        = 4;
-  centerPoint.commandList[0]      = WP_ACTION_STAY;
-  centerPoint.commandParameter[0] = waitTime * 250;
-  printf("Creating %d waypoints around center (LLA): %f\t%f\t%f\n",
-         numWaypoints,
-         centerPoint.longitude,
-         centerPoint.latitude,
-         centerPoint.altitude);
+    TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
+    gpsPosition = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+    centerPoint.longitude           = gpsPosition.longitude;
+    centerPoint.latitude            = gpsPosition.latitude;
+    centerPoint.altitude            = altitude;
+    centerPoint.hasAction           = 1;
+    centerPoint.actionNumber        = 1;
+    centerPoint.actionRepeat        = 4;
+    centerPoint.commandList[0]      = WP_ACTION_STAY;
+    centerPoint.commandParameter[0] = waitTime * 250;
+    printf("Creating %d waypoints around center (LLA): %f\t%f\t%f\n",
+           numWaypoints,
+           centerPoint.longitude,
+           centerPoint.latitude,
+           centerPoint.altitude);
 
+    startPositionSetup = true;
+  }
   return generateWaypoints(&centerPoint, radius, numWaypoints);
 }
 
