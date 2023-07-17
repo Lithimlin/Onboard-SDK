@@ -160,7 +160,7 @@ waypointEventCallback(Vehicle*      vehiclePtr,
   }
 
   std::unique_ptr<FILE, decltype(&pclose)> pipe(
-    popen("python", "~/measurements/collect_metrics.py"), pclose);
+    popen("python", "~/wireless-measurements/collect_metrics.py"), pclose);
 
   if (!pipe)
   {
