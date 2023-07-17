@@ -4,6 +4,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind/bind.hpp>
 #include <signal.h>
+#include <stdio.h>
 
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
@@ -14,6 +15,8 @@ static bool                    quit = false;
 static boost::asio::io_context ctx;
 static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
 
+static std::array<char, 1024> pipe_buffer;
+
 std::string
 getenvvar(const std::string& key, const bool required = true);
 
@@ -22,6 +25,11 @@ getInfluxUrl();
 
 void
 INThandler(int sig);
+
+void
+waypointEventCallback(Vehicle*      vehiclePtr,
+                      RecvContainer recvFrame,
+                      UserData      userData);
 
 // main
 int
@@ -58,6 +66,9 @@ main(int argc, char** argv)
   int   waitTime = 10;
   mission::runWaypointMission(
     vehicle, radius, altitude, numStops, waitTime, responseTimeout);
+
+  vehicle->missionManager->wpMission->setWaypointEventCallback(
+    &waypointEventCallback, vehicle);
 
   // Setup Metrics
   bool status = influxMetrics::subscribeMetrics(vehicle, responseTimeout);
@@ -118,7 +129,7 @@ getInfluxUrl()
 {
   std::string influxHost = getenvvar("INFLUXDB_HOST");
   std::string influxPort = getenvvar("INFLUXDB_PORT");
-  std::string influxDB   = getenvvar("INFLUXDB_DB");
+  std::string influxDB   = getenvvar("INFLUXDB_BUCKET");
   std::string influxUser = getenvvar("INFLUXDB_USER");
   std::string influxPass = getenvvar("INFLUXDB_PASS");
 
@@ -129,4 +140,36 @@ getInfluxUrl()
 
   return std::string("http://" + influxUser + ":" + influxPass + "@" +
                      influxHost + ":" + influxPort + "?db=" + influxDB);
+}
+
+void
+waypointEventCallback(Vehicle*      vehiclePtr,
+                      RecvContainer recvFrame,
+                      UserData      userData)
+{
+
+  if (recvFrame.recvData.wayPointReachedData.incident_type !=
+      WayPointIncidentType::NAVI_MISSION_WP_REACH_POINT)
+  {
+    return;
+  }
+
+  if (recvFrame.recvData.wayPointReachedData.current_status != 4)
+  {
+    return;
+  }
+
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(
+    popen("python", "~/measurements/collect_metrics.py"), pclose);
+
+  if (!pipe)
+  {
+    std::cout << "popen() failed!" << std::endl;
+    return;
+  }
+
+  while (fgets(pipe_buffer.data(), pipe_buffer.size(), pipe.get()) != nullptr)
+  {
+    printf("%s", pipe_buffer.data());
+  }
 }
