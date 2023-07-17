@@ -12,10 +12,11 @@ using namespace DJI::OSDK::Telemetry;
 namespace mission
 {
 
-TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
-static bool                               startPositionSetup = false;
-const float RADIUS_OF_EARTH_IN_METERS                        = 6371000.0f;
+const float RADIUS_OF_EARTH_IN_METERS = 6371000.0f;
 const float METERS_PER_DEGREE = RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
+
+static bool             startPositionSetup = false;
+static bool             subscribeToGPS     = true;
 static WayPointSettings centerPoint;
 
 bool
@@ -82,12 +83,15 @@ runWaypointMission(Vehicle* vehiclePtr,
     return false;
   }
 
-  if (!subscribe(vehiclePtr, responseTimeout))
+  if (subscribeToGPS)
   {
-    std::cout << "Failed to subscribe in waypoint mission..." << std::endl;
-    return false;
+    if (!subscribe(vehiclePtr, responseTimeout))
+    {
+      std::cout << "Failed to subscribe in waypoint mission..." << std::endl;
+      return false;
+    }
+    sleep(1);
   }
-  sleep(1);
 
   // init mission
   std::cout << "Initializing waypoint mission..." << std::endl;
@@ -113,8 +117,11 @@ runWaypointMission(Vehicle* vehiclePtr,
 
   uploadWaypoints(vehiclePtr, waypoints, responseTimeout);
 
-  // metrics no longer needed
-  unsubscribe(vehiclePtr, responseTimeout);
+  if (subscribeToGPS)
+  {
+    // metrics no longer needed
+    unsubscribe(vehiclePtr, responseTimeout);
+  }
 
   std::cout << "Starting waypoint mission..." << std::endl;
   ack = vehiclePtr->missionManager->wpMission->start(responseTimeout);
@@ -341,6 +348,7 @@ bool
 unsubscribe(Vehicle* vehiclePtr, int responseTimeout)
 {
   std::cout << "Unsubscribing from topics..." << std::endl;
+  subscribeToGPS = !startPositionSetup;
   ACK::ErrorCode status;
   status = vehiclePtr->subscribe->removePackage(PACKAGE_ID, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
