@@ -14,9 +14,8 @@ namespace mission
 
 TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPosition;
 static bool                               startPositionSetup = false;
-static const float RADIUS_OF_EARTH_IN_METERS                 = 6371000.0f;
-static const float METERS_PER_DEGREE =
-  RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
+const float RADIUS_OF_EARTH_IN_METERS                        = 6371000.0f;
+const float METERS_PER_DEGREE = RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
 
 bool
 subscribe(Vehicle* vehiclePtr, int responseTimeout);
@@ -60,7 +59,7 @@ uploadWaypoints(Vehicle*                       vehiclePtr,
                 std::vector<WayPointSettings>& waypoints,
                 int                            responseTimeout);
 
-static void
+void
 waypointReachedCallback(Vehicle*      vehiclePtr,
                         RecvContainer recvFrame,
                         UserData      userData);
