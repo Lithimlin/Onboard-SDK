@@ -11,8 +11,7 @@ using namespace DJI::OSDK::Telemetry;
 
 using boost::asio::steady_timer;
 
-static bool                    quit                 = false;
-static bool                    waitForSecondMission = true;
+static bool                    quit = false;
 static boost::asio::io_context ctx;
 static steady_timer metricsTimer(ctx, boost::asio::chrono::seconds(1));
 
@@ -64,7 +63,7 @@ main(int argc, char** argv)
   float radius   = 25.0f;
   float altitude = 10.0f;
   int   numStops = 8;
-  int   waitTime = 30;
+  int   waitTime = 10;
   mission::runWaypointMission(
     vehicle, radius, altitude, numStops, waitTime, responseTimeout);
 
@@ -148,32 +147,6 @@ waypointEventCallback(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData)
 {
-  if (recvFrame.recvData.wayPointReachedData.incident_type ==
-        WayPointIncidentType::NAVI_MISSION_FINISH &&
-      recvFrame.recvData.wayPointReachedData.current_status == 0)
-  {
-    DSTATUS("Mission finished.");
-    if (waitForSecondMission)
-    {
-      // Setup Waypoint Mission
-      float radius          = 35.0f;
-      float altitude        = 5.0f;
-      int   numStops        = 5;
-      int   waitTime        = 30;
-      int   responseTimeout = 1;
-      mission::runWaypointMission(
-        vehiclePtr, radius, altitude, numStops, waitTime, responseTimeout);
-
-      vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-        &waypointEventCallback, vehiclePtr);
-      waitForSecondMission = false;
-    }
-    else
-    {
-      kill(getpid(), SIGINT);
-    }
-    return;
-  }
 
   if (recvFrame.recvData.wayPointReachedData.incident_type !=
       WayPointIncidentType::NAVI_MISSION_WP_REACH_POINT)
