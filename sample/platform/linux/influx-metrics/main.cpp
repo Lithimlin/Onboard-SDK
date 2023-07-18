@@ -60,10 +60,10 @@ main(int argc, char** argv)
   // Obtain Control Authority
   vehicle->flightController->obtainJoystickCtrlAuthoritySync(responseTimeout);
   // Setup Waypoint Mission
-  float radius   = 25.0f;
-  float altitude = 10.0f;
-  int   numStops = 8;
-  int   waitTime = 10;
+  float radius   = atof(getenvvar("MISSION_RADIUS").c_str());
+  float altitude = atof(getenvvar("MISSION_ALTITUDE").c_str());
+  int   numStops = atoi(getenvvar("MISSION_STOPS").c_str());
+  int   waitTime = atoi(getenvvar("MISSION_WAIT_TIME").c_str());
   mission::runWaypointMission(
     vehicle, radius, altitude, numStops, waitTime, responseTimeout);
 
