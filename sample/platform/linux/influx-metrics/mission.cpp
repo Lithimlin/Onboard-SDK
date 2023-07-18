@@ -98,7 +98,7 @@ runWaypointMission(Vehicle* vehiclePtr,
   WayPointInitSettings fdata;
   setWaypointInitDefaults(&fdata);
 
-  fdata.indexNumber = numStops;
+  fdata.indexNumber = numStops + 1;
 
   ACK::ErrorCode ack = vehiclePtr->missionManager->init(
     DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
@@ -235,6 +235,7 @@ generateWaypoints(WayPointSettings* centerPoint, float radius, int numWaypoints)
 
     waypoints.push_back(wp);
   }
+  waypoints.push_back(*centerPoint);
 
   return waypoints;
 }
