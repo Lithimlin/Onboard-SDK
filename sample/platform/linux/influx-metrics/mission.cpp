@@ -225,7 +225,7 @@ generateWaypoints(WayPointSettings* centerPoint, float radius, int numWaypoints)
 {
   std::cout << "Generating waypoints..." << std::endl;
   std::vector<WayPointSettings> waypoints;
-  waypoints.reserve(numWaypoints);
+  waypoints.reserve(numWaypoints + 1);
 
   for (int i = 0; i < numWaypoints; i++)
   {
