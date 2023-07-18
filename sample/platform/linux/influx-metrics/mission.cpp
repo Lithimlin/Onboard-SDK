@@ -235,6 +235,7 @@ generateWaypoints(WayPointSettings* centerPoint, float radius, int numWaypoints)
 
     waypoints.push_back(wp);
   }
+  centerPoint->index = numWaypoints;
   waypoints.push_back(*centerPoint);
 
   return waypoints;
