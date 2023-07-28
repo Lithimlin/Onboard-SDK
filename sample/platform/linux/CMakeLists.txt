@@ -21,7 +21,7 @@
 # *
 
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 project(onboardsdk-linux-samples)
 
 # set(DJIOSDK_DIR ${OSDK_CORE_LIB_DIR}/lib/cmake/djiosdk)
@@ -141,7 +141,7 @@ else()
     message("\n-- You can cmake with \"-DCONFIG_TOOL=ON\" to rebuild the config tool.")
 endif()
 
-add_subdirectory(advanced-sensing)
+# add_subdirectory(advanced-sensing)
 add_subdirectory(battery)
 # add_subdirectory(camera-gimbal)
 add_subdirectory(flight-control)
@@ -149,6 +149,7 @@ add_subdirectory(hms)
 add_subdirectory(influx-metrics)
 add_subdirectory(logging)
 add_subdirectory(mfio)
+add_subdirectory(metrics-mission)
 add_subdirectory(missions)
 add_subdirectory(mobile)
 add_subdirectory(mop)

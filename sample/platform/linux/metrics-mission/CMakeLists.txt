@@ -20,24 +20,30 @@
 # *
 # *
 
-cmake_minimum_required(VERSION 3.5)
-project(djiosdk-flightcontrol-sample)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -pthread -g -O0")
+cmake_minimum_required(VERSION 3.12)
+project(djiosdk-metrics-mission)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../../core/inc)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -pthread -g -O0")
 
 FILE(GLOB SOURCE_FILES *.hpp *.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/dji_linux_environment.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../common/dji_linux_helpers.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/../../../core/src/flight_sample.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/../hal/*.c
         ${CMAKE_CURRENT_SOURCE_DIR}/../osal/*.c
-        ${LINKER_HEADER_SRC}
         )
 
 if (OSDK_HOTPLUG)
     FILE(GLOB SOURCE_FILES ${SOURCE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/../hal/hotplug/*.c)
 endif ()
 
+find_package(InfluxDB REQUIRED)
+include_directories(/usr/include/influxdb-cxx)
+
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB cpp_dotenv)
+
+add_subdirectory(cpp-dotenv)
+
+# find_package(rapidjson REQUIRED)
+include_directories(/usr/include/rapidjson)

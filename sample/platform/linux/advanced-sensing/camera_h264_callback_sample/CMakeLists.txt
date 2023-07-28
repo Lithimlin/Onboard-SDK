@@ -20,7 +20,7 @@
 # *
 # *
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.5)
 project(djiosdk-liveview-sample)
 
 # Try to see if user has OpenCV installed
