@@ -83,7 +83,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   centerPoint = getCurrentPoint();
 
   metricsTimer.async_wait(boost::bind(
-    commitMetricsTimerCallback, this, boost::asio::placeholders::error));
+    commitMetricsTimerCallback, boost::asio::placeholders::error, this));
 
   ctx.run();
 }
