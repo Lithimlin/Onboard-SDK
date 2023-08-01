@@ -40,10 +40,7 @@ endif ()
 find_package(InfluxDB REQUIRED)
 include_directories(/usr/include/influxdb-cxx)
 
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB cpp_dotenv)
-
 add_subdirectory(cpp-dotenv)
 
-# find_package(rapidjson REQUIRED)
-include_directories(/usr/include/rapidjson)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB cpp_dotenv jsoncpp_lib)

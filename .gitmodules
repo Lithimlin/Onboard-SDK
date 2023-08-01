@@ -1,0 +1,3 @@
+[submodule "sample/platform/linux/metrics-mission/cpp-dotenv"]
+	path = sample/platform/linux/metrics-mission/cpp-dotenv
+	url = https://github.com/adeharo9/cpp-dotenv.git
