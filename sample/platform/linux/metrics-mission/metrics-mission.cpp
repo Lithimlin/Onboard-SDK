@@ -2,7 +2,6 @@
 #include "dotenv.h"
 
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
 
 #include <dji_telemetry.hpp>
 
@@ -53,6 +52,10 @@ waypointEventCallback(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData);
 
+void
+commitMetricsTimerCallback(const boost::system::error_code& ec,
+                           MetricsMission*                  ref);
+
 MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                influxdb::InfluxDB* influxDBPtr,
                                PointType           missionType,
@@ -79,8 +82,8 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   sleep(1);
   centerPoint = getCurrentPoint();
 
-  metricsTimer.async_wait(
-    boost::bind(commitMetricsTimer, boost::asio::placeholders::error));
+  metricsTimer.async_wait(boost::bind(
+    commitMetricsTimerCallback, this, boost::asio::placeholders::error));
 
   ctx.run();
 }
@@ -118,6 +121,61 @@ MetricsMission::flyToCenter(float altitude)
 {
   MissionConfig mission = { altitude, 0.0f, 1, 0 };
   return runWaypointMission(&mission);
+}
+
+void
+MetricsMission::commitMetrics()
+{
+  velocity = vehiclePtr->subscribe->getValue<TopicName::TOPIC_VELOCITY>();
+  gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+  rtkConnectStatus =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>();
+  rtkPosition =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
+  rtkVelocity =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_VELOCITY>();
+  rtkPositionInfo =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION_INFO>();
+  heightFusion =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_HEIGHT_FUSION>();
+  altitudeFusioned =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_FUSIONED>();
+  altitudeOfHomepoint =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
+  statusFlight =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>();
+
+  std::string hostname = dotenv::env["HOST"];
+
+  influxDBPtr->write(
+    influxdb::Point{ "drone_metrics" }
+      .addField("velocity_x", velocity.data.x)
+      .addField("velocity_y", velocity.data.y)
+      .addField("velocity_z", velocity.data.z)
+      .addField("gps_lat", gpsFused.latitude)
+      .addField("gps_lon", gpsFused.longitude)
+      .addField("gps_alt", gpsFused.altitude)
+      .addField("rtk_connect_status", (uint8_t)rtkConnectStatus.rtkConnected)
+      .addField("rtk_lat", rtkPosition.latitude)
+      .addField("rtk_lon", rtkPosition.longitude)
+      .addField("rtk_height_from_sea", rtkPosition.HFSL)
+      .addField("rtk_velocity_x", rtkVelocity.x)
+      .addField("rtk_velocity_y", rtkVelocity.y)
+      .addField("rtk_velocity_z", rtkVelocity.z)
+      .addField("rtk_position_info", rtkPositionInfo)
+      .addField("height_fusion", heightFusion)
+      .addField("altitude_fusion", altitudeFusioned)
+      .addField("altitude_of_homepoint", altitudeOfHomepoint)
+      .addField("status_flight", statusFlight)
+      .addField("mission_status", (uint8_t)missionStatus)
+      .addField("mission_type", (uint8_t)missionType)
+      .addTag("hostname", hostname));
+}
+
+void
+MetricsMission::flushMetrics()
+{
+  influxDBPtr->flushBatch();
 }
 
 WayPointSettings
@@ -314,81 +372,6 @@ MetricsMission::unsubscribe()
 }
 
 void
-MetricsMission::commitMetrics()
-{
-  velocity = vehiclePtr->subscribe->getValue<TopicName::TOPIC_VELOCITY>();
-  gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
-  rtkConnectStatus =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>();
-  rtkPosition =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
-  rtkVelocity =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_VELOCITY>();
-  rtkPositionInfo =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION_INFO>();
-  heightFusion =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_HEIGHT_FUSION>();
-  altitudeFusioned =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_FUSIONED>();
-  altitudeOfHomepoint =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
-  statusFlight =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>();
-
-  std::string hostname = dotenv::env["HOST"];
-
-  influxDBPtr->write(
-    influxdb::Point{ "drone_metrics" }
-      .addField("velocity_x", velocity.data.x)
-      .addField("velocity_y", velocity.data.y)
-      .addField("velocity_z", velocity.data.z)
-      .addField("gps_lat", gpsFused.latitude)
-      .addField("gps_lon", gpsFused.longitude)
-      .addField("gps_alt", gpsFused.altitude)
-      .addField("rtk_connect_status", (uint8_t)rtkConnectStatus.rtkConnected)
-      .addField("rtk_lat", rtkPosition.latitude)
-      .addField("rtk_lon", rtkPosition.longitude)
-      .addField("rtk_height_from_sea", rtkPosition.HFSL)
-      .addField("rtk_velocity_x", rtkVelocity.x)
-      .addField("rtk_velocity_y", rtkVelocity.y)
-      .addField("rtk_velocity_z", rtkVelocity.z)
-      .addField("rtk_position_info", rtkPositionInfo)
-      .addField("height_fusion", heightFusion)
-      .addField("altitude_fusion", altitudeFusioned)
-      .addField("altitude_of_homepoint", altitudeOfHomepoint)
-      .addField("status_flight", statusFlight)
-      .addField("mission_status", (uint8_t)missionStatus)
-      .addField("mission_type", (uint8_t)missionType)
-      .addTag("hostname", hostname));
-}
-
-void
-MetricsMission::commitMetricsTimer(const boost::system::error_code& ec)
-{
-  commitMetrics();
-
-  if (ec == boost::asio::error::operation_aborted)
-  {
-    std::cout << "\nCtrl+C pressed, quit metrics loop" << std::endl;
-    flushMetrics();
-    return;
-  }
-
-  metricsTimer.expires_at(
-    metricsTimer.expiry() +
-    boost::asio::chrono::milliseconds((int)1e3 / metricsFreq));
-
-  metricsTimer.async_wait(
-    boost::bind(commitMetricsTimer, boost::asio::placeholders::error));
-}
-
-void
-MetricsMission::flushMetrics()
-{
-  influxDBPtr->flushBatch();
-}
-
-void
 MetricsMission::setWaypointDefaults(WayPointSettings* wp)
 {
   wp->damping         = 0;
@@ -574,4 +557,25 @@ waypointEventCallback(Vehicle*      vehiclePtr,
     ((MetricsMission*)userData)->missionStatus = MissionStatus::enRoute;
     return;
   }
+}
+
+void
+commitMetricsTimerCallback(const boost::system::error_code& ec,
+                           MetricsMission*                  ref)
+{
+  ref->commitMetrics();
+
+  if (ec == boost::asio::error::operation_aborted)
+  {
+    std::cout << "\nCtrl+C pressed, quit metrics loop" << std::endl;
+    ref->flushMetrics();
+    return;
+  }
+
+  ref->metricsTimer.expires_at(
+    ref->metricsTimer.expiry() +
+    boost::asio::chrono::milliseconds((int)1e3 / metricsFreq));
+
+  ref->metricsTimer.async_wait(boost::bind(
+    commitMetricsTimerCallback, boost::asio::placeholders::error, ref));
 }
