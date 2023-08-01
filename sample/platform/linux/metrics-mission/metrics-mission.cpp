@@ -1,7 +1,7 @@
 #include "metrics-mission.hpp"
 #include "dotenv.h"
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 
 #include <dji_telemetry.hpp>
 
