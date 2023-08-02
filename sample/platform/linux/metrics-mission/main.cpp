@@ -1,7 +1,10 @@
 #include "dotenv.h"
 #include "metrics-mission.hpp"
 #include "parser.hpp"
+
 #include <InfluxDBFactory.h>
+
+#include <atomic>
 #include <boost/algorithm/string.hpp>
 #include <signal.h>
 #include <stdio.h>
@@ -12,10 +15,15 @@ using namespace DJI::OSDK::Telemetry;
 std::string
 getInfluxUrl();
 
+void
+INThandler(int sig);
+
+std::atomic<bool> g_quit(false);
+
 int
 main(int argc, char** argv)
 {
-  // TODO: SIGINT
+  signal(SIGINT, INThandler);
 
   dotenv::env.load_dotenv();
   int responseTimeout = 1;
@@ -77,7 +85,8 @@ main(int argc, char** argv)
     responseTimeout);
 
   // Run Missions
-  std::cout << "Running missions..." << std::endl;
+  std::cout << "Press Ctrl+C to exit." << std::endl;
+  std::cout << "Running " << missions.size() << " missions..." << std::endl;
   ;
   for (auto& mission : missions)
   {
@@ -92,6 +101,8 @@ main(int argc, char** argv)
 
     while (mm.missionStatus != MissionStatus::completed)
     {
+      if (g_quit.load())
+        break;
     }
   }
 
@@ -114,4 +125,12 @@ getInfluxUrl()
 
   return std::string("http://" + influxUser + ":" + influxPass + "@" +
                      influxHost + ":" + influxPort + "?db=" + influxBucket);
+}
+
+void
+INThandler(int sig)
+{
+  g_quit.store(true);
+  std::cout << "Exiting..." << std::endl;
+  exit(0);
 }
