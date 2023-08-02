@@ -15,6 +15,8 @@ load_mission_config(const std::string& filename)
   std::string                errs;
   std::vector<MissionConfig> missions;
 
+  std::cout << "Loading missions from " << filename << std::endl;
+
   rbuilder["allowComments"]       = true;
   rbuilder["allowTrailingCommas"] = true;
 

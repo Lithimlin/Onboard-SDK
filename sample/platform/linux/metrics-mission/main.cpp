@@ -2,6 +2,7 @@
 #include "metrics-mission.hpp"
 #include "parser.hpp"
 #include <InfluxDBFactory.h>
+#include <boost/algorithm/string.hpp>
 #include <signal.h>
 #include <stdio.h>
 
@@ -40,6 +41,8 @@ main(int argc, char** argv)
   // Obtain Mission Type
   std::string missionTypeStr = dotenv::env["MISSION_TYPE"];
   PointType   missionType;
+  boost::algorithm::to_lower(missionTypeStr);
+
   if (missionTypeStr.empty())
   {
     missionType = PointType::waypoint;
@@ -54,15 +57,19 @@ main(int argc, char** argv)
   }
   else
   {
-    std::cout << "Invalid mission type, defaulting to \"Waypoint\".\n";
+    std::cout << "Invalid mission type, defaulting to \"waypoint\"."
+              << std::endl;
     missionType = PointType::waypoint;
   }
 
   // Read Missions
+  std::cout << "Reading missions..." << std::endl;
   std::string                missionsPath = dotenv::env["MISSIONS_PATH"];
   std::vector<MissionConfig> missions     = load_mission_config(missionsPath);
 
   // Init Missions
+  std::cout << "Initializing missions..." << std::endl;
+  ;
   MetricsMission mm =
     MetricsMission(vehiclePtr, db.get(), missionType, responseTimeout);
 
@@ -71,6 +78,8 @@ main(int argc, char** argv)
     responseTimeout);
 
   // Run Missions
+  std::cout << "Running missions..." << std::endl;
+  ;
   for (auto& mission : missions)
   {
     std::cout << "Running mission: (" << mission.toString() << ")\n";
