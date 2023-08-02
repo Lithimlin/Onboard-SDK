@@ -1,0 +1,25 @@
+{
+    "waitTime": 10, //optional
+    "missions": [
+        {
+            "altitude": 3.0,
+            "radius": 250.0,
+            "numStops": 31
+        },
+        {
+            "altitude": 3.0,
+            "radius": 200.0,
+            "numStops": 25
+        },
+        {
+            "altitude": 38.0,
+            "radius": 247.0,
+            "numStops": 31
+        },
+        {
+            "altitude": 38.0,
+            "radius": 197.0,
+            "numStops": 25
+        }
+    ]
+}
