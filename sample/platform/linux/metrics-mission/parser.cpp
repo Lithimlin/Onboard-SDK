@@ -62,7 +62,7 @@ load_mission_config(const std::string& filename)
     float         altitude = obj["altitude"].asFloat();
     float         radius   = obj["radius"].asFloat();
     uint8_t       numStops = obj["numStops"].asInt();
-    MissionConfig mission = MissionConfig(altitude, radius, numStops, waitTime);
+    MissionConfig mission(altitude, radius, numStops, waitTime);
 
     missions.push_back(mission);
   }
