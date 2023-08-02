@@ -70,11 +70,6 @@ public:
   bool stopMission();
   bool flyToCenter(float altitude = 5.0f);
 
-public:
-  boost::asio::steady_timer metricsTimer;
-  void                      commitMetrics();
-  void                      flushMetrics();
-
 private:
   Vehicle*                vehiclePtr;
   influxdb::InfluxDB*     influxDBPtr;
@@ -83,6 +78,12 @@ private:
   WayPointSettings        centerPoint;
   boost::asio::io_context ctx;
 
+public:
+  boost::asio::steady_timer metricsTimer;
+  void                      commitMetrics();
+  void                      flushMetrics();
+
+private:
   WayPointSettings getCurrentPoint();
 
   bool runWaypointMission(MissionConfig* mission);
