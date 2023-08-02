@@ -67,6 +67,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   , ctx()
   , metricsTimer(ctx, boost::asio::chrono::seconds(1))
 {
+  std::cout << "MetricsMission::MetricsMission" << std::endl;
   if (!influxDBPtr)
   {
     std::cerr << "InfluxDB pointer is null" << std::endl;
