@@ -90,7 +90,7 @@ main(int argc, char** argv)
   ;
   for (auto& mission : missions)
   {
-    std::cout << "Running mission: (" << mission.toString() << ")\n";
+    std::cout << "Running mission: (" << mission << ")\n";
 
     bool status = mm.runMission(&mission);
     if (!status)

@@ -590,3 +590,19 @@ commitMetricsTimerCallback(const boost::system::error_code& ec,
   ref->metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, ref));
 }
+
+std::string
+MissionConfig::toString() const
+{
+  std::stringstream ss;
+  ss << "Altitude: " << this->altitude << ", Radius: " << this->radius
+     << ", NumStops: " << this->numStops << ", WaitTime: " << this->waitTime;
+  return ss.str();
+}
+
+std::ostream&
+operator<<(std::ostream& o, const MissionConfig& mc)
+{
+  o << mc.toString();
+  return o;
+}

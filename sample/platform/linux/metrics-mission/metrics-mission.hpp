@@ -30,14 +30,11 @@ struct MissionConfig
   {
   }
 
-  std::string toString()
-  {
-    std::stringstream ss;
-    ss << "Altitude: " << altitude << ", Radius: " << radius
-       << ", NumStops: " << numStops << ", WaitTime: " << waitTime;
-    return ss.str();
-  }
+  std::string toString() const;
 };
+
+std::ostream&
+operator<<(std::ostream& o, const MissionConfig& mc);
 
 enum PointType
 {
