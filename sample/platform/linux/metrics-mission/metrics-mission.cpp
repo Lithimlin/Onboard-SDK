@@ -307,13 +307,7 @@ bool
 MetricsMission::stopWaypointMission()
 {
   std::cout << "Stopping waypoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehiclePtr->missionManager->wpMission->stop(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    return false;
-  }
+  vehiclePtr->missionManager->wpMission->stop(responseTimeout);
   missionStatus = MissionStatus::completed;
   return true;
 }
@@ -322,13 +316,7 @@ bool
 MetricsMission::stopHotpointMission()
 {
   std::cout << "Stopping hotpoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehiclePtr->missionManager->hpMission->stop(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    return false;
-  }
+  vehiclePtr->missionManager->hpMission->stop(responseTimeout);
   missionStatus = MissionStatus::completed;
   return true;
 }
