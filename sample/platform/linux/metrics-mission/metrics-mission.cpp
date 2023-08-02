@@ -83,6 +83,8 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 
   std::cout << "Recording position..." << std::endl;
   this->centerPoint = getCurrentPoint();
+  std::cout << "Center point is (" << this->centerPoint.latitude << ", "
+            << this->centerPoint.longitude << ")" << std::endl;
 
   std::cout << "Starting metrics timer..." << std::endl;
   this->metricsTimer.async_wait(boost::bind(
