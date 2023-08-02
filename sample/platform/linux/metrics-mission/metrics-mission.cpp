@@ -16,7 +16,7 @@ const float LAT_QUOTIENT =
 const float LON_QUOTIENT =
   41.0f; // magic number that is needed for correct conversion.
 
-int       metricsFreq = 5; // Hz
+int       metricsFreq = 1; // Hz
 TopicName topicList[] = {
   TopicName::TOPIC_VELOCITY,
   TopicName::TOPIC_GPS_FUSED,
@@ -77,7 +77,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 
   if (!subscribe())
   {
-    std::cerr << "Failed to subscribe in waypoint mission..." << std::endl;
+    std::cerr << "Failed to subscribe in MetricsMission..." << std::endl;
     exit(-1);
   }
   sleep(1);
