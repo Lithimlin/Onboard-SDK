@@ -85,8 +85,8 @@ main(int argc, char** argv)
     responseTimeout);
 
   // Run Missions
-  std::thread metricsThread([&] { mm.runContext(); });
-  std::cout << "Press Ctrl+C to exit." << std::endl;
+  // std::thread metricsThread([&] { mm.runContext(); });
+  std::cout << std::endl << "Press Ctrl+C to exit." << std::endl;
   std::cout << "Running " << missions.size() << " missions..." << std::endl;
   ;
   for (auto& mission : missions)
