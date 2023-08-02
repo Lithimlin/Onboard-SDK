@@ -74,8 +74,9 @@ private:
   boost::asio::io_context ctx;
 
 public:
-  boost::asio::steady_timer metricsTimer =
-    boost::asio::steady_timer(ctx, boost::asio::chrono::seconds(1));
+  boost::asio::steady_timer metricsTimer;
+  //  =
+  // boost::asio::steady_timer(ctx, boost::asio::chrono::seconds(1));
   void commitMetrics();
   void flushMetrics();
 
