@@ -64,7 +64,6 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   , influxDBPtr(influxDBPtr)
   , missionType(missionType)
   , responseTimeout(responseTimeout)
-  // , ctx()
   , metricsTimer(this->ctx, boost::asio::chrono::seconds(1))
 {
   if (!this->influxDBPtr)
@@ -90,6 +89,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
     commitMetricsTimerCallback, boost::asio::placeholders::error, this));
 
   this->ctx.run();
+  std::cout << "MetricsMission initialized..." << std::endl;
 }
 
 MetricsMission::~MetricsMission()
