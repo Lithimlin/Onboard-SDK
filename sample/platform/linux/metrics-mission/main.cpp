@@ -85,6 +85,7 @@ main(int argc, char** argv)
     responseTimeout);
 
   // Run Missions
+  std::thread metricsThread([&] { mm.runContext(); });
   std::cout << "Press Ctrl+C to exit." << std::endl;
   std::cout << "Running " << missions.size() << " missions..." << std::endl;
   ;
@@ -95,7 +96,7 @@ main(int argc, char** argv)
     bool status = mm.runMission(&mission);
     if (!status)
     {
-      std::cout << "Could not run mission.";
+      std::cout << "Could not run mission." << std::endl;
       continue;
     }
 
