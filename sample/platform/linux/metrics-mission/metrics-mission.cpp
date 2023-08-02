@@ -64,7 +64,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   , influxDBPtr(influxDBPtr)
   , missionType(missionType)
   , responseTimeout(responseTimeout)
-  , metricsTimer(this->ctx, boost::asio::chrono::seconds(1))
+  , metricsTimer(ctx, boost::asio::chrono::seconds(1))
 {
   if (!this->influxDBPtr)
   {
@@ -81,12 +81,12 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   sleep(1);
 
   std::cout << "Recording position..." << std::endl;
-  this->centerPoint = getCurrentPoint();
-  std::cout << "Center point is (" << this->centerPoint.latitude << ", "
-            << this->centerPoint.longitude << ")" << std::endl;
+  centerPoint = getCurrentPoint();
+  std::cout << "Center point is (" << centerPoint.latitude << ", "
+            << centerPoint.longitude << ")" << std::endl;
 
   std::cout << "Starting metrics timer..." << std::endl;
-  this->metricsTimer.async_wait(boost::bind(
+  metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, this));
 
   std::cout << "MetricsMission initialized..." << std::endl;
@@ -125,7 +125,7 @@ MetricsMission::runMission(MissionConfig* mission)
 void
 MetricsMission::runContext()
 {
-  this->ctx.run();
+  ctx.run();
 }
 
 bool
@@ -484,8 +484,6 @@ MetricsMission::uploadWaypoints(std::vector<WayPointSettings>& waypoints)
 bool
 MetricsMission::initHotpointMission(MissionConfig* mission)
 {
-  centerPoint = getCurrentPoint();
-
   vehiclePtr->missionManager->init(
     DJI_MISSION_TYPE::HOTPOINT, responseTimeout, NULL);
   vehiclePtr->missionManager->printInfo();
@@ -589,10 +587,9 @@ std::string
 MissionConfig::toString() const
 {
   std::stringstream ss;
-  ss << "Altitude: " << to_string(this->altitude)
-     << ", Radius: " << to_string(this->radius)
-     << ", NumStops: " << to_string(this->numStops)
-     << ", WaitTime: " << to_string(this->waitTime);
+  ss << "Altitude: " << to_string(altitude) << ", Radius: " << to_string(radius)
+     << ", NumStops: " << to_string(numStops)
+     << ", WaitTime: " << to_string(waitTime);
   return ss.str();
 }
 
