@@ -107,6 +107,7 @@ main(int argc, char** argv)
     }
   }
 
+  db.release();
   return 0;
 }
 
