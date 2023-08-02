@@ -85,6 +85,7 @@ main(int argc, char** argv)
     responseTimeout);
 
   // Run Missions
+  mm.runContext();
   std::cout << "Press Ctrl+C to exit." << std::endl;
   std::cout << "Running " << missions.size() << " missions..." << std::endl;
   ;
@@ -99,7 +100,6 @@ main(int argc, char** argv)
       continue;
     }
 
-    mm.runContext();
     while (mm.missionStatus != MissionStatus::completed)
     {
       if (g_quit.load())
