@@ -202,21 +202,20 @@ MetricsMission::getCurrentPoint()
         .rtkConnected)
   {
     std::cout << "Getting RTK position..." << std::endl;
-    rtkPosition =
+    TypeMap<TopicName::TOPIC_RTK_POSITION>::type rtkPos =
       vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
-    point.latitude  = rtkPosition.latitude;
-    point.longitude = rtkPosition.longitude;
-    std::cout << "RTK position is (" << rtkPosition.latitude << ", "
-              << rtkPosition.longitude << ")" << std::endl;
+    point.latitude  = rtkPos.latitude;
+    point.longitude = rtkPos.longitude;
+    printf("GPS position is (LL): %f, %f", rtkPos.latitude, rtkPos.longitude);
   }
   else
   {
     std::cout << "Getting GPS position..." << std::endl;
-    gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
-    point.latitude  = gpsFused.latitude;
-    point.longitude = gpsFused.longitude;
-    std::cout << "GPS position is (" << gpsFused.latitude << ", "
-              << gpsFused.longitude << ")" << std::endl;
+    TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsPos =
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+    point.latitude  = gpsPos.latitude;
+    point.longitude = gpsPos.longitude;
+    printf("GPS position is (LL): %f, %f", gpsPos.latitude, gpsPos.longitude);
   }
 
   point.altitude            = 0;
