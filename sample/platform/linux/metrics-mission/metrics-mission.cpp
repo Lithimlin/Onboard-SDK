@@ -71,7 +71,6 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
     std::cerr << "InfluxDB pointer is null" << std::endl;
     exit(-1);
   }
-  std::cout << "InfluxDB pointer is " << influxDBPtr << std::endl;
   this->influxDBPtr->batchOf(50);
 
   if (!subscribe())
