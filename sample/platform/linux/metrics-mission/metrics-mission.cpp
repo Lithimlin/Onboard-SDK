@@ -491,6 +491,7 @@ MetricsMission::initHotpointMission(MissionConfig* mission)
   vehiclePtr->missionManager->hpMission->setRadius(mission->radius);
   vehiclePtr->missionManager->hpMission->setYawMode(
     HotpointMission::YawMode::YAW_INSIDE);
+  vehiclePtr->missionManager->hpMission->setYawRate(15.0f); // deg/s
 
   return true;
 }
