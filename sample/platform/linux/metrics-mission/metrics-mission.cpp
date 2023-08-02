@@ -72,6 +72,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
     std::cerr << "InfluxDB pointer is null" << std::endl;
     exit(-1);
   }
+  std::cout << "InfluxDB pointer is " << influxDBPtr << std::endl;
   influxDBPtr->batchOf(50);
 
   if (!subscribe())
@@ -80,8 +81,11 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
     exit(-1);
   }
   sleep(1);
+
+  std::cout << "Recording position..." << std::endl;
   centerPoint = getCurrentPoint();
 
+  std::cout << "Starting metrics timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, this));
 
@@ -91,7 +95,9 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 MetricsMission::~MetricsMission()
 {
   unsubscribe();
+  std::cout << "Cancelling metrics timer..." << std::endl;
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
+  std::cout << "Cancelling mission..." << std::endl;
   stopMission();
 }
 
