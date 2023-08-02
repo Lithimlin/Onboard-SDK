@@ -37,7 +37,6 @@ main(int argc, char** argv)
     std::cout << "Could not connect to InfluxDB, exiting." << std::endl;
     return -1;
   }
-  std::cout << "InfluxDB pointer: " << db.get() << std::endl;
 
   // Obtain Mission Type
   std::string missionTypeStr = dotenv::env["MISSION_TYPE"];

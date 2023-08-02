@@ -60,10 +60,10 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                influxdb::InfluxDB* influxDBPtr,
                                PointType           missionType,
                                int                 responseTimeout)
-// : vehiclePtr(vehiclePtr)
-// , influxDBPtr(influxDBPtr)
-// , missionType(missionType)
-// , responseTimeout(responseTimeout)
+  : vehiclePtr(nullptr)
+  , influxDBPtr(nullptr)
+  , missionType(PointType::waypoint)
+  , responseTimeout(1)
 // , ctx()
 // , metricsTimer(this->ctx, boost::asio::chrono::seconds(1))
 {
