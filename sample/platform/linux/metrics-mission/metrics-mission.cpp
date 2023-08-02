@@ -61,7 +61,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                PointType           missionType,
                                int                 responseTimeout)
   : vehiclePtr(nullptr)
-  , influxDBPtr(nullptr)
+  // , influxDBPtr(nullptr)
   , missionType(PointType::waypoint)
   , responseTimeout(1)
 // , ctx()
