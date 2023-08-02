@@ -206,6 +206,8 @@ MetricsMission::getCurrentPoint()
       vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
     point.latitude  = rtkPosition.latitude;
     point.longitude = rtkPosition.longitude;
+    std::cout << "RTK position is (" << rtkPosition.latitude << ", "
+              << rtkPosition.longitude << ")" << std::endl;
   }
   else
   {
@@ -213,6 +215,8 @@ MetricsMission::getCurrentPoint()
     gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
     point.latitude  = gpsFused.latitude;
     point.longitude = gpsFused.longitude;
+    std::cout << "GPS position is (" << gpsFused.latitude << ", "
+              << gpsFused.longitude << ")" << std::endl;
   }
 
   point.altitude            = 0;
