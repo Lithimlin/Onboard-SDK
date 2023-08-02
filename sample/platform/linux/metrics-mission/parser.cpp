@@ -64,8 +64,6 @@ load_mission_config(const std::string& filename)
     uint8_t       numStops = obj["numStops"].asInt();
     MissionConfig mission(altitude, radius, numStops, waitTime);
 
-    std::cout << "Read mission: " << mission << std::endl;
-
     missions.push_back(mission);
   }
 
