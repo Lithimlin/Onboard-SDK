@@ -60,14 +60,22 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                influxdb::InfluxDB* influxDBPtr,
                                PointType           missionType,
                                int                 responseTimeout)
-  : vehiclePtr(vehiclePtr)
-  // , influxDBPtr(influxDBPtr)
-  , missionType(missionType)
+  : // vehiclePtr(vehiclePtr)
+    // , influxDBPtr(influxDBPtr)
+  //,
+  missionType(missionType)
   , responseTimeout(responseTimeout)
   , ctx()
   , metricsTimer(ctx, boost::asio::chrono::seconds(1))
 {
   std::cout << "MetricsMission::MetricsMission" << std::endl;
+  if (!vehiclePtr)
+  {
+    std::cerr << "vehicle pointer is null" << std::endl;
+    return;
+  }
+  this->vehiclePtr = vehiclePtr;
+
   if (!influxDBPtr)
   {
     std::cerr << "InfluxDB pointer is null" << std::endl;
