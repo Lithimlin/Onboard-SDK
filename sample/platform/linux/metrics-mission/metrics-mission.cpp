@@ -61,7 +61,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                PointType           missionType,
                                int                 responseTimeout)
   : vehiclePtr(vehiclePtr)
-  , influxDBPtr(influxDBPtr)
+  // , influxDBPtr(influxDBPtr)
   , missionType(missionType)
   , responseTimeout(responseTimeout)
   , ctx()
@@ -74,7 +74,8 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
     exit(-1);
   }
   std::cout << "InfluxDB pointer is " << influxDBPtr << std::endl;
-  influxDBPtr->batchOf(50);
+  this->influxDBPtr = influxDBPtr;
+  this->influxDBPtr->batchOf(50);
 
   if (!subscribe())
   {
@@ -84,13 +85,13 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   sleep(1);
 
   std::cout << "Recording position..." << std::endl;
-  centerPoint = getCurrentPoint();
+  this->centerPoint = getCurrentPoint();
 
   std::cout << "Starting metrics timer..." << std::endl;
-  metricsTimer.async_wait(boost::bind(
+  this->metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, this));
 
-  ctx.run();
+  this->ctx.run();
 }
 
 MetricsMission::~MetricsMission()
