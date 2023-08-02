@@ -64,8 +64,8 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   , influxDBPtr(influxDBPtr)
   , missionType(missionType)
   , responseTimeout(responseTimeout)
-  // , ctx()
-  , metricsTimer(ctx, boost::asio::chrono::seconds(1))
+// , ctx()
+// , metricsTimer(this->ctx, boost::asio::chrono::seconds(1))
 {
   std::cout << "MetricsMission::MetricsMission" << std::endl;
   // if (!vehiclePtr)

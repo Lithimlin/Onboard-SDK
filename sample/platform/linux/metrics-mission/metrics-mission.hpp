@@ -70,9 +70,10 @@ public:
   bool stopMission();
   bool flyToCenter(float altitude = 5.0f);
 
-  boost::asio::steady_timer metricsTimer;
-  void                      commitMetrics();
-  void                      flushMetrics();
+  boost::asio::steady_timer metricsTimer =
+    boost::asio::steady_timer(ctx, boost::asio::chrono::seconds(1));
+  void commitMetrics();
+  void flushMetrics();
 
 private:
   Vehicle*                vehiclePtr;
