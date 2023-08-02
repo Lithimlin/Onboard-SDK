@@ -25,7 +25,7 @@ main(int argc, char** argv)
   Vehicle*   vehiclePtr = linuxEnvironment.getVehicle();
   if (vehiclePtr == nullptr)
   {
-    std::cout << "Vehicle not initialized, exiting.\n";
+    std::cout << "Vehicle not initialized, exiting." << std::endl;
     return -1;
   }
 
@@ -34,9 +34,10 @@ main(int argc, char** argv)
   auto        db        = influxdb::InfluxDBFactory::Get(influxUrl);
   if (!db.get())
   {
-    std::cout << "Could not connect to InfluxDB, exiting.\n";
+    std::cout << "Could not connect to InfluxDB, exiting." << std::endl;
     return -1;
   }
+  std::cout << "InfluxDB pointer: " << db.get() << std::endl;
 
   // Obtain Mission Type
   std::string missionTypeStr = dotenv::env["MISSION_TYPE"];
@@ -69,7 +70,6 @@ main(int argc, char** argv)
 
   // Init Missions
   std::cout << "Initializing missions..." << std::endl;
-  ;
   MetricsMission mm =
     MetricsMission(vehiclePtr, db.get(), missionType, responseTimeout);
 
