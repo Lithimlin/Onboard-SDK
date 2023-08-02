@@ -99,6 +99,7 @@ main(int argc, char** argv)
       continue;
     }
 
+    mm.runContext();
     while (mm.missionStatus != MissionStatus::completed)
     {
       if (g_quit.load())

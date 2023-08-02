@@ -67,6 +67,7 @@ public:
   ~MetricsMission();
 
   bool runMission(MissionConfig* mission);
+  void runContext();
   bool stopMission();
   bool flyToCenter(float altitude = 5.0f);
 

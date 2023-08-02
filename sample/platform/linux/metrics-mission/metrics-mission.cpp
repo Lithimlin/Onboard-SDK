@@ -88,7 +88,6 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   this->metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, this));
 
-  this->ctx.run();
   std::cout << "MetricsMission initialized..." << std::endl;
 }
 
@@ -120,6 +119,12 @@ MetricsMission::runMission(MissionConfig* mission)
     default:
       return false;
   }
+}
+
+void
+MetricsMission::runContext()
+{
+  this->ctx.run();
 }
 
 bool
