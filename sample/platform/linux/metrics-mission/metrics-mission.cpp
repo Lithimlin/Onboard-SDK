@@ -595,8 +595,10 @@ std::string
 MissionConfig::toString() const
 {
   std::stringstream ss;
-  ss << "Altitude: " << this->altitude << ", Radius: " << this->radius
-     << ", NumStops: " << this->numStops << ", WaitTime: " << this->waitTime;
+  ss << "Altitude: " << to_string(this->altitude)
+     << ", Radius: " << to_string(this->radius)
+     << ", NumStops: " << to_string(this->numStops)
+     << ", WaitTime: " << to_string(this->waitTime);
   return ss.str();
 }
 
