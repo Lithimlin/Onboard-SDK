@@ -640,7 +640,7 @@ operator<<(std::ostream& o, const WayPointSettings& waypoint)
 }
 
 std::string
-waypoint_to_string(const WayPointSettings& waypoint, bool asRad = false)
+waypoint_to_string(const WayPointSettings& waypoint, bool asRad)
 {
   std::stringstream ss;
   if (asRad)
