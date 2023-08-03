@@ -18,11 +18,16 @@ const float LON_QUOTIENT =
 
 int       metricsFreq = 1; // Hz
 TopicName topicList[] = {
-  TopicName::TOPIC_VELOCITY,          TopicName::TOPIC_GPS_FUSED,
-  TopicName::TOPIC_GPS_POSITION,      TopicName::TOPIC_RTK_CONNECT_STATUS,
-  TopicName::TOPIC_RTK_POSITION,      TopicName::TOPIC_RTK_VELOCITY,
-  TopicName::TOPIC_RTK_POSITION_INFO, TopicName::TOPIC_HEIGHT_FUSION,
-  TopicName::TOPIC_ALTITUDE_FUSIONED, TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
+  TopicName::TOPIC_VELOCITY,
+  TopicName::TOPIC_GPS_FUSED,
+  // TopicName::TOPIC_GPS_POSITION,
+  TopicName::TOPIC_RTK_CONNECT_STATUS,
+  TopicName::TOPIC_RTK_POSITION,
+  TopicName::TOPIC_RTK_VELOCITY,
+  TopicName::TOPIC_RTK_POSITION_INFO,
+  TopicName::TOPIC_HEIGHT_FUSION,
+  TopicName::TOPIC_ALTITUDE_FUSIONED,
+  TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
   TopicName::TOPIC_STATUS_FLIGHT,
 };
 
@@ -120,7 +125,6 @@ MetricsMission::commitMetrics()
   // clang-format off
   TypeMap<TopicName::TOPIC_VELOCITY>::type                velocity; // in m/s
   TypeMap<TopicName::TOPIC_GPS_FUSED>::type               gpsFused; // in rad (Lat,Lon), m (Alt)
-  TypeMap<TopicName::TOPIC_GPS_POSITION>::type            gpsPosition; // in rad (Lat,Lon), m (Alt)
   TypeMap<TopicName::TOPIC_RTK_CONNECT_STATUS>::type      rtkConnectStatus; // bool
   TypeMap<TopicName::TOPIC_RTK_POSITION>::type            rtkPosition; // in deg (x, y), m(z)
   TypeMap<TopicName::TOPIC_RTK_VELOCITY>::type            rtkVelocity; // in cm/s
@@ -215,11 +219,12 @@ MetricsMission::getCurrentPoint()
               << gpsFused.latitude << "\t" << gpsFused.longitude << "\t"
               << gpsFused.altitude << std::endl;
 
-    TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
-      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
-    std::cout << "GPS position is (xyz):\n"
-              << gpsPosition.x << "\t" << gpsPosition.y << "\t" << gpsPosition.z
-              << std::endl;
+    // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
+    //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
+    // std::cout << "GPS position is (xyz):\n"
+    //           << gpsPosition.x << "\t" << gpsPosition.y << "\t" <<
+    //           gpsPosition.z
+    //           << std::endl;
   }
 
   point.altitude       = 0;
