@@ -204,9 +204,8 @@ MetricsMission::getCurrentPoint()
     point.latitude  = rtkPosition.latitude;
     point.longitude = rtkPosition.longitude;
     std::cout << "RTK position is (LLZ):\n"
-              << rad_to_deg(rtkPosition.latitude) << " deg\t"
-              << rad_to_deg(rtkPosition.longitude) << " deg\t"
-              << rtkPosition.HFSL << " m" << std::endl;
+              << rtkPosition.latitude << " rad\t" << rtkPosition.longitude
+              << " rad\t" << rtkPosition.HFSL << " m" << std::endl;
   }
   else
   {
@@ -216,9 +215,8 @@ MetricsMission::getCurrentPoint()
     point.latitude  = gpsFused.latitude;
     point.longitude = gpsFused.longitude;
     std::cout << "GPS fused data is (LLA):\n"
-              << rad_to_deg(gpsFused.latitude) << " deg\t"
-              << rad_to_deg(gpsFused.longitude) << " deg\t" << gpsFused.altitude
-              << " m" << std::endl;
+              << gpsFused.latitude << " rad\t" << gpsFused.longitude << " rad\t"
+              << gpsFused.altitude << " m" << std::endl;
 
     // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
     //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
