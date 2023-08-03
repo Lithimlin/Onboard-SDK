@@ -202,7 +202,7 @@ setWaypointDefaults(WayPointSettings* wp)
 void
 setWaypointInitDefaults(WayPointInitSettings* fdata)
 {
-  fdata->maxVelocity    = 20;
+  fdata->maxVelocity    = 15;
   fdata->idleVelocity   = 5;
   fdata->finishAction   = 0;
   fdata->executiveTimes = 1;
