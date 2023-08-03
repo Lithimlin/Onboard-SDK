@@ -25,24 +25,6 @@ TopicName topicList[] = {
   TopicName::TOPIC_ALTITUDE_FUSIONED, TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
   TopicName::TOPIC_STATUS_FLIGHT,
 };
-int  numTopics       = sizeof(topicList) / sizeof(topicList[0]);
-bool enableTimestamp = true;
-
-// subscribed variables
-// clang-format off
-TypeMap<TopicName::TOPIC_VELOCITY>::type                velocity; // in m/s
-TypeMap<TopicName::TOPIC_GPS_FUSED>::type               gpsFused; // in rad (Lat,Lon), m (Alt)
-TypeMap<TopicName::TOPIC_GPS_POSITION>::type            gpsPosition; // in rad (Lat,Lon), m (Alt)
-TypeMap<TopicName::TOPIC_RTK_CONNECT_STATUS>::type      rtkConnectStatus; // bool
-TypeMap<TopicName::TOPIC_RTK_POSITION>::type            rtkPosition; // in deg (x, y), m(z)
-TypeMap<TopicName::TOPIC_RTK_VELOCITY>::type            rtkVelocity; // in cm/s
-TypeMap<TopicName::TOPIC_RTK_POSITION_INFO>::type       rtkPositionInfo; // enum, see
-                    // https://developer.dji.com/onboard-api-reference/group__telem.html
-TypeMap<TopicName::TOPIC_HEIGHT_FUSION>::type           heightFusion; // in m, estimate of current height from ground
-TypeMap<TopicName::TOPIC_ALTITUDE_FUSIONED>::type       altitudeFusioned; // in m
-TypeMap<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>::type   altitudeOfHomepoint; // in m
-TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stopped, 1: on ground, 2: in air
-// clang-format on
 
 void
 waypointEventCallback(Vehicle*      vehiclePtr,
@@ -135,6 +117,21 @@ MetricsMission::flyToCenter(float altitude)
 void
 MetricsMission::commitMetrics()
 {
+  // clang-format off
+  TypeMap<TopicName::TOPIC_VELOCITY>::type                velocity; // in m/s
+  TypeMap<TopicName::TOPIC_GPS_FUSED>::type               gpsFused; // in rad (Lat,Lon), m (Alt)
+  TypeMap<TopicName::TOPIC_GPS_POSITION>::type            gpsPosition; // in rad (Lat,Lon), m (Alt)
+  TypeMap<TopicName::TOPIC_RTK_CONNECT_STATUS>::type      rtkConnectStatus; // bool
+  TypeMap<TopicName::TOPIC_RTK_POSITION>::type            rtkPosition; // in deg (x, y), m(z)
+  TypeMap<TopicName::TOPIC_RTK_VELOCITY>::type            rtkVelocity; // in cm/s
+  TypeMap<TopicName::TOPIC_RTK_POSITION_INFO>::type       rtkPositionInfo; // enum, see
+                      // https://developer.dji.com/onboard-api-reference/group__telem.html
+  TypeMap<TopicName::TOPIC_HEIGHT_FUSION>::type           heightFusion; // in m, estimate of current height from ground
+  TypeMap<TopicName::TOPIC_ALTITUDE_FUSIONED>::type       altitudeFusioned; // in m
+  TypeMap<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>::type   altitudeOfHomepoint; // in m
+  TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stopped, 1: on ground, 2: in air
+  // clang-format on
+
   velocity = vehiclePtr->subscribe->getValue<TopicName::TOPIC_VELOCITY>();
   gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
   rtkConnectStatus =
@@ -199,7 +196,7 @@ MetricsMission::getCurrentPoint()
         .rtkConnected)
   {
     std::cout << "Getting RTK position..." << std::endl;
-    rtkPosition =
+    TypeMap<TopicName::TOPIC_RTK_POSITION>::type rtkPosition =
       vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
     point.latitude  = rtkPosition.latitude;
     point.longitude = rtkPosition.longitude;
@@ -210,26 +207,27 @@ MetricsMission::getCurrentPoint()
   else
   {
     std::cout << "Getting GPS position..." << std::endl;
-    gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+    TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsFused =
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
     point.latitude  = gpsFused.latitude;
     point.longitude = gpsFused.longitude;
     std::cout << "GPS fused data is (LLA):\n"
               << gpsFused.latitude << "\t" << gpsFused.longitude << "\t"
               << gpsFused.altitude << std::endl;
 
-    gpsPosition =
+    TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
       vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
     std::cout << "GPS position is (xyz):\n"
               << gpsPosition.x << "\t" << gpsPosition.y << "\t" << gpsPosition.z
               << std::endl;
   }
 
-  point.altitude            = 0;
-  point.hasAction           = 1;
-  point.actionNumber        = 1;
-  point.actionRepeat        = 4;
-  point.commandList[0]      = WP_ACTION_STAY;
-  point.commandParameter[0] = 0 * 250;
+  point.altitude       = 0;
+  point.hasAction      = 1;
+  point.actionNumber   = 1;
+  point.actionRepeat   = 4;
+  point.commandList[0] = WP_ACTION_STAY;
+  // point.commandParameter[0] = 0 * 250;
 
   return point;
 }
@@ -345,6 +343,10 @@ MetricsMission::subscribe()
     ACK::getErrorCodeMessage(subscribeStatus, __func__);
     return false;
   }
+
+  int  numTopics       = sizeof(topicList) / sizeof(topicList[0]);
+  bool enableTimestamp = false;
+
   bool pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
     PACKAGE_ID, numTopics, topicList, enableTimestamp, metricsFreq);
 
@@ -362,7 +364,7 @@ MetricsMission::subscribe()
   if (ACK::getError(subscribeStatus) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(subscribeStatus, __func__);
-    vehiclePtr->subscribe->removePackage(PACKAGE_ID, responseTimeout);
+    unsubscribe();
     return false;
   }
   return true;
