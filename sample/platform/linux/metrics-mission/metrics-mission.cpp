@@ -10,20 +10,7 @@ using namespace DJI::OSDK::Telemetry;
 
 const float RADIUS_EARTH = 6378137.0f; // in meters
 
-int       metricsFreq = 1; // Hz
-TopicName topicList[] = {
-  TopicName::TOPIC_VELOCITY,
-  TopicName::TOPIC_GPS_FUSED,
-  // TopicName::TOPIC_GPS_POSITION,
-  TopicName::TOPIC_RTK_CONNECT_STATUS,
-  TopicName::TOPIC_RTK_POSITION,
-  TopicName::TOPIC_RTK_VELOCITY,
-  TopicName::TOPIC_RTK_POSITION_INFO,
-  TopicName::TOPIC_HEIGHT_FUSION,
-  TopicName::TOPIC_ALTITUDE_FUSIONED,
-  TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
-  TopicName::TOPIC_STATUS_FLIGHT,
-};
+int metricsCommitFreq = 5; // Hz
 
 void
 waypointEventCallback(Vehicle*      vehiclePtr,
@@ -348,13 +335,22 @@ MetricsMission::subscribe()
     return false;
   }
 
-  int  numTopics       = sizeof(topicList) / sizeof(topicList[0]);
+  bool pkgStatus;
+  std::cout << "Subscribing to topics..." << std::endl;
+
+  int       pkgIndex       = 0;
+  int       freq           = 5; // Hz
+  TopicName topicList5Hz[] = {
+    TopicName::TOPIC_RTK_POSITION,
+    TopicName::TOPIC_RTK_VELOCITY,
+    TopicName::TOPIC_RTK_POSITION_INFO,
+    TopicName::TOPIC_RTK_CONNECT_STATUS,
+  };
+  int  numTopics       = sizeof(topicList5Hz) / sizeof(topicList5Hz[0]);
   bool enableTimestamp = false;
 
-  bool pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
-    PACKAGE_ID, numTopics, topicList, enableTimestamp, metricsFreq);
-
-  std::cout << "Subscribing to topics..." << std::endl;
+  pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
+    pkgIndex, numTopics, topicList5Hz, enableTimestamp, metricsFreq);
 
   if (!(pkgStatus))
   {
@@ -363,7 +359,7 @@ MetricsMission::subscribe()
   }
 
   subscribeStatus =
-    vehiclePtr->subscribe->startPackage(PACKAGE_ID, responseTimeout);
+    vehiclePtr->subscribe->startPackage(pkgIndex, responseTimeout);
 
   if (ACK::getError(subscribeStatus) != ACK::SUCCESS)
   {
@@ -371,15 +367,55 @@ MetricsMission::subscribe()
     unsubscribe();
     return false;
   }
+
+  int       pkgIndex        = 1;
+  int       freq            = 10; // Hz
+  TopicName topicList10Hz[] = {
+    TopicName::TOPIC_VELOCITY,
+    TopicName::TOPIC_GPS_FUSED,
+    // TopicName::TOPIC_GPS_POSITION,
+    TopicName::TOPIC_HEIGHT_FUSION,
+    TopicName::TOPIC_ALTITUDE_FUSIONED,
+    TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
+    TopicName::TOPIC_STATUS_FLIGHT,
+  };
+  int  numTopics       = sizeof(topicList10Hz) / sizeof(topicList10Hz[0]);
+  bool enableTimestamp = false;
+
+  pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
+    pkgIndex, numTopics, topicList10Hz, enableTimestamp, metricsFreq);
+
+  if (!(pkgStatus))
+  {
+    DERROR("Subscription failed");
+    return false;
+  }
+
+  subscribeStatus =
+    vehiclePtr->subscribe->startPackage(pkgIndex, responseTimeout);
+
+  if (ACK::getError(subscribeStatus) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(subscribeStatus, __func__);
+    unsubscribe();
+    return false;
+  }
+
   return true;
 }
 
 bool
-MetricsMission::unsubscribe()
+MetricsMission::unsubscribe(int pkgIndex)
 {
+  if (pkgIndex == -1)
+  {
+    vehiclePtr->subscribe->removeAllExistingPackages();
+    return true;
+  }
+
   std::cout << "Unsubscribing from topics..." << std::endl;
   ACK::ErrorCode status;
-  status = vehiclePtr->subscribe->removePackage(PACKAGE_ID, responseTimeout);
+  status = vehiclePtr->subscribe->removePackage(pkgIndex, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(status, __func__);

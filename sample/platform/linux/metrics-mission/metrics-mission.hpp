@@ -93,7 +93,7 @@ private:
   bool stopHotpointMission();
 
   bool subscribe();
-  bool unsubscribe();
+  bool unsubscribe(int pkgIndex = -1);
 
   static void setWaypointDefaults(WayPointSettings* wp);
   static void copyWaypointSettings(WayPointSettings*       dst,
