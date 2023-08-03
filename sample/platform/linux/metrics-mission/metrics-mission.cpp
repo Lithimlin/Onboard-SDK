@@ -254,7 +254,7 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
   vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
     // &waypointEventCallback, this);
     &dummyCallback,
-    this);
+    vehiclePtr);
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
