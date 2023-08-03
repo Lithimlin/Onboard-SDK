@@ -38,7 +38,7 @@ float
 rad_to_deg(float rad);
 
 std::string
-waypoint_to_string(const WayPoint& waypoint, bool asRad = false);
+waypoint_to_string(const WayPointSettings& waypoint, bool asRad = false);
 
 MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                influxdb::InfluxDB* influxDBPtr,
