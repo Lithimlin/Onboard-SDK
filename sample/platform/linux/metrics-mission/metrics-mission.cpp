@@ -65,11 +65,12 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 
 MetricsMission::~MetricsMission()
 {
-  unsubscribe();
   std::cout << "Cancelling metrics timer..." << std::endl;
-  metricsTimer.expires_after(boost::asio::chrono::milliseconds(50));
+  metricsTimer.expires_after(boost::asio::chrono::milliseconds(5));
   std::cout << "Cancelling mission..." << std::endl;
   stopMission();
+  std::cout << "Unsubscribing..." << std::endl;
+  unsubscribe();
 }
 
 bool
