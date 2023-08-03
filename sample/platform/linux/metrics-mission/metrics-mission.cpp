@@ -8,14 +8,6 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
-const float RADIUS_OF_EARTH_IN_METERS = 6371000.0f;
-const float METERS_PER_DEGREE = RADIUS_OF_EARTH_IN_METERS * M_PI / 180.0f;
-
-const float LAT_QUOTIENT =
-  56.0f; // magic number that is needed for correct conversion.
-const float LON_QUOTIENT =
-  41.0f; // magic number that is needed for correct conversion.
-
 int       metricsFreq = 1; // Hz
 TopicName topicList[] = {
   TopicName::TOPIC_VELOCITY,
@@ -450,7 +442,7 @@ MetricsMission::createWaypoints(MissionConfig* mission)
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(mission->numStops);
 
-  float angleIncrement = 360.0f / mission->numStops;
+  float angleIncrement = 2 * M_PI / mission->numStops;
 
   for (size_t i = 0; i < mission->numStops; ++i)
   {
@@ -472,12 +464,11 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
 {
   WayPointSettings newWp;
   copyWaypointSettings(&newWp, oldWp);
-  float dx = cos(angle * M_PI / 180) * radius;
-  float dy = sin(angle * M_PI / 180) * radius;
+  float dx = cos(angle) * radius;
+  float dy = sin(angle) * radius;
 
-  newWp.latitude += dx / METERS_PER_DEGREE / LAT_QUOTIENT;
-  newWp.longitude +=
-    dy / METERS_PER_DEGREE / LON_QUOTIENT / cos(newWp.latitude * M_PI / 180);
+  newWp.latitude += dx;
+  newWp.longitude += dy;
   return newWp;
 }
 
