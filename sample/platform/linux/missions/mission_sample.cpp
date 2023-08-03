@@ -74,7 +74,7 @@ setUpSubscription(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
     if (ACK::getError(ack))
     {
       std::cout << "Error unsubscribing; please restart the drone/FC to get "
-        "back to a clean state.\n";
+                   "back to a clean state.\n";
     }
     return false;
   }
@@ -82,27 +82,33 @@ setUpSubscription(DJI::OSDK::Vehicle* vehicle, int responseTimeout)
 }
 
 bool
-teardownSubscription(DJI::OSDK::Vehicle* vehicle, const int pkgIndex,
-                     int responseTimeout)
+teardownSubscription(DJI::OSDK::Vehicle* vehicle,
+                     const int           pkgIndex,
+                     int                 responseTimeout)
 {
   ACK::ErrorCode ack =
     vehicle->subscribe->removePackage(pkgIndex, responseTimeout);
   if (ACK::getError(ack))
   {
     std::cout << "Error unsubscribing; please restart the drone/FC to get back "
-      "to a clean state.\n";
+                 "to a clean state.\n";
     return false;
   }
   return true;
 }
 
-static void WaypointEventCallBack(Vehicle* vehicle, RecvContainer recvFrame,
-                                  UserData userData)
+static void
+WaypointEventCallBack(Vehicle*      vehicle,
+                      RecvContainer recvFrame,
+                      UserData      userData)
 {
-  DSTATUS("%s",__FUNCTION__ );
-  DSTATUS("waypoint_index is %d.\n", recvFrame.recvData.wayPointReachedData.waypoint_index);
-  DSTATUS("current_status is %d.\n", recvFrame.recvData.wayPointReachedData.current_status);
-  DSTATUS("incident_type is %d.\n", recvFrame.recvData.wayPointReachedData.incident_type);
+  DSTATUS("%s", __FUNCTION__);
+  DSTATUS("waypoint_index is %d.\n",
+          recvFrame.recvData.wayPointReachedData.waypoint_index);
+  DSTATUS("current_status is %d.\n",
+          recvFrame.recvData.wayPointReachedData.current_status);
+  DSTATUS("incident_type is %d.\n",
+          recvFrame.recvData.wayPointReachedData.incident_type);
 }
 
 bool
@@ -131,7 +137,8 @@ runWaypointMission(Vehicle* vehicle, uint8_t numWaypoints, int responseTimeout)
   ACK::ErrorCode initAck = vehicle->missionManager->init(
     DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
 
-  vehicle->missionManager->wpMission->setWaypointEventCallback(&WaypointEventCallBack,vehicle);
+  vehicle->missionManager->wpMission->setWaypointEventCallback(
+    &WaypointEventCallBack, vehicle);
 
   if (ACK::getError(initAck))
   {
@@ -167,8 +174,8 @@ runWaypointMission(Vehicle* vehicle, uint8_t numWaypoints, int responseTimeout)
   // more input from our side.
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
   {
-    return teardownSubscription(vehicle, DEFAULT_PACKAGE_INDEX,
-                                responseTimeout);
+    return teardownSubscription(
+      vehicle, DEFAULT_PACKAGE_INDEX, responseTimeout);
   }
 
   return true;
@@ -195,7 +202,7 @@ setWaypointDefaults(WayPointSettings* wp)
 void
 setWaypointInitDefaults(WayPointInitSettings* fdata)
 {
-  fdata->maxVelocity    = 10;
+  fdata->maxVelocity    = 20;
   fdata->idleVelocity   = 5;
   fdata->finishAction   = 0;
   fdata->executiveTimes = 1;
@@ -209,8 +216,10 @@ setWaypointInitDefaults(WayPointInitSettings* fdata)
 }
 
 std::vector<DJI::OSDK::WayPointSettings>
-createWaypoints(DJI::OSDK::Vehicle* vehicle, int numWaypoints,
-                float64_t distanceIncrement, float32_t start_alt)
+createWaypoints(DJI::OSDK::Vehicle* vehicle,
+                int                 numWaypoints,
+                float64_t           distanceIncrement,
+                float32_t           start_alt)
 {
   // Create Start Waypoint
   WayPointSettings start_wp;
@@ -228,7 +237,8 @@ createWaypoints(DJI::OSDK::Vehicle* vehicle, int numWaypoints,
     start_wp.longitude = subscribeGPosition.longitude;
     start_wp.altitude  = start_alt;
     printf("Waypoint created at (LLA): %f \t%f \t%f\n",
-           subscribeGPosition.latitude, subscribeGPosition.longitude,
+           subscribeGPosition.latitude,
+           subscribeGPosition.longitude,
            start_alt);
   }
   else
@@ -238,7 +248,8 @@ createWaypoints(DJI::OSDK::Vehicle* vehicle, int numWaypoints,
     start_wp.longitude = broadcastGPosition.longitude;
     start_wp.altitude  = start_alt;
     printf("Waypoint created at (LLA): %f \t%f \t%f\n",
-           broadcastGPosition.latitude, broadcastGPosition.longitude,
+           broadcastGPosition.latitude,
+           broadcastGPosition.longitude,
            start_alt);
   }
 
@@ -248,8 +259,9 @@ createWaypoints(DJI::OSDK::Vehicle* vehicle, int numWaypoints,
 }
 
 std::vector<DJI::OSDK::WayPointSettings>
-generateWaypointsPolygon(WayPointSettings* start_data, float64_t increment,
-                         int num_wp)
+generateWaypointsPolygon(WayPointSettings* start_data,
+                         float64_t         increment,
+                         int               num_wp)
 {
 
   // Let's create a vector to store our waypoints in.
@@ -288,10 +300,13 @@ uploadWaypoints(Vehicle*                                  vehicle,
                 int                                       responseTimeout)
 {
   for (std::vector<WayPointSettings>::iterator wp = wp_list.begin();
-       wp != wp_list.end(); ++wp)
+       wp != wp_list.end();
+       ++wp)
   {
-    printf("Waypoint created at (LLA): %f \t%f \t%f\n ", wp->latitude,
-           wp->longitude, wp->altitude);
+    printf("Waypoint created at (LLA): %f \t%f \t%f\n ",
+           wp->latitude,
+           wp->longitude,
+           wp->altitude);
     ACK::WayPointIndex wpDataACK =
       vehicle->missionManager->wpMission->uploadIndexData(&(*wp),
                                                           responseTimeout);
@@ -319,8 +334,8 @@ runHotpointMission(Vehicle* vehicle, int initialRadius, int responseTimeout)
   Telemetry::GlobalPosition broadcastGPosition;
 
   // Hotpoint Mission Initialize
-  vehicle->missionManager->init(DJI_MISSION_TYPE::HOTPOINT, responseTimeout,
-                                NULL);
+  vehicle->missionManager->init(
+    DJI_MISSION_TYPE::HOTPOINT, responseTimeout, NULL);
   vehicle->missionManager->printInfo();
 
   if (!vehicle->isM100() && !vehicle->isLegacyM600())
@@ -342,10 +357,11 @@ runHotpointMission(Vehicle* vehicle, int initialRadius, int responseTimeout)
   {
     ACK::getErrorCodeMessage(takeoffAck, __func__);
 
-    if(takeoffAck.info.cmd_set == OpenProtocolCMD::CMDSet::control
-       && takeoffAck.data == ErrorCode::CommonACK::START_MOTOR_FAIL_MOTOR_STARTED)
+    if (takeoffAck.info.cmd_set == OpenProtocolCMD::CMDSet::control &&
+        takeoffAck.data == ErrorCode::CommonACK::START_MOTOR_FAIL_MOTOR_STARTED)
     {
-      DSTATUS("Take off command sent failed. Please Land the drone and disarm the motors first.\n");
+      DSTATUS("Take off command sent failed. Please Land the drone and disarm "
+              "the motors first.\n");
     }
 
     if (!vehicle->isM100() && !vehicle->isLegacyM600())
@@ -360,7 +376,8 @@ runHotpointMission(Vehicle* vehicle, int initialRadius, int responseTimeout)
   }
 
   // Start
-  std::cout << "Start with default rotation rate: 15 deg/s" << std::endl;
+  std::cout << "Start with default rotation rate: 20 deg/s" << std::endl;
+  vehicle->missionManager->hpMission->setYawRate(20.0f);
   ACK::ErrorCode startAck =
     vehicle->missionManager->hpMission->start(responseTimeout);
   if (ACK::getError(startAck))
