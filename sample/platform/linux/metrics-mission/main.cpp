@@ -85,7 +85,7 @@ main(int argc, char** argv)
     responseTimeout);
 
   // Run Missions
-  std::thread metricsThread([&] { mmPtr->runContext(); });
+  // std::thread metricsThread([&] { mmPtr->runContext(); });
   std::cout << std::endl << "Press Ctrl+C to exit." << std::endl;
   std::cout << "Running " << missions.size() << " missions..." << std::endl;
   ;
@@ -110,7 +110,7 @@ main(int argc, char** argv)
   }
 
   mmPtr.reset();
-  metricsThread.join();
+  // metricsThread.join();
   db.release();
   return 0;
 }
