@@ -645,7 +645,7 @@ waypoint_to_string(const WayPointSettings& waypoint, bool asRad = false)
   std::stringstream ss;
   if (asRad)
   {
-    ss << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t"
+    ss << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t";
   }
   else
   {
