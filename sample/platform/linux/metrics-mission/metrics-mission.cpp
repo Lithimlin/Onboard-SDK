@@ -632,7 +632,8 @@ std::ostream&
 operator<<(std::ostream& o, const WayPointSettings& waypoint)
 {
   o << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t"
-    << waypoint.altitude << " m" << rad_to_deg(waypoint.latitude) << " deg\t"
+    << waypoint.altitude << " m" << std::endl
+    << rad_to_deg(waypoint.latitude) << " deg\t"
     << rad_to_deg(waypoint.longitude) << " deg";
   return o;
 }
