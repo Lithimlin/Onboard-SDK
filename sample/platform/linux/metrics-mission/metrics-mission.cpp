@@ -53,7 +53,8 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 
   std::cout << "Recording position..." << std::endl;
   centerPoint = getCurrentPoint();
-  std::cout << "Center point is (LLA)" << std::endl << centerPoint << std::endl;
+  std::cout << "Center point is (LLA)" << std::endl
+            << waypoint_to_string(centerPoint) << std::endl;
 
   std::cout << "Starting metrics timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(
@@ -201,9 +202,10 @@ MetricsMission::getCurrentPoint()
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
   point.latitude  = gpsFused.latitude;
   point.longitude = gpsFused.longitude;
-  std::cout << "GPS fused data is (LLA):\n"
-            << gpsFused.latitude << " rad\t" << gpsFused.longitude << " rad\t"
-            << gpsFused.altitude << " m" << std::endl;
+  // std::cout << "GPS fused data is (LLA):\n"
+  //           << gpsFused.latitude << " rad\t" << gpsFused.longitude
+  //           << "rad\t "
+  //           << gpsFused.altitude << " m" << std::endl;
 
   // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
   //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
@@ -514,10 +516,10 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
   float dx = cos(angle) * radius;
   float dy = sin(angle) * radius;
 
-  std::cout << "Displacing waypoint by" << std::endl
-            << dx << " m\t" << dy << " m" << std::endl
-            << rad_to_deg(dx / RADIUS_EARTH) << " deg\t"
-            << rad_to_deg(dy / RADIUS_EARTH) << " deg" << std::endl;
+  // std::cout << "Displacing waypoint by" << std::endl
+  //           << dx << " m\t" << dy << " m" << std::endl
+  //           << rad_to_deg(dx / RADIUS_EARTH) << " deg\t"
+  //           << rad_to_deg(dy / RADIUS_EARTH) << " deg" << std::endl;
 
   newWp.latitude += dx / RADIUS_EARTH;
   newWp.longitude += dy / RADIUS_EARTH / cos(newWp.latitude);
