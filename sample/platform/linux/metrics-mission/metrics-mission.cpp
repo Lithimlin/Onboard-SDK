@@ -238,14 +238,14 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
   ACK::ErrorCode ack = vehiclePtr->missionManager->init(
     DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
 
-  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-    waypointEventCallback, this);
-
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(ack, __func__);
   }
   vehiclePtr->missionManager->printInfo();
+
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    &waypointEventCallback, this);
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
