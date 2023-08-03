@@ -12,17 +12,17 @@ const float RADIUS_EARTH = 6378137.0f; // in meters
 
 int       metricsFreq = 1; // Hz
 TopicName topicList[] = {
-  TOPIC_VELOCITY,
-  TOPIC_GPS_FUSED,
-  // TOPIC_GPS_POSITION,
-  TOPIC_RTK_CONNECT_STATUS,
-  TOPIC_RTK_POSITION,
-  TOPIC_RTK_VELOCITY,
-  TOPIC_RTK_POSITION_INFO,
-  TOPIC_HEIGHT_FUSION,
-  TOPIC_ALTITUDE_FUSIONED,
-  TOPIC_ALTITUDE_OF_HOMEPOINT,
-  TOPIC_STATUS_FLIGHT,
+  TopicName::TOPIC_VELOCITY,
+  TopicName::TOPIC_GPS_FUSED,
+  // TopicName::TOPIC_GPS_POSITION,
+  TopicName::TOPIC_RTK_CONNECT_STATUS,
+  TopicName::TOPIC_RTK_POSITION,
+  TopicName::TOPIC_RTK_VELOCITY,
+  TopicName::TOPIC_RTK_POSITION_INFO,
+  TopicName::TOPIC_HEIGHT_FUSION,
+  TopicName::TOPIC_ALTITUDE_FUSIONED,
+  TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
+  TopicName::TOPIC_STATUS_FLIGHT,
 };
 
 void
@@ -122,31 +122,37 @@ void
 MetricsMission::commitMetrics()
 {
   // clang-format off
-  TypeMap<TOPIC_VELOCITY>::type                velocity; // in m/s
-  TypeMap<TOPIC_GPS_FUSED>::type               gpsFused; // in rad (Lat,Lon), m (Alt)
-  TypeMap<TOPIC_RTK_CONNECT_STATUS>::type      rtkConnectStatus; // bool
-  TypeMap<TOPIC_RTK_POSITION>::type            rtkPosition; // in deg (x, y), m(z)
-  TypeMap<TOPIC_RTK_VELOCITY>::type            rtkVelocity; // in cm/s
-  TypeMap<TOPIC_RTK_POSITION_INFO>::type       rtkPositionInfo; // enum, see
+  TypeMap<TopicName::TOPIC_VELOCITY>::type                velocity; // in m/s
+  TypeMap<TopicName::TOPIC_GPS_FUSED>::type               gpsFused; // in rad (Lat,Lon), m (Alt)
+  TypeMap<TopicName::TOPIC_RTK_CONNECT_STATUS>::type      rtkConnectStatus; // bool
+  TypeMap<TopicName::TOPIC_RTK_POSITION>::type            rtkPosition; // in deg (x, y), m(z)
+  TypeMap<TopicName::TOPIC_RTK_VELOCITY>::type            rtkVelocity; // in cm/s
+  TypeMap<TopicName::TOPIC_RTK_POSITION_INFO>::type       rtkPositionInfo; // enum, see
                       // https://developer.dji.com/onboard-api-reference/group__telem.html
-  TypeMap<TOPIC_HEIGHT_FUSION>::type           heightFusion; // in m, estimate of current height from ground
-  TypeMap<TOPIC_ALTITUDE_FUSIONED>::type       altitudeFusioned; // in m
-  TypeMap<TOPIC_ALTITUDE_OF_HOMEPOINT>::type   altitudeOfHomepoint; // in m
-  TypeMap<TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stopped, 1: on ground, 2: in air
+  TypeMap<TopicName::TOPIC_HEIGHT_FUSION>::type           heightFusion; // in m, estimate of current height from ground
+  TypeMap<TopicName::TOPIC_ALTITUDE_FUSIONED>::type       altitudeFusioned; // in m
+  TypeMap<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>::type   altitudeOfHomepoint; // in m
+  TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stopped, 1: on ground, 2: in air
   // clang-format on
 
-  velocity = vehiclePtr->subscribe->getValue<TOPIC_VELOCITY>();
-  gpsFused = vehiclePtr->subscribe->getValue<TOPIC_GPS_FUSED>();
+  velocity = vehiclePtr->subscribe->getValue<TopicName::TOPIC_VELOCITY>();
+  gpsFused = vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
   rtkConnectStatus =
-    vehiclePtr->subscribe->getValue<TOPIC_RTK_CONNECT_STATUS>();
-  rtkPosition      = vehiclePtr->subscribe->getValue<TOPIC_RTK_POSITION>();
-  rtkVelocity      = vehiclePtr->subscribe->getValue<TOPIC_RTK_VELOCITY>();
-  rtkPositionInfo  = vehiclePtr->subscribe->getValue<TOPIC_RTK_POSITION_INFO>();
-  heightFusion     = vehiclePtr->subscribe->getValue<TOPIC_HEIGHT_FUSION>();
-  altitudeFusioned = vehiclePtr->subscribe->getValue<TOPIC_ALTITUDE_FUSIONED>();
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>();
+  rtkPosition =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
+  rtkVelocity =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_VELOCITY>();
+  rtkPositionInfo =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION_INFO>();
+  heightFusion =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_HEIGHT_FUSION>();
+  altitudeFusioned =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_FUSIONED>();
   altitudeOfHomepoint =
-    vehiclePtr->subscribe->getValue<TOPIC_ALTITUDE_OF_HOMEPOINT>();
-  statusFlight = vehiclePtr->subscribe->getValue<TOPIC_STATUS_FLIGHT>();
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
+  statusFlight =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>();
 
   std::string hostname = dotenv::env["HOST"];
 
@@ -189,11 +195,12 @@ MetricsMission::getCurrentPoint()
   WayPointSettings point;
   setWaypointDefaults(&point);
 
-  if (vehiclePtr->subscribe->getValue<TOPIC_RTK_CONNECT_STATUS>().rtkConnected)
+  if (vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>()
+        .rtkConnected)
   {
     std::cout << "Getting RTK position..." << std::endl;
-    TypeMap<TOPIC_RTK_POSITION>::type rtkPosition =
-      vehiclePtr->subscribe->getValue<TOPIC_RTK_POSITION>();
+    TypeMap<TopicName::TOPIC_RTK_POSITION>::type rtkPosition =
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
     point.latitude  = rtkPosition.latitude;
     point.longitude = rtkPosition.longitude;
     std::cout << "RTK position is (LLZ):\n"
@@ -203,16 +210,16 @@ MetricsMission::getCurrentPoint()
   else
   {
     std::cout << "Getting GPS position..." << std::endl;
-    TypeMap<TOPIC_GPS_FUSED>::type gpsFused =
-      vehiclePtr->subscribe->getValue<TOPIC_GPS_FUSED>();
+    TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsFused =
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
     point.latitude  = gpsFused.latitude;
     point.longitude = gpsFused.longitude;
     std::cout << "GPS fused data is (LLA):\n"
               << gpsFused.latitude << " rad\t" << gpsFused.longitude << " rad\t"
               << gpsFused.altitude << " m" << std::endl;
 
-    // TypeMap<TOPIC_GPS_POSITION>::type gpsPosition =
-    //   vehiclePtr->subscribe->getValue<TOPIC_GPS_POSITION>();
+    // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
+    //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
     // std::cout << "GPS position is (xyz):\n"
     //           << gpsPosition.x << "\t" << gpsPosition.y << "\t" <<
     //           gpsPosition.z
@@ -517,7 +524,7 @@ MetricsMission::initHotpointMission(MissionConfig* mission)
 bool
 MetricsMission::isInAir()
 {
-  return vehiclePtr->subscribe->getValue<TOPIC_STATUS_FLIGHT>() == 2;
+  return vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>() == 2;
 }
 
 bool
