@@ -423,7 +423,7 @@ MetricsMission::copyWaypointSettings(WayPointSettings*       dst,
 void
 MetricsMission::setWaypointInitDefaults(WayPointInitSettings* fdata)
 {
-  fdata->maxVelocity    = 10;
+  fdata->maxVelocity    = 15;
   fdata->idleVelocity   = 5;
   fdata->finishAction   = 0;
   fdata->executiveTimes = 1;
@@ -503,7 +503,7 @@ MetricsMission::initHotpointMission(MissionConfig* mission)
   vehiclePtr->missionManager->hpMission->setRadius(mission->radius);
   vehiclePtr->missionManager->hpMission->setYawMode(
     HotpointMission::YawMode::YAW_INSIDE);
-  vehiclePtr->missionManager->hpMission->setYawRate(15.0f); // deg/s
+  vehiclePtr->missionManager->hpMission->setYawRate(20.0f); // deg/s
 
   return true;
 }
