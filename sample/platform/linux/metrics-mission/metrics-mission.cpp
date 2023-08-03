@@ -226,6 +226,13 @@ MetricsMission::getCurrentPoint()
   return point;
 }
 
+void
+dummyCallback(Vehicle* vehicle, RecvContainer recvFrame, UserData userData)
+{
+  std::cout << "Dummy callback" << std::endl;
+  std::cout << userData << std::endl;
+}
+
 bool
 MetricsMission::runWaypointMission(MissionConfig* mission)
 {
@@ -245,7 +252,9 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
   vehiclePtr->missionManager->printInfo();
 
   vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-    &waypointEventCallback, this);
+    // &waypointEventCallback, this);
+    &dummyCallback,
+    "test");
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
