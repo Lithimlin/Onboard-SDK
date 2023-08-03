@@ -132,7 +132,6 @@ getInfluxUrl()
 void
 INThandler(int sig)
 {
-  g_quit.store(true);
   std::cout << "Exiting..." << std::endl;
-  exit(0);
+  g_quit.store(true);
 }
