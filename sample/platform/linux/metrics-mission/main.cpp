@@ -105,6 +105,8 @@ main(int argc, char** argv)
       if (g_quit.load())
         break;
     }
+    if (g_quit.load())
+      break;
   }
 
   db.release();
