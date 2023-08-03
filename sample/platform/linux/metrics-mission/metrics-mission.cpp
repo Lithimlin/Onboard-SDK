@@ -639,7 +639,7 @@ commitMetricsTimerCallback(const boost::system::error_code& ec,
 
   ref->metricsTimer.expires_at(
     ref->metricsTimer.expiry() +
-    boost::asio::chrono::milliseconds((int)1e3 / metricsFreq));
+    boost::asio::chrono::milliseconds((int)1e3 / metricsCommitFreq));
 
   ref->metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, ref));
