@@ -8,6 +8,8 @@
 using namespace DJI::OSDK;
 using namespace DJI::OSDK::Telemetry;
 
+const float RADIUS_EARTH = 6378137.0f; // in meters
+
 int       metricsFreq = 1; // Hz
 TopicName topicList[] = {
   TopicName::TOPIC_VELOCITY,
@@ -467,8 +469,11 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
   float dx = cos(angle) * radius;
   float dy = sin(angle) * radius;
 
-  newWp.latitude += dx;
-  newWp.longitude += dy;
+  float dLat = asin(dx / RADIUS_EARTH); // approximation using pythagoras
+  float dLon = asin(dy / RADIUS_EARTH);
+
+  newWp.latitude += dLat;
+  newWp.longitude += dLon;
   return newWp;
 }
 
