@@ -118,7 +118,7 @@ MetricsMission::commitMetrics()
                       // https://developer.dji.com/onboard-api-reference/group__telem.html
   TypeMap<TopicName::TOPIC_HEIGHT_FUSION>::type           heightFusion; // in m, estimate of current height from ground
   TypeMap<TopicName::TOPIC_ALTITUDE_FUSIONED>::type       altitudeFusioned; // in m
-  TypeMap<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>::type   altitudeOfHomepoint; // in m
+  //TypeMap<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>::type   altitudeOfHomepoint; // in m
   TypeMap<TopicName::TOPIC_STATUS_FLIGHT>::type           statusFlight; // 0: stopped, 1: on ground, 2: in air
   // clang-format on
 
@@ -136,8 +136,8 @@ MetricsMission::commitMetrics()
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_HEIGHT_FUSION>();
   altitudeFusioned =
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_FUSIONED>();
-  altitudeOfHomepoint =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
+  // altitudeOfHomepoint =
+  //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
   statusFlight =
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>();
 
@@ -161,7 +161,7 @@ MetricsMission::commitMetrics()
       .addField("rtk_position_info", rtkPositionInfo)
       .addField("height_fusion", heightFusion)
       .addField("altitude_fusion", altitudeFusioned)
-      .addField("altitude_of_homepoint", altitudeOfHomepoint)
+      //.addField("altitude_of_homepoint", altitudeOfHomepoint)
       .addField("status_flight", statusFlight)
       .addField("mission_status", (uint8_t)missionStatus)
       .addField("mission_type", (uint8_t)missionType)
@@ -376,7 +376,7 @@ MetricsMission::subscribe()
     // TopicName::TOPIC_GPS_POSITION,
     TopicName::TOPIC_HEIGHT_FUSION,
     TopicName::TOPIC_ALTITUDE_FUSIONED,
-    TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
+    // TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
     TopicName::TOPIC_STATUS_FLIGHT,
   };
   int  numTopics       = sizeof(topicList10Hz) / sizeof(topicList10Hz[0]);
