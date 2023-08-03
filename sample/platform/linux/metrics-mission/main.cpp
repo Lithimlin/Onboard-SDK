@@ -81,7 +81,7 @@ main(int argc, char** argv)
     vehiclePtr, db.get(), missionType, responseTimeout);
 
   vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-    &waypointEventCallback, nullptr);
+    &waypointEventCallback, vehiclePtr);
 
   // Obtain Control Authority
   vehiclePtr->flightController->obtainJoystickCtrlAuthoritySync(
