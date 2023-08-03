@@ -182,36 +182,36 @@ MetricsMission::getCurrentPoint()
   WayPointSettings point;
   setWaypointDefaults(&point);
 
-  if (vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>()
-        .rtkConnected)
-  {
-    std::cout << "Getting RTK position..." << std::endl;
-    TypeMap<TopicName::TOPIC_RTK_POSITION>::type rtkPosition =
-      vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
-    point.latitude  = rtkPosition.latitude;
-    point.longitude = rtkPosition.longitude;
-    std::cout << "RTK position is (LLZ):\n"
-              << rtkPosition.latitude << " rad\t" << rtkPosition.longitude
-              << " rad\t" << rtkPosition.HFSL << " m" << std::endl;
-  }
-  else
-  {
-    std::cout << "Getting GPS position..." << std::endl;
-    TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsFused =
-      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
-    point.latitude  = gpsFused.latitude;
-    point.longitude = gpsFused.longitude;
-    std::cout << "GPS fused data is (LLA):\n"
-              << gpsFused.latitude << " rad\t" << gpsFused.longitude << " rad\t"
-              << gpsFused.altitude << " m" << std::endl;
+  // if (vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>()
+  //       .rtkConnected)
+  // {
+  //   std::cout << "Getting RTK position..." << std::endl;
+  //   TypeMap<TopicName::TOPIC_RTK_POSITION>::type rtkPosition =
+  //     vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
+  //   point.latitude  = rtkPosition.latitude;
+  //   point.longitude = rtkPosition.longitude;
+  //   std::cout << "RTK position is (LLZ):\n"
+  //             << rtkPosition.latitude << " rad\t" << rtkPosition.longitude
+  //             << " rad\t" << rtkPosition.HFSL << " m" << std::endl;
+  // }
+  // else
+  // {
+  std::cout << "Getting GPS position..." << std::endl;
+  TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsFused =
+    vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+  point.latitude  = gpsFused.latitude;
+  point.longitude = gpsFused.longitude;
+  std::cout << "GPS fused data is (LLA):\n"
+            << gpsFused.latitude << " rad\t" << gpsFused.longitude << " rad\t"
+            << gpsFused.altitude << " m" << std::endl;
 
-    // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
-    //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
-    // std::cout << "GPS position is (xyz):\n"
-    //           << gpsPosition.x << "\t" << gpsPosition.y << "\t" <<
-    //           gpsPosition.z
-    //           << std::endl;
-  }
+  // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
+  //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
+  // std::cout << "GPS position is (xyz):\n"
+  //           << gpsPosition.x << "\t" << gpsPosition.y << "\t" <<
+  //           gpsPosition.z
+  //           << std::endl;
+  // }
 
   point.altitude       = 0;
   point.hasAction      = 1;
