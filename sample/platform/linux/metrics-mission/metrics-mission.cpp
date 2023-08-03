@@ -586,6 +586,11 @@ waypointEventCallback(Vehicle*      vehiclePtr,
                       UserData      userData)
 {
   std::cout << "Waypoint Event Callback" << std::endl;
+  if (userData == nullptr)
+  {
+    return;
+  }
+
   if (recvFrame.recvData.wayPointReachedData.incident_type ==
         WayPointIncidentType::NAVI_MISSION_FINISH &&
       recvFrame.recvData.wayPointReachedData.current_status == 0)
