@@ -516,8 +516,8 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
 
   std::cout << "Displacing waypoint by" << std::endl
             << dx << " m\t" << dy << " m" << std::endl
-            << rad_to_deg(dLat) << " deg\t" << rad_to_deg(dLon) << " deg"
-            << std::endl;
+            << rad_to_deg(dx / RADIUS_EARTH) << " deg\t"
+            << rad_to_deg(dy / RADIUS_EARTH) << " deg" << std::endl;
 
   newWp.latitude += dx / RADIUS_EARTH;
   newWp.longitude += dy / RADIUS_EARTH / cos(newWp.latitude);
