@@ -56,10 +56,10 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   std::cout << "Center point is (LLA)" << std::endl
             << waypoint_to_string(centerPoint) << std::endl;
 
-  std::cout << "Callback " << waypointEventCallback << std::endl;
+  printf("Callback pointer: %p\n", &waypointEventCallback);
 
   vehiclePtr->missionManager->wpMission->setWaypointCallback(
-    waypointEventCallback, vehiclePtr);
+    &waypointEventCallback, vehiclePtr);
 
   std::cout << "Starting metrics timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(
