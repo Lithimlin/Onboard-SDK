@@ -57,6 +57,8 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
             << waypoint_to_string(centerPoint) << std::endl;
 
   printf("Callback pointer: %p\n", &waypointEventCallback);
+  printf("Vehicle pointer: %p\n", vehiclePtr);
+  printf("this: %p\n", this);
 
   vehiclePtr->missionManager->wpMission->setWaypointCallback(
     &waypointEventCallback, vehiclePtr);
@@ -596,7 +598,7 @@ waypointEventCallback(Vehicle*      vehiclePtr,
                       UserData      userData)
 {
   std::cout << "Waypoint Event Callback" << std::endl;
-  std::cout << userData << std::endl;
+  printf("userData: %p\n", userData);
   return;
 
   if (recvFrame.recvData.wayPointReachedData.incident_type ==
