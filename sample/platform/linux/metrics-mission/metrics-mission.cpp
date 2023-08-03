@@ -336,21 +336,25 @@ MetricsMission::subscribe()
   }
 
   bool pkgStatus;
+  int  pkgIndex;
+  int  freq;
+  int  numTopics;
+  bool enableTimestamp;
   std::cout << "Subscribing to topics..." << std::endl;
 
-  int       pkgIndex       = 0;
-  int       freq           = 5; // Hz
+  pkgIndex                 = 0;
+  freq                     = 5; // Hz
   TopicName topicList5Hz[] = {
     TopicName::TOPIC_RTK_POSITION,
     TopicName::TOPIC_RTK_VELOCITY,
     TopicName::TOPIC_RTK_POSITION_INFO,
     TopicName::TOPIC_RTK_CONNECT_STATUS,
   };
-  int  numTopics       = sizeof(topicList5Hz) / sizeof(topicList5Hz[0]);
-  bool enableTimestamp = false;
+  numTopics       = sizeof(topicList5Hz) / sizeof(topicList5Hz[0]);
+  enableTimestamp = false;
 
   pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
-    pkgIndex, numTopics, topicList5Hz, enableTimestamp, metricsFreq);
+    pkgIndex, numTopics, topicList5Hz, enableTimestamp, freq);
 
   if (!(pkgStatus))
   {
@@ -368,8 +372,8 @@ MetricsMission::subscribe()
     return false;
   }
 
-  int       pkgIndex        = 1;
-  int       freq            = 10; // Hz
+  pkgIndex                  = 1;
+  freq                      = 10; // Hz
   TopicName topicList10Hz[] = {
     TopicName::TOPIC_VELOCITY,
     TopicName::TOPIC_GPS_FUSED,
@@ -379,11 +383,11 @@ MetricsMission::subscribe()
     // TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT,
     TopicName::TOPIC_STATUS_FLIGHT,
   };
-  int  numTopics       = sizeof(topicList10Hz) / sizeof(topicList10Hz[0]);
-  bool enableTimestamp = false;
+  numTopics       = sizeof(topicList10Hz) / sizeof(topicList10Hz[0]);
+  enableTimestamp = false;
 
   pkgStatus = vehiclePtr->subscribe->initPackageFromTopicList(
-    pkgIndex, numTopics, topicList10Hz, enableTimestamp, metricsFreq);
+    pkgIndex, numTopics, topicList10Hz, enableTimestamp, freq);
 
   if (!(pkgStatus))
   {
