@@ -13,6 +13,11 @@ const float RADIUS_EARTH = 6378137.0f; // in meters
 int metricsCommitFreq = 5; // Hz
 
 void
+waypointEventCallback(Vehicle*      vehiclePtr,
+                      RecvContainer recvFrame,
+                      UserData      userData);
+
+void
 commitMetricsTimerCallback(const boost::system::error_code& ec,
                            MetricsMission*                  ref);
 
@@ -50,6 +55,9 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   centerPoint = getCurrentPoint();
   std::cout << "Center point is (LLA)" << std::endl
             << waypoint_to_string(centerPoint) << std::endl;
+
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    &waypointEventCallback, vehiclePtr);
 
   std::cout << "Starting metrics timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(
