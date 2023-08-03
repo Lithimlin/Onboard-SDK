@@ -60,7 +60,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   printf("Vehicle pointer: %p\n", vehiclePtr);
   printf("this: %p\n", this);
 
-  vehiclePtr->missionManager->wpMission->setWaypointCallback(
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
     &waypointEventCallback, vehiclePtr);
 
   std::cout << "Starting metrics timer..." << std::endl;
