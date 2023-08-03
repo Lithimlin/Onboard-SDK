@@ -34,6 +34,9 @@ void
 commitMetricsTimerCallback(const boost::system::error_code& ec,
                            MetricsMission*                  ref);
 
+std::string
+waypoint_to_string(const WayPoint& waypoint, bool asRad = false);
+
 MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                influxdb::InfluxDB* influxDBPtr,
                                PointType           missionType,
@@ -60,8 +63,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 
   std::cout << "Recording position..." << std::endl;
   centerPoint = getCurrentPoint();
-  std::cout << "Center point is (" << centerPoint.latitude << ", "
-            << centerPoint.longitude << ")" << std::endl;
+  std::cout << "Center point is (LLA)" << std::endl << centerPoint << std::endl;
 
   std::cout << "Starting metrics timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(
@@ -199,8 +201,9 @@ MetricsMission::getCurrentPoint()
     point.latitude  = rtkPosition.latitude;
     point.longitude = rtkPosition.longitude;
     std::cout << "RTK position is (LLZ):\n"
-              << rtkPosition.latitude << "\t" << rtkPosition.longitude << "\t"
-              << rtkPosition.HFSL << std::endl;
+              << rad_to_deg(rtkPosition.latitude) << " deg\t"
+              << rad_to_deg(rtkPosition.longitude) << " deg\t"
+              << rtkPosition.HFSL << " m" << std::endl;
   }
   else
   {
@@ -210,8 +213,9 @@ MetricsMission::getCurrentPoint()
     point.latitude  = gpsFused.latitude;
     point.longitude = gpsFused.longitude;
     std::cout << "GPS fused data is (LLA):\n"
-              << gpsFused.latitude << "\t" << gpsFused.longitude << "\t"
-              << gpsFused.altitude << std::endl;
+              << rad_to_deg(gpsFused.latitude) << " deg\t"
+              << rad_to_deg(gpsFused.longitude) << " deg\t" << gpsFused.altitude
+              << " m" << std::endl;
 
     // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
     //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
@@ -472,6 +476,11 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
   float dLat = asin(dx / RADIUS_EARTH); // approximation using pythagoras
   float dLon = asin(dy / RADIUS_EARTH);
 
+  std::cout << "Displacing waypoint by" << std::endl
+            << dx << " m\t" << dy << " m" << std::endl
+            << rad_to_deg(dLat) << " deg\t" << rad_to_deg(dLon) << " deg"
+            << std::endl;
+
   newWp.latitude += dLat;
   newWp.longitude += dLon;
   return newWp;
@@ -605,9 +614,41 @@ MissionConfig::toString() const
   return ss.str();
 }
 
+float
+rad_to_deg(float rad)
+{
+  return rad * 180 / M_PI;
+}
+
 std::ostream&
 operator<<(std::ostream& o, const MissionConfig& mission)
 {
   o << mission.toString();
   return o;
+}
+
+std::ostream&
+operator<<(std::ostream& o, const WayPointSettings& waypoint)
+{
+  o << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t"
+    << waypoint.altitude << " m" << rad_to_deg(waypoint.latitude) << " deg\t"
+    << rad_to_deg(waypoint.longitude) << " deg";
+  return o;
+}
+
+std::string
+waypoint_to_string(const WayPoint& waypoint, bool asRad = false)
+{
+  std::stringstream ss;
+  if (asRad)
+  {
+    ss << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t"
+  }
+  else
+  {
+    ss << rad_to_deg(waypoint.latitude) << " deg\t"
+       << rad_to_deg(waypoint.longitude) << " deg\t";
+  }
+  ss << waypoint.altitude << " m";
+  return ss.str();
 }
