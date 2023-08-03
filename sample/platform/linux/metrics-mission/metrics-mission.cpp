@@ -169,7 +169,7 @@ MetricsMission::commitMetrics()
       .addField("mission_type", (uint8_t)missionType)
       .addTag("hostname", hostname));
 
-  std::cout << "Committing" << std::endl;
+  std::cout << "." << std::flush;
 }
 
 void
