@@ -119,3 +119,8 @@ private:
   bool takeOff();
 
 }; // class MetricsMission
+
+void
+waypointEventCallback(Vehicle*      vehiclePtr,
+                      RecvContainer recvFrame,
+                      UserData      userData);

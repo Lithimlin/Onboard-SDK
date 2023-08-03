@@ -80,6 +80,9 @@ main(int argc, char** argv)
   auto mmPtr = std::make_unique<MetricsMission>(
     vehiclePtr, db.get(), missionType, responseTimeout);
 
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    &waypointEventCallback, mmPtr.get());
+
   // Obtain Control Authority
   vehiclePtr->flightController->obtainJoystickCtrlAuthoritySync(
     responseTimeout);
