@@ -36,6 +36,9 @@ struct MissionConfig
 std::ostream&
 operator<<(std::ostream& o, const MissionConfig& mc);
 
+std::ostream&
+operator<<(std::ostream& o, const WayPointSettings& waypoint);
+
 enum PointType
 {
   waypoint,

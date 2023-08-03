@@ -34,6 +34,9 @@ void
 commitMetricsTimerCallback(const boost::system::error_code& ec,
                            MetricsMission*                  ref);
 
+float
+rad_to_deg(float rad);
+
 std::string
 waypoint_to_string(const WayPoint& waypoint, bool asRad = false);
 
@@ -637,7 +640,7 @@ operator<<(std::ostream& o, const WayPointSettings& waypoint)
 }
 
 std::string
-waypoint_to_string(const WayPoint& waypoint, bool asRad = false)
+waypoint_to_string(const WayPointSettings& waypoint, bool asRad = false)
 {
   std::stringstream ss;
   if (asRad)
