@@ -77,15 +77,15 @@ main(int argc, char** argv)
 
   // Init Missions
   std::cout << "Initializing missions..." << std::endl;
-  MetricsMission mm =
-    MetricsMission(vehiclePtr, db.get(), missionType, responseTimeout);
+  auto mmPtr = std::make_unique<MetricsMission>(
+    vehiclePtr, db.get(), missionType, responseTimeout);
 
   // Obtain Control Authority
   vehiclePtr->flightController->obtainJoystickCtrlAuthoritySync(
     responseTimeout);
 
   // Run Missions
-  std::thread metricsThread([&] { mm.runContext(); });
+  std::thread metricsThread([&] { mmPtr->runContext(); });
   std::cout << std::endl << "Press Ctrl+C to exit." << std::endl;
   std::cout << "Running " << missions.size() << " missions..." << std::endl;
   ;
@@ -93,14 +93,14 @@ main(int argc, char** argv)
   {
     std::cout << "Running mission: (" << mission << ")\n";
 
-    bool status = mm.runMission(&mission);
+    bool status = mmPtr->runMission(&mission);
     if (!status)
     {
       std::cout << "Could not run mission." << std::endl;
       continue;
     }
 
-    while (mm.missionStatus != MissionStatus::completed)
+    while (mmPtr->missionStatus != MissionStatus::completed)
     {
       if (g_quit.load())
         break;
@@ -109,6 +109,8 @@ main(int argc, char** argv)
       break;
   }
 
+  mmPtr.reset();
+  metricsThread.join();
   db.release();
   return 0;
 }
