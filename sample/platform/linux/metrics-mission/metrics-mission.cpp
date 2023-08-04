@@ -239,10 +239,6 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
   }
   vehiclePtr->missionManager->printInfo();
 
-  printf("Callback pointer: %p\n", &waypointEventCallback);
-  printf("Vehicle pointer: %p\n", vehiclePtr);
-  printf("this: %p\n", this);
-
   vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
     &waypointEventCallback, this);
 
