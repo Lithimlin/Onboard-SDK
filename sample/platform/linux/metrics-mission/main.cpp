@@ -100,12 +100,12 @@ main(int argc, char** argv)
       continue;
     }
 
-    printf("Callback pointer: %p\n", &MetricsMission::waypointEventCallback);
-    printf("Vehicle pointer: %p\n", vehiclePtr);
-    printf("this: %p\n", mmPtr.get());
+    // printf("Callback pointer: %p\n", &MetricsMission::waypointEventCallback);
+    // printf("Vehicle pointer: %p\n", vehiclePtr);
+    // printf("MetricsMission pointer: %p\n", mmPtr.get());
 
-    vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-      &MetricsMission::waypointEventCallback, vehiclePtr);
+    // vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    //   &MetricsMission::waypointEventCallback, vehiclePtr);
 
     while (mmPtr->missionStatus != MissionStatus::completed)
     {
