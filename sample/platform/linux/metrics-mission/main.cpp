@@ -103,7 +103,7 @@ main(int argc, char** argv)
       continue;
     }
 
-    printf("Callback pointer: %p\n", &MetricsMission::waypointEventCallback);
+    printf("Callback pointer: %p\n", &printUserData);
     printf("Vehicle pointer: %p\n", vehiclePtr);
     printf("MetricsMission pointer: %p\n", mmPtr.get());
 
