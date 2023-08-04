@@ -20,6 +20,9 @@ INThandler(int sig);
 
 std::atomic<bool> g_quit(false);
 
+void
+printUserData(Vehicle* vehiclePtr, RecvContainer recvFrame, UserData userData);
+
 int
 main(int argc, char** argv)
 {
@@ -100,12 +103,12 @@ main(int argc, char** argv)
       continue;
     }
 
-    // printf("Callback pointer: %p\n", &MetricsMission::waypointEventCallback);
-    // printf("Vehicle pointer: %p\n", vehiclePtr);
-    // printf("MetricsMission pointer: %p\n", mmPtr.get());
+    printf("Callback pointer: %p\n", &MetricsMission::waypointEventCallback);
+    printf("Vehicle pointer: %p\n", vehiclePtr);
+    printf("MetricsMission pointer: %p\n", mmPtr.get());
 
-    // vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-    //   &MetricsMission::waypointEventCallback, vehiclePtr);
+    vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+      &printUserData, vehiclePtr);
 
     while (mmPtr->missionStatus != MissionStatus::completed)
     {
@@ -145,4 +148,11 @@ INThandler(int sig)
 {
   std::cout << "Exiting..." << std::endl;
   g_quit.store(true);
+}
+
+void
+printUserData(Vehicle* vehiclePtr, RecvContainer recvFrame, UserData userData)
+{
+  printf("Callback");
+  printf("userData: %p\n", userData);
 }
