@@ -56,13 +56,6 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
   std::cout << "Center point is (LLA)" << std::endl
             << waypoint_to_string(centerPoint) << std::endl;
 
-  printf("Callback pointer: %p\n", &waypointEventCallback);
-  printf("Vehicle pointer: %p\n", vehiclePtr);
-  printf("this: %p\n", this);
-
-  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-    &waypointEventCallback, vehiclePtr);
-
   std::cout << "Starting metrics timer..." << std::endl;
   metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, this));
@@ -250,6 +243,13 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
     ACK::getErrorCodeMessage(ack, __func__);
   }
   vehiclePtr->missionManager->printInfo();
+
+  printf("Callback pointer: %p\n", &waypointEventCallback);
+  printf("Vehicle pointer: %p\n", vehiclePtr);
+  printf("this: %p\n", this);
+
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    &waypointEventCallback, vehiclePtr);
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
