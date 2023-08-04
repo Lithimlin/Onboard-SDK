@@ -71,6 +71,10 @@ public:
   bool stopMission();
   bool flyToCenter(float altitude = 5.0f);
 
+  static void waypointEventCallback(Vehicle*      vehiclePtr,
+                                    RecvContainer recvFrame,
+                                    UserData      userData);
+
 private:
   Vehicle*                vehiclePtr;
   influxdb::InfluxDB*     influxDBPtr;

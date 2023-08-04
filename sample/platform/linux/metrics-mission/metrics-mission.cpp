@@ -12,11 +12,6 @@ const float RADIUS_EARTH = 6378137.0f; // in meters
 
 int metricsCommitFreq = 5; // Hz
 
-static void
-waypointEventCallback(Vehicle*      vehiclePtr,
-                      RecvContainer recvFrame,
-                      UserData      userData);
-
 void
 commitMetricsTimerCallback(const boost::system::error_code& ec,
                            MetricsMission*                  ref);
@@ -244,12 +239,12 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
   }
   vehiclePtr->missionManager->printInfo();
 
-  printf("Callback pointer: %p\n", &waypointEventCallback);
-  printf("Vehicle pointer: %p\n", vehiclePtr);
-  printf("this: %p\n", this);
+  // printf("Callback pointer: %p\n", &waypointEventCallback);
+  // printf("Vehicle pointer: %p\n", vehiclePtr);
+  // printf("this: %p\n", this);
 
-  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-    &waypointEventCallback, vehiclePtr);
+  // vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+  //   &waypointEventCallback, vehiclePtr);
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
@@ -592,10 +587,10 @@ MetricsMission::takeOff()
   return true;
 }
 
-static void
-waypointEventCallback(Vehicle*      vehiclePtr,
-                      RecvContainer recvFrame,
-                      UserData      userData)
+void
+MetricsMission::waypointEventCallback(Vehicle*      vehiclePtr,
+                                      RecvContainer recvFrame,
+                                      UserData      userData)
 {
   std::cout << "Waypoint Event Callback" << std::endl;
   printf("userData: %p\n", userData);
