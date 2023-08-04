@@ -484,7 +484,7 @@ std::vector<WayPointSettings>
 MetricsMission::createWaypoints(MissionConfig* mission)
 {
   std::cout << "Generating waypoints..." << std::endl;
-  std::cout << "Center is\n" << mission << std::endl;
+  std::cout << "Center is\n" << centerPoint << std::endl;
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(mission->numStops);
 
