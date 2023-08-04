@@ -12,7 +12,7 @@ const float RADIUS_EARTH = 6378137.0f; // in meters
 
 int metricsCommitFreq = 5; // Hz
 
-void
+static void
 waypointEventCallback(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData);
@@ -592,7 +592,7 @@ MetricsMission::takeOff()
   return true;
 }
 
-void
+static void
 waypointEventCallback(Vehicle*      vehiclePtr,
                       RecvContainer recvFrame,
                       UserData      userData)
