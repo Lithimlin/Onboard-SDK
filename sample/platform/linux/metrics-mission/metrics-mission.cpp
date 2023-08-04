@@ -244,7 +244,7 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
   printf("this: %p\n", this);
 
   vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
-    &waypointEventCallback, nullptr);
+    &waypointEventCallback, this);
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
@@ -592,9 +592,6 @@ MetricsMission::waypointEventCallback(Vehicle*      vehiclePtr,
                                       RecvContainer recvFrame,
                                       UserData      userData)
 {
-  std::cout << "Waypoint Event Callback" << std::endl;
-  printf("userData: %p\n", userData);
-  return;
 
   if (recvFrame.recvData.wayPointReachedData.incident_type ==
         WayPointIncidentType::NAVI_MISSION_FINISH &&
