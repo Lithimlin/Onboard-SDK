@@ -121,7 +121,6 @@ private:
                                         float             angle);
   bool             uploadWaypoints(std::vector<WayPointSettings>& waypoints);
 
-  bool initHotpointMission(MissionConfig* mission);
   bool isInAir();
   bool takeOff();
 
