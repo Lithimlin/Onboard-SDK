@@ -90,6 +90,18 @@ MetricsMission::initMission(MissionConfig* mission)
 }
 
 bool
+MetricsMission::initMissions(std::vector<MissionConfig>* missions)
+{
+  switch (missionType)
+  {
+    case PointType::waypoint:
+      return initWaypointMissions(missions);
+    default:
+      return false;
+  }
+}
+
+bool
 MetricsMission::runMissions()
 {
   switch (missionType)
@@ -107,6 +119,21 @@ void
 MetricsMission::runContext()
 {
   ctx.run();
+}
+
+bool
+MetricsMission::stopMission()
+{
+  switch (missionType)
+  {
+    case PointType::waypoint:
+      return stopWaypointMission();
+    case PointType::hotpoint:
+      return stopHotpointMission();
+    default:
+      return false;
+  }
+  return false;
 }
 
 bool
@@ -273,18 +300,87 @@ MetricsMission::initWaypointMission(MissionConfig* mission)
 }
 
 bool
-MetricsMission::stopMission()
+MetricsMission::initHotpointMission(MissionConfig* mission)
 {
-  switch (missionType)
+  vehiclePtr->missionManager->init(
+    DJI_MISSION_TYPE::HOTPOINT, responseTimeout, NULL);
+  vehiclePtr->missionManager->printInfo();
+
+  vehiclePtr->missionManager->hpMission->setHotPoint(
+    centerPoint.longitude, centerPoint.latitude, mission->altitude);
+
+  vehiclePtr->missionManager->hpMission->setRadius(mission->radius);
+  vehiclePtr->missionManager->hpMission->setYawMode(
+    HotpointMission::YawMode::YAW_INSIDE);
+  vehiclePtr->missionManager->hpMission->setYawRate(20.0f); // deg/s
+
+  return true;
+}
+
+bool
+MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
+{
+  int numPoints = 0;
+  for (auto mission : *missions)
   {
-    case PointType::waypoint:
-      return stopWaypointMission();
-    case PointType::hotpoint:
-      return stopHotpointMission();
-    default:
-      return false;
+    numPoints += mission.numStops;
   }
-  return false;
+
+  std::vector<WayPointSettings> waypoints;
+  waypoints.reserve(numPoints);
+
+  std::cout << "Initializing " << numPoints << " missions..." << std::endl;
+
+  for (auto mission : *missions)
+  {
+    std::cout << "Initializing missions: (" << mission << ")\n";
+    auto newPoints = createWaypoints(&mission);
+    waypoints.insert(waypoints.end(), newPoints.begin(), newPoints.end());
+  }
+
+  bool uploadStatus = uploadWaypoints(waypoints);
+  return uploadStatus;
+}
+
+bool
+MetricsMission::runWaypointMissions()
+{
+  std::cout << "Starting waypoint mission..." << std::endl;
+  ACK::ErrorCode ack =
+    vehiclePtr->missionManager->wpMission->start(responseTimeout);
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+    return false;
+  }
+  return true;
+}
+
+bool
+MetricsMission::runHotpointMissions()
+{
+  // Optional takeoff
+  bool status;
+  if (!isInAir())
+  {
+    status = takeOff();
+    if (!status)
+    {
+      return false;
+    }
+  }
+
+  std::cout << "Starting hotpoint mission..." << std::endl;
+  ACK::ErrorCode ack =
+    vehiclePtr->missionManager->hpMission->start(responseTimeout);
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+    return false;
+  }
+  missionStatus = MissionStatus::enRoute;
+
+  return true;
 }
 
 bool
@@ -520,65 +616,6 @@ MetricsMission::uploadWaypoints(std::vector<WayPointSettings>& waypoints)
       return false;
     }
   }
-  return true;
-}
-
-bool
-MetricsMission::initHotpointMission(MissionConfig* mission)
-{
-  vehiclePtr->missionManager->init(
-    DJI_MISSION_TYPE::HOTPOINT, responseTimeout, NULL);
-  vehiclePtr->missionManager->printInfo();
-
-  vehiclePtr->missionManager->hpMission->setHotPoint(
-    centerPoint.longitude, centerPoint.latitude, mission->altitude);
-
-  vehiclePtr->missionManager->hpMission->setRadius(mission->radius);
-  vehiclePtr->missionManager->hpMission->setYawMode(
-    HotpointMission::YawMode::YAW_INSIDE);
-  vehiclePtr->missionManager->hpMission->setYawRate(20.0f); // deg/s
-
-  return true;
-}
-
-bool
-MetricsMission::runWaypointMissions()
-{
-  std::cout << "Starting waypoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehiclePtr->missionManager->wpMission->start(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    return false;
-  }
-  return true;
-}
-
-bool
-MetricsMission::runHotpointMissions()
-{
-  // Optional takeoff
-  bool status;
-  if (!isInAir())
-  {
-    status = takeOff();
-    if (!status)
-    {
-      return false;
-    }
-  }
-
-  std::cout << "Starting hotpoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehiclePtr->missionManager->hpMission->start(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    return false;
-  }
-  missionStatus = MissionStatus::enRoute;
-
   return true;
 }
 

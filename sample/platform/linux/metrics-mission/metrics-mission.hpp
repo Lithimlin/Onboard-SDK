@@ -67,6 +67,7 @@ public:
   ~MetricsMission();
 
   bool initMission(MissionConfig* mission);
+  bool initMissions(std::vector<MissionConfig>* missions);
   bool runMissions();
   void runContext();
   bool stopMission();
@@ -94,6 +95,7 @@ private:
 
   bool initWaypointMission(MissionConfig* mission);
   bool initHotpointMission(MissionConfig* mission);
+  bool initWaypointMissions(std::vector<MissionConfig>* missions);
   bool runWaypointMissions();
   bool runHotpointMissions();
   bool stopWaypointMission();
