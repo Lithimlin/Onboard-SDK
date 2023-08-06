@@ -39,12 +39,6 @@ operator<<(std::ostream& o, const MissionConfig& mc);
 std::ostream&
 operator<<(std::ostream& o, const WayPointSettings& waypoint);
 
-enum PointType
-{
-  waypoint,
-  hotpoint
-};
-
 enum MissionStatus
 {
   undefined,
@@ -61,7 +55,7 @@ public:
 
   MetricsMission(Vehicle*            vehiclePtr,
                  influxdb::InfluxDB* influxDBPtr,
-                 PointType           missionType,
+                 DJI_MISSION_TYPE    missionType,
                  int                 responseTimeout = 1);
 
   ~MetricsMission();
@@ -80,7 +74,7 @@ public:
 private:
   Vehicle*                vehiclePtr;
   influxdb::InfluxDB*     influxDBPtr;
-  PointType               missionType;
+  DJI_MISSION_TYPE        missionType;
   int                     responseTimeout;
   WayPointSettings        centerPoint;
   boost::asio::io_context ctx;

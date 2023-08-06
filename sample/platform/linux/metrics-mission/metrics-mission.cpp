@@ -24,7 +24,7 @@ waypoint_to_string(const WayPointSettings& waypoint, bool asRad = false);
 
 MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
                                influxdb::InfluxDB* influxDBPtr,
-                               PointType           missionType,
+                               DJI_MISSION_TYPE    missionType,
                                int                 responseTimeout)
   : vehiclePtr(vehiclePtr)
   , influxDBPtr(influxDBPtr)
@@ -80,9 +80,9 @@ MetricsMission::initMission(MissionConfig* mission)
 
   switch (missionType)
   {
-    case PointType::waypoint:
+    case DJI_MISSION_TYPE::WAYPOINT:
       return initWaypointMission(mission);
-    case PointType::hotpoint:
+    case DJI_MISSION_TYPE::HOTPOINT:
       return initHotpointMission(mission);
     default:
       return false;
@@ -94,7 +94,7 @@ MetricsMission::initMissions(std::vector<MissionConfig>* missions)
 {
   switch (missionType)
   {
-    case PointType::waypoint:
+    case DJI_MISSION_TYPE::WAYPOINT:
       return initWaypointMissions(missions);
     default:
       return false;
@@ -106,9 +106,9 @@ MetricsMission::runMissions()
 {
   switch (missionType)
   {
-    case PointType::waypoint:
+    case DJI_MISSION_TYPE::WAYPOINT:
       return runWaypointMissions();
-    case PointType::hotpoint:
+    case DJI_MISSION_TYPE::HOTPOINT:
       return runHotpointMissions();
     default:
       return false;
@@ -126,9 +126,9 @@ MetricsMission::stopMission()
 {
   switch (missionType)
   {
-    case PointType::waypoint:
+    case DJI_MISSION_TYPE::WAYPOINT:
       return stopWaypointMission();
-    case PointType::hotpoint:
+    case DJI_MISSION_TYPE::HOTPOINT:
       return stopHotpointMission();
     default:
       return false;
@@ -275,8 +275,8 @@ MetricsMission::initWaypointMission(MissionConfig* mission)
   setWaypointInitDefaults(&fdata);
   fdata.indexNumber = mission->numStops;
 
-  ACK::ErrorCode ack = vehiclePtr->missionManager->init(
-    DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
+  ACK::ErrorCode ack =
+    vehiclePtr->missionManager->init(missionType, responseTimeout, &fdata);
 
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
@@ -296,8 +296,7 @@ MetricsMission::initWaypointMission(MissionConfig* mission)
 bool
 MetricsMission::initHotpointMission(MissionConfig* mission)
 {
-  vehiclePtr->missionManager->init(
-    DJI_MISSION_TYPE::HOTPOINT, responseTimeout, NULL);
+  vehiclePtr->missionManager->init(missionType, responseTimeout, NULL);
   vehiclePtr->missionManager->printInfo();
 
   vehiclePtr->missionManager->hpMission->setHotPoint(
@@ -324,8 +323,8 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
   setWaypointInitDefaults(&fdata);
   fdata.indexNumber = numPoints;
 
-  ACK::ErrorCode ack = vehiclePtr->missionManager->init(
-    DJI_MISSION_TYPE::WAYPOINT, responseTimeout, &fdata);
+  ACK::ErrorCode ack =
+    vehiclePtr->missionManager->init(missionType, responseTimeout, &fdata);
 
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(numPoints);
