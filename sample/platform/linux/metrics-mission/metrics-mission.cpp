@@ -290,13 +290,7 @@ MetricsMission::initWaypointMission(MissionConfig* mission)
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
-  bool status = uploadWaypoints(&waypoints);
-  if (!status)
-  {
-    return false;
-  }
-
-  return true;
+  return uploadWaypoints(&waypoints);
 }
 
 bool
@@ -340,8 +334,7 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
 
   std::cout << "Uploading " << waypoints.size() << " waypoints..." << std::endl;
 
-  bool uploadStatus = uploadWaypoints(&waypoints);
-  return uploadStatus;
+  return uploadWaypoints(&waypoints);
 }
 
 bool
