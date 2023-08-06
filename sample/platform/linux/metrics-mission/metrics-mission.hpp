@@ -121,7 +121,7 @@ private:
   WayPointSettings newDisplacedWaypoint(WayPointSettings* oldWp,
                                         float             radius,
                                         float             angle);
-  bool             uploadWaypoints(std::vector<WayPointSettings>& waypoints);
+  bool             uploadWaypoints(std::vector<WayPointSettings>* waypoints);
 
   bool isInAir();
   bool takeOff();

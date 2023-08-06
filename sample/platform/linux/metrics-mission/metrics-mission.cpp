@@ -290,7 +290,7 @@ MetricsMission::initWaypointMission(MissionConfig* mission)
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
-  bool status = uploadWaypoints(waypoints);
+  bool status = uploadWaypoints(&waypoints);
   if (!status)
   {
     return false;
@@ -321,7 +321,7 @@ bool
 MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
 {
   int numPoints = 0;
-  for (auto mission : *missions)
+  for (auto& mission : *missions)
   {
     numPoints += mission.numStops;
   }
@@ -329,16 +329,18 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(numPoints);
 
-  std::cout << "Initializing " << numPoints << " missions..." << std::endl;
+  std::cout << "Initializing " << numPoints << " waypoints..." << std::endl;
 
-  for (auto mission : *missions)
+  for (auto& mission : *missions)
   {
-    std::cout << "Initializing missions: (" << mission << ")\n";
+    std::cout << "Initializing mission: (" << mission << ")\n";
     auto newPoints = createWaypoints(&mission);
     waypoints.insert(waypoints.end(), newPoints.begin(), newPoints.end());
   }
 
-  bool uploadStatus = uploadWaypoints(waypoints);
+  std::cout << "Uploading " << waypoints.size() << " waypoints..." << std::endl;
+
+  bool uploadStatus = uploadWaypoints(&waypoints);
   return uploadStatus;
 }
 
@@ -602,10 +604,10 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
 }
 
 bool
-MetricsMission::uploadWaypoints(std::vector<WayPointSettings>& waypoints)
+MetricsMission::uploadWaypoints(std::vector<WayPointSettings>* waypoints)
 {
   std::cout << "Uploading waypoints..." << std::endl;
-  for (auto waypoint : waypoints)
+  for (auto waypoint : *waypoints)
   {
     ACK::WayPointIndex wpIndexACK =
       vehiclePtr->missionManager->wpMission->uploadIndexData(&waypoint,
