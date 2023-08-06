@@ -581,6 +581,7 @@ MetricsMission::createWaypoints(MissionConfig* mission)
     wp.commandParameter[0] = mission->waitTime * 250;
 
     waypoints.push_back(wp);
+    std::cout << "Waypoint: " << waypoint_to_string(wp) << std::endl;
   }
   return waypoints;
 }
