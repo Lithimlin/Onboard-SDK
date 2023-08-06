@@ -50,27 +50,27 @@ main(int argc, char** argv)
   }
 
   // Obtain Mission Type
-  std::string missionTypeStr = dotenv::env["MISSION_TYPE"];
-  PointType   missionType;
+  std::string      missionTypeStr = dotenv::env["MISSION_TYPE"];
+  DJI_MISSION_TYPE missionType;
   boost::algorithm::to_lower(missionTypeStr);
 
   if (missionTypeStr.empty())
   {
-    missionType = PointType::waypoint;
+    missionType = DJI_MISSION_TYPE::WAYPOINT;
   }
   else if (missionTypeStr == "waypoint")
   {
-    missionType = PointType::waypoint;
+    missionType = DJI_MISSION_TYPE::WAYPOINT;
   }
   else if (missionTypeStr == "hotpoint")
   {
-    missionType = PointType::hotpoint;
+    missionType = DJI_MISSION_TYPE::HOTPOINT;
   }
   else
   {
     std::cout << "Invalid mission type, defaulting to \"waypoint\"."
               << std::endl;
-    missionType = PointType::waypoint;
+    missionType = DJI_MISSION_TYPE::WAYPOINT;
   }
 
   // Read Missions
