@@ -484,7 +484,6 @@ std::vector<WayPointSettings>
 MetricsMission::createWaypoints(MissionConfig* mission)
 {
   std::cout << "Generating waypoints..." << std::endl;
-  std::cout << "Center is\n" << centerPoint << std::endl;
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(mission->numStops);
 
@@ -595,7 +594,7 @@ MetricsMission::waypointEventCallback(Vehicle*      vehiclePtr,
       recvFrame.recvData.wayPointReachedData.current_status == 0)
   {
     DSTATUS("Mission finished.");
-    ((MetricsMission*)userData)->missionStatus = MissionStatus::completed;
+    ((MetricsMission*)userData)->stopMission();
     return;
   }
 
