@@ -240,6 +240,10 @@ MetricsMission::initWaypointMission(MissionConfig* mission)
 {
   // init mission
   std::cout << "Initializing waypoint mission..." << std::endl;
+  if (mission->numStops < 2)
+  {
+    mission->numStops = 2;
+  }
   WayPointInitSettings fdata;
   setWaypointInitDefaults(&fdata);
   fdata.indexNumber = mission->numStops;
