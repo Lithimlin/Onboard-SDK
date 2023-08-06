@@ -269,33 +269,6 @@ MetricsMission::initWaypointMission(MissionConfig* mission)
 }
 
 bool
-MetricsMission::runHotpointMissions()
-{
-  // Optional takeoff
-  bool status;
-  if (!isInAir())
-  {
-    status = takeOff();
-    if (!status)
-    {
-      return false;
-    }
-  }
-
-  std::cout << "Starting hotpoint mission..." << std::endl;
-  ACK::ErrorCode ack =
-    vehiclePtr->missionManager->hpMission->start(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
-  {
-    ACK::getErrorCodeMessage(ack, __func__);
-    return false;
-  }
-  missionStatus = MissionStatus::enRoute;
-
-  return true;
-}
-
-bool
 MetricsMission::stopMission()
 {
   switch (missionType)
@@ -575,12 +548,34 @@ MetricsMission::runWaypointMissions()
     ACK::getErrorCodeMessage(ack, __func__);
     return false;
   }
+  return true;
 }
 
 bool
 MetricsMission::runHotpointMissions()
 {
-  return false;
+  // Optional takeoff
+  bool status;
+  if (!isInAir())
+  {
+    status = takeOff();
+    if (!status)
+    {
+      return false;
+    }
+  }
+
+  std::cout << "Starting hotpoint mission..." << std::endl;
+  ACK::ErrorCode ack =
+    vehiclePtr->missionManager->hpMission->start(responseTimeout);
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+    return false;
+  }
+  missionStatus = MissionStatus::enRoute;
+
+  return true;
 }
 
 bool
