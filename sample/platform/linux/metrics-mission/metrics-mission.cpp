@@ -320,8 +320,9 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
     numPoints += mission.numStops;
   }
 
-  std::vector<WayPointSettings> waypoints;
-  waypoints.reserve(numPoints);
+  // std::vector<WayPointSettings> waypoints;
+  // waypoints.reserve(numPoints);
+  int idxCounter = 0;
 
   std::cout << "Initializing " << numPoints << " waypoints..." << std::endl;
 
@@ -330,16 +331,25 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
     std::cout << "Initializing mission: (" << mission << ")\n";
 
     auto newPoints = createWaypoints(&mission);
-    for (auto& point : newPoints)
+    for (auto point : newPoints)
     {
-      point.index = waypoints.size();
-      waypoints.push_back(point);
+      point.index = idxCounter++;
+      // point.index = waypoints.size();
+      // waypoints.push_back(point);
+
+      ACK::WayPointIndex wpIndexACK =
+        vehiclePtr->missionManager->wpMission->uploadIndexData(&point,
+                                                               responseTimeout);
+      if (ACK::getError(wpIndexACK.ack) != ACK::SUCCESS)
+      {
+        ACK::getErrorCodeMessage(wpIndexACK.ack, __func__);
+        return false;
+      }
     }
   }
 
-  std::cout << "Uploading " << waypoints.size() << " waypoints..." << std::endl;
-
-  return uploadWaypoints(&waypoints);
+  // return uploadWaypoints(&waypoints);
+  return true;
 }
 
 bool
