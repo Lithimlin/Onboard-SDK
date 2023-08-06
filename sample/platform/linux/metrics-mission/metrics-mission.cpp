@@ -328,8 +328,13 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
   for (auto& mission : *missions)
   {
     std::cout << "Initializing mission: (" << mission << ")\n";
+
     auto newPoints = createWaypoints(&mission);
-    waypoints.insert(waypoints.end(), newPoints.begin(), newPoints.end());
+    for (auto& point : newPoints)
+    {
+      point.index = waypoints.size();
+      waypoints.push_back(point);
+    }
   }
 
   std::cout << "Uploading " << waypoints.size() << " waypoints..." << std::endl;
