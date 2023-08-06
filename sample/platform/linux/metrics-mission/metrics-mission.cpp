@@ -609,6 +609,7 @@ MetricsMission::uploadWaypoints(std::vector<WayPointSettings>* waypoints)
   std::cout << "Uploading waypoints..." << std::endl;
   for (auto waypoint : *waypoints)
   {
+    std::cout << "Uploading waypoint " << waypoint.index << "..." << std::endl;
     ACK::WayPointIndex wpIndexACK =
       vehiclePtr->missionManager->wpMission->uploadIndexData(&waypoint,
                                                              responseTimeout);
