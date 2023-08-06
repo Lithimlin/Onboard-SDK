@@ -90,24 +90,24 @@ main(int argc, char** argv)
   // Run Missions
   // std::thread metricsThread([&] { mmPtr->runContext(); });
   std::cout << std::endl << "Press Ctrl+C to exit." << std::endl;
-  std::cout << "Running " << missions.size() << " missions..." << std::endl;
+  std::cout << "Initializing " << missions.size() << " missions..."
+            << std::endl;
   ;
   for (auto& mission : missions)
   {
-    std::cout << "Running mission: (" << mission << ")\n";
+    std::cout << "Initializing missions: (" << mission << ")\n";
 
-    bool status = mmPtr->runMission(&mission);
+    bool status = mmPtr->initMission(&mission);
     if (!status)
     {
-      std::cout << "Could not run mission." << std::endl;
+      std::cout << "Could not initialize mission." << std::endl;
       continue;
     }
+  }
 
-    while (mmPtr->missionStatus != MissionStatus::completed)
-    {
-      if (g_quit.load())
-        break;
-    }
+  mmPtr->runMissions();
+  while (mmPtr->missionStatus != MissionStatus::completed)
+  {
     if (g_quit.load())
       break;
   }

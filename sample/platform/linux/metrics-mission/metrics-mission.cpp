@@ -69,7 +69,7 @@ MetricsMission::~MetricsMission()
 }
 
 bool
-MetricsMission::runMission(MissionConfig* mission)
+MetricsMission::initMission(MissionConfig* mission)
 {
   if (!vehiclePtr->isM210V2() && !vehiclePtr->isM300())
   {
@@ -81,9 +81,23 @@ MetricsMission::runMission(MissionConfig* mission)
   switch (missionType)
   {
     case PointType::waypoint:
-      return runWaypointMission(mission);
+      return initWaypointMission(mission);
     case PointType::hotpoint:
-      return runHotpointMission(mission);
+      return initHotpointMission(mission);
+    default:
+      return false;
+  }
+}
+
+bool
+MetricsMission::runMissions()
+{
+  switch (missionType)
+  {
+    case PointType::waypoint:
+      return runWaypointMissions();
+    case PointType::hotpoint:
+      return runHotpointMissions();
     default:
       return false;
   }
@@ -99,7 +113,7 @@ bool
 MetricsMission::flyToCenter(float altitude)
 {
   MissionConfig mission = { altitude, 0.0f, 1, 0 };
-  return runWaypointMission(&mission);
+  return initWaypointMission(&mission);
 }
 
 void
@@ -222,7 +236,7 @@ MetricsMission::getCurrentPoint()
 }
 
 bool
-MetricsMission::runWaypointMission(MissionConfig* mission)
+MetricsMission::initWaypointMission(MissionConfig* mission)
 {
   // init mission
   std::cout << "Initializing waypoint mission..." << std::endl;
@@ -236,6 +250,7 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(ack, __func__);
+    return false;
   }
   vehiclePtr->missionManager->printInfo();
 
@@ -244,13 +259,9 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
 
   std::vector<WayPointSettings> waypoints = createWaypoints(mission);
 
-  uploadWaypoints(waypoints);
-
-  std::cout << "Starting waypoint mission..." << std::endl;
-  ack = vehiclePtr->missionManager->wpMission->start(responseTimeout);
-  if (ACK::getError(ack) != ACK::SUCCESS)
+  bool status = uploadWaypoints(waypoints);
+  if (!status)
   {
-    ACK::getErrorCodeMessage(ack, __func__);
     return false;
   }
 
@@ -258,15 +269,10 @@ MetricsMission::runWaypointMission(MissionConfig* mission)
 }
 
 bool
-MetricsMission::runHotpointMission(MissionConfig* mission)
+MetricsMission::runHotpointMissions()
 {
-  // init mission
-  bool status = initHotpointMission(mission);
-  if (!status)
-  {
-    return false;
-  }
   // Optional takeoff
+  bool status;
   if (!isInAir())
   {
     status = takeOff();
@@ -522,7 +528,7 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
   return newWp;
 }
 
-void
+bool
 MetricsMission::uploadWaypoints(std::vector<WayPointSettings>& waypoints)
 {
   std::cout << "Uploading waypoints..." << std::endl;
@@ -534,8 +540,10 @@ MetricsMission::uploadWaypoints(std::vector<WayPointSettings>& waypoints)
     if (ACK::getError(wpIndexACK.ack) != ACK::SUCCESS)
     {
       ACK::getErrorCodeMessage(wpIndexACK.ack, __func__);
+      return false;
     }
   }
+  return true;
 }
 
 bool
@@ -554,6 +562,25 @@ MetricsMission::initHotpointMission(MissionConfig* mission)
   vehiclePtr->missionManager->hpMission->setYawRate(20.0f); // deg/s
 
   return true;
+}
+
+bool
+MetricsMission::runWaypointMissions()
+{
+  std::cout << "Starting waypoint mission..." << std::endl;
+  ACK::ErrorCode ack =
+    vehiclePtr->missionManager->wpMission->start(responseTimeout);
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+    return false;
+  }
+}
+
+bool
+MetricsMission::runHotpointMissions()
+{
+  return false;
 }
 
 bool
@@ -594,7 +621,7 @@ MetricsMission::waypointEventCallback(Vehicle*      vehiclePtr,
       recvFrame.recvData.wayPointReachedData.current_status == 0)
   {
     DSTATUS("Mission finished.");
-    ((MetricsMission*)userData)->stopMission();
+    ((MetricsMission*)userData)->stopWaypointMission();
     return;
   }
 

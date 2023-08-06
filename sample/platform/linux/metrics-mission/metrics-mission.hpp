@@ -62,11 +62,12 @@ public:
   MetricsMission(Vehicle*            vehiclePtr,
                  influxdb::InfluxDB* influxDBPtr,
                  PointType           missionType,
-                 int                 responseTimeout);
+                 int                 responseTimeout = 1);
 
   ~MetricsMission();
 
-  bool runMission(MissionConfig* mission);
+  bool initMission(MissionConfig* mission);
+  bool runMissions();
   void runContext();
   bool stopMission();
   bool flyToCenter(float altitude = 5.0f);
@@ -91,8 +92,10 @@ public:
 private:
   WayPointSettings getCurrentPoint();
 
-  bool runWaypointMission(MissionConfig* mission);
-  bool runHotpointMission(MissionConfig* mission);
+  bool initWaypointMission(MissionConfig* mission);
+  bool initHotpointMission(MissionConfig* mission);
+  bool runWaypointMissions();
+  bool runHotpointMissions();
   bool stopWaypointMission();
   bool stopHotpointMission();
 
@@ -116,7 +119,7 @@ private:
   WayPointSettings newDisplacedWaypoint(WayPointSettings* oldWp,
                                         float             radius,
                                         float             angle);
-  void             uploadWaypoints(std::vector<WayPointSettings>& waypoints);
+  bool             uploadWaypoints(std::vector<WayPointSettings>& waypoints);
 
   bool initHotpointMission(MissionConfig* mission);
   bool isInAir();
