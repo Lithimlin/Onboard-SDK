@@ -334,7 +334,7 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
 
   for (auto& mission : *missions)
   {
-    DSTATUS("Initializing mission: (%s)", mission);
+    DSTATUS("Initializing mission: (%s)", mission.toString());
 
     auto newPoints = createWaypoints(&mission);
     for (auto point : newPoints)
@@ -752,16 +752,16 @@ waypoint_to_string(const WayPointSettings& waypoint, bool asRad)
   std::stringstream ss;
   if (asRad)
   {
-    ss << std::setprecision(6);
+    // ss << std::setprecision(6);
     ss << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t";
   }
   else
   {
-    ss << std::setprecision(5);
+    // ss << std::setprecision(5);
     ss << rad_to_deg(waypoint.latitude) << " deg\t"
        << rad_to_deg(waypoint.longitude) << " deg\t";
   }
-  ss << std::setprecision(2);
+  // ss << std::setprecision(2);
   ss << waypoint.altitude << " m";
   return ss.str();
 }
