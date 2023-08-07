@@ -112,10 +112,10 @@ private:
    * @param angle The angle of the displacement in degrees
    * @return A new waypoint struct containing the displacement
    */
-  WayPointSettings newDisplacedWaypoint(WayPointSettings* oldWp,
-                                        float             radius,
-                                        float             angle);
-  bool             uploadWaypoints(std::vector<WayPointSettings>* waypoints);
+  static WayPointSettings newDisplacedWaypoint(WayPointSettings* oldWp,
+                                               float             radius,
+                                               float             angle);
+  bool uploadWaypoints(std::vector<WayPointSettings>* waypoints);
 
   bool isInAir();
   bool takeOff();
