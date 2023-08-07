@@ -715,7 +715,6 @@ std::string
 MissionConfig::toString() const
 {
   std::stringstream ss;
-  ss << std::setprecision(2);
   ss << "Altitude: " << to_string(altitude) << ", Radius: " << to_string(radius)
      << ", NumStops: " << to_string(numStops)
      << ", WaitTime: " << to_string(waitTime);
@@ -752,16 +751,13 @@ waypoint_to_string(const WayPointSettings& waypoint, bool asRad)
   std::stringstream ss;
   if (asRad)
   {
-    // ss << std::setprecision(6);
     ss << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t";
   }
   else
   {
-    // ss << std::setprecision(5);
     ss << rad_to_deg(waypoint.latitude) << " deg\t"
        << rad_to_deg(waypoint.longitude) << " deg\t";
   }
-  // ss << std::setprecision(2);
   ss << waypoint.altitude << " m";
   return ss.str();
 }
