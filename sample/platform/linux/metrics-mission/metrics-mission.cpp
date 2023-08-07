@@ -216,7 +216,8 @@ MetricsMission::getCurrentPoint()
   WayPointSettings point;
   setWaypointDefaults(&point);
 
-  if (vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>()
+  if (false &&
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>()
         .rtkConnected)
   {
     DSTATUS("Getting RTK position...");
