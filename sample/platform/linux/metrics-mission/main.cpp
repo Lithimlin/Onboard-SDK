@@ -88,22 +88,22 @@ main(int argc, char** argv)
     responseTimeout);
 
   // Run Missions
+  bool status = mmPtr->initMissions(&missions);
+  if (!status)
+  {
+    std::cout << "Could not initialize missions, exiting." << std::endl;
+    return -1;
+  }
+
+  status = mmPtr->runMissions();
+  if (!status)
+  {
+    std::cout << "Could not run missions, exiting." << std::endl;
+    return -1;
+  }
+
   // std::thread metricsThread([&] { mmPtr->runContext(); });
-  mmPtr->initMissions(&missions);
-
-  // for (auto& mission : missions)
-  // {
-
-  //   bool status = mmPtr->initMission(&mission);
-  //   if (!status)
-  //   {
-  //     std::cout << "Could not initialize mission." << std::endl;
-  //     continue;
-  //   }
-  // }
-
   std::cout << std::endl << "Press Ctrl+C to exit." << std::endl;
-  mmPtr->runMissions();
   while (mmPtr->missionStatus != MissionStatus::completed)
   {
     if (g_quit.load())
