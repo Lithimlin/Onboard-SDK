@@ -326,6 +326,16 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
   ACK::ErrorCode ack =
     vehiclePtr->missionManager->init(missionType, responseTimeout, &fdata);
 
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+    return false;
+  }
+  vehiclePtr->missionManager->printInfo();
+
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    &waypointEventCallback, this);
+
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(numPoints);
 
