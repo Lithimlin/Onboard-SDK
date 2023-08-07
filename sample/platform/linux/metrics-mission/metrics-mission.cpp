@@ -334,7 +334,7 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
 
   for (auto& mission : *missions)
   {
-    DSTATUS("Initializing mission: (%s)", mission.toString());
+    DSTATUS("Initializing mission: (%s)", mission.toString().c_str());
 
     auto newPoints = createWaypoints(&mission);
     for (auto point : newPoints)
