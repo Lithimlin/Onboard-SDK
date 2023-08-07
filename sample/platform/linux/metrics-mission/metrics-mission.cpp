@@ -2,6 +2,7 @@
 #include "dotenv.h"
 
 #include <boost/bind/bind.hpp>
+#include <iomanip>
 
 #include <dji_telemetry.hpp>
 
@@ -34,37 +35,36 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 {
   if (!this->influxDBPtr)
   {
-    std::cerr << "InfluxDB pointer is null" << std::endl;
+    DERROR("InfluxDB pointer is null");
     exit(-1);
   }
   this->influxDBPtr->batchOf(50);
 
   if (!subscribe())
   {
-    std::cerr << "Failed to subscribe in MetricsMission..." << std::endl;
+    DERROR("Failed to subscribe in MetricsMission...");
     exit(-1);
   }
   sleep(1);
 
-  std::cout << "Recording position..." << std::endl;
+  DSTATUS("Recording position...");
   centerPoint = getCurrentPoint();
-  std::cout << "Center point is (LLA)" << std::endl
-            << waypoint_to_string(centerPoint) << std::endl;
+  DSTATUS("Center point is (LLA) %s", waypoint_to_string(centerPoint));
 
-  std::cout << "Starting metrics timer..." << std::endl;
+  DSTATUS("Starting metrics timer...");
   metricsTimer.async_wait(boost::bind(
     commitMetricsTimerCallback, boost::asio::placeholders::error, this));
 
-  std::cout << "MetricsMission initialized..." << std::endl;
+  DSTATUS("MetricsMission initialized...");
 }
 
 MetricsMission::~MetricsMission()
 {
-  std::cout << "Cancelling metrics timer..." << std::endl;
+  DSTATUS("Cancelling metrics timer...");
   metricsTimer.expires_after(boost::asio::chrono::milliseconds(5));
-  std::cout << "Cancelling mission..." << std::endl;
+  DSTATUS("Cancelling mission...");
   stopMission();
-  std::cout << "Unsubscribing..." << std::endl;
+  DSTATUS("Unsubscribing...");
   unsubscribe();
 }
 
@@ -73,8 +73,7 @@ MetricsMission::initMission(MissionConfig* mission)
 {
   if (!vehiclePtr->isM210V2() && !vehiclePtr->isM300())
   {
-    std::cout << "This metrics mission is only supported "
-              << "on M210V2 and M300." << std::endl;
+    DERROR("This metrics mission is only supported on M210V2 and M300.");
     return false;
   }
 
@@ -174,8 +173,6 @@ MetricsMission::commitMetrics()
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_HEIGHT_FUSION>();
   altitudeFusioned =
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_FUSIONED>();
-  // altitudeOfHomepoint =
-  //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_ALTITUDE_OF_HOMEPOINT>();
   statusFlight =
     vehiclePtr->subscribe->getValue<TopicName::TOPIC_STATUS_FLIGHT>();
 
@@ -199,7 +196,6 @@ MetricsMission::commitMetrics()
       .addField("rtk_position_info", rtkPositionInfo)
       .addField("height_fusion", heightFusion)
       .addField("altitude_fusion", altitudeFusioned)
-      //.addField("altitude_of_homepoint", altitudeOfHomepoint)
       .addField("status_flight", statusFlight)
       .addField("mission_status", (uint8_t)missionStatus)
       .addField("mission_type", (uint8_t)missionType)
@@ -220,37 +216,31 @@ MetricsMission::getCurrentPoint()
   WayPointSettings point;
   setWaypointDefaults(&point);
 
-  // if (vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>()
-  //       .rtkConnected)
-  // {
-  //   std::cout << "Getting RTK position..." << std::endl;
-  //   TypeMap<TopicName::TOPIC_RTK_POSITION>::type rtkPosition =
-  //     vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
-  //   point.latitude  = rtkPosition.latitude;
-  //   point.longitude = rtkPosition.longitude;
-  //   std::cout << "RTK position is (LLZ):\n"
-  //             << rtkPosition.latitude << " rad\t" << rtkPosition.longitude
-  //             << " rad\t" << rtkPosition.HFSL << " m" << std::endl;
-  // }
-  // else
-  // {
-  std::cout << "Getting GPS position..." << std::endl;
-  TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsFused =
-    vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
-  point.latitude  = gpsFused.latitude;
-  point.longitude = gpsFused.longitude;
-  // std::cout << "GPS fused data is (LLA):\n"
-  //           << gpsFused.latitude << " rad\t" << gpsFused.longitude
-  //           << "rad\t "
-  //           << gpsFused.altitude << " m" << std::endl;
-
-  // TypeMap<TopicName::TOPIC_GPS_POSITION>::type gpsPosition =
-  //   vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_POSITION>();
-  // std::cout << "GPS position is (xyz):\n"
-  //           << gpsPosition.x << "\t" << gpsPosition.y << "\t" <<
-  //           gpsPosition.z
-  //           << std::endl;
-  // }
+  if (vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_CONNECT_STATUS>()
+        .rtkConnected)
+  {
+    DSTATUS("Getting RTK position...");
+    TypeMap<TopicName::TOPIC_RTK_POSITION>::type rtkPosition =
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_RTK_POSITION>();
+    point.latitude  = rtkPosition.latitude;
+    point.longitude = rtkPosition.longitude;
+    DDEBUG("RTK position is (LLZ):\n%8.6f rad\t%8.6f rad\t%5.2f m\n",
+           rtkPosition.latitude,
+           rtkPosition.longitude,
+           rtkPosition.HFSL);
+  }
+  else
+  {
+    DSTATUS("Getting GPS position...");
+    TypeMap<TopicName::TOPIC_GPS_FUSED>::type gpsFused =
+      vehiclePtr->subscribe->getValue<TopicName::TOPIC_GPS_FUSED>();
+    point.latitude  = gpsFused.latitude;
+    point.longitude = gpsFused.longitude;
+    DDEBUG("GPS fused data is (LLA):\n%8.6f rad\t%8.6f rad\t%5.2f m\n",
+           gpsFused.latitude,
+           gpsFused.longitude,
+           gpsFused.altitude);
+  }
 
   point.altitude       = 0;
   point.hasAction      = 1;
@@ -266,7 +256,7 @@ bool
 MetricsMission::initWaypointMission(MissionConfig* mission)
 {
   // init mission
-  std::cout << "Initializing waypoint mission..." << std::endl;
+  DSTATUS("Initializing waypoint mission...");
   if (mission->numStops < 2)
   {
     mission->numStops = 2;
@@ -339,11 +329,11 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(numPoints);
 
-  std::cout << "Initializing " << numPoints << " waypoints..." << std::endl;
+  DSTATUS("Initializing %d waypoints...", numPoints);
 
   for (auto& mission : *missions)
   {
-    std::cout << "Initializing mission: (" << mission << ")\n";
+    DSTATUS("Initializing mission: (%s)", mission);
 
     auto newPoints = createWaypoints(&mission);
     for (auto point : newPoints)
@@ -359,7 +349,7 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
 bool
 MetricsMission::runWaypointMissions()
 {
-  std::cout << "Starting waypoint mission..." << std::endl;
+  DSTATUS("Starting waypoint mission...");
   ACK::ErrorCode ack =
     vehiclePtr->missionManager->wpMission->start(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
@@ -384,7 +374,7 @@ MetricsMission::runHotpointMissions()
     }
   }
 
-  std::cout << "Starting hotpoint mission..." << std::endl;
+  DSTATUS("Starting hotpoint mission...");
   ACK::ErrorCode ack =
     vehiclePtr->missionManager->hpMission->start(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
@@ -400,7 +390,7 @@ MetricsMission::runHotpointMissions()
 bool
 MetricsMission::stopWaypointMission()
 {
-  std::cout << "Stopping waypoint mission..." << std::endl;
+  DSTATUS("Stopping waypoint mission...");
   vehiclePtr->missionManager->wpMission->stop(responseTimeout);
   missionStatus = MissionStatus::completed;
   return true;
@@ -409,7 +399,7 @@ MetricsMission::stopWaypointMission()
 bool
 MetricsMission::stopHotpointMission()
 {
-  std::cout << "Stopping hotpoint mission..." << std::endl;
+  DSTATUS("Stopping hotpoint mission...");
   vehiclePtr->missionManager->hpMission->stop(responseTimeout);
   missionStatus = MissionStatus::completed;
   return true;
@@ -431,7 +421,7 @@ MetricsMission::subscribe()
   int  freq;
   int  numTopics;
   bool enableTimestamp;
-  std::cout << "Subscribing to topics..." << std::endl;
+  DSTATUS("Subscribing to topics...");
 
   pkgIndex                 = 0;
   freq                     = 5; // Hz
@@ -508,14 +498,14 @@ MetricsMission::unsubscribe(int pkgIndex)
     return true;
   }
 
-  std::cout << "Unsubscribing from topics..." << std::endl;
+  DSTATUS("Unsubscribing from topics...");
   ACK::ErrorCode status;
   status = vehiclePtr->subscribe->removePackage(pkgIndex, responseTimeout);
   if (ACK::getError(status) != ACK::SUCCESS)
   {
     ACK::getErrorCodeMessage(status, __func__);
-    std::cout << "Error unsubscribing; please restart the drone/FC to get "
-                 "back to a clean state.\n";
+    DERROR("Error unsubscribing; please restart the drone/FC to get "
+           "back to a clean state.");
     return false;
   }
   return true;
@@ -576,7 +566,7 @@ MetricsMission::setWaypointInitDefaults(WayPointInitSettings* fdata)
 std::vector<WayPointSettings>
 MetricsMission::createWaypoints(MissionConfig* mission)
 {
-  std::cout << "Generating waypoints..." << std::endl;
+  DSTATUS("Generating waypoints...");
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(mission->numStops);
 
@@ -591,7 +581,7 @@ MetricsMission::createWaypoints(MissionConfig* mission)
     wp.commandParameter[0] = mission->waitTime * 250;
 
     waypoints.push_back(wp);
-    // std::cout << "Waypoint: " << waypoint_to_string(wp) << std::endl;
+    DDEBUG("Waypoint: %s", waypoint_to_string(wp));
   }
   return waypoints;
 }
@@ -606,10 +596,11 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
   float dx = cos(angle) * radius;
   float dy = sin(angle) * radius;
 
-  // std::cout << "Displacing waypoint by" << std::endl
-  //           << dx << " m\t" << dy << " m\t\t" // << std::endl
-  //           << rad_to_deg(dx / RADIUS_EARTH) << " deg\t"
-  //           << rad_to_deg(dy / RADIUS_EARTH) << " deg" << std::endl;
+  DDEBUG("Displacing waypoint by (%5.2f m,\t%5.2f m)\t(%6.5f deg,\t%6.5f deg)",
+         dx,
+         dy,
+         rad_to_deg(dx / RADIUS_EARTH),
+         rad_to_deg(dy / RADIUS_EARTH));
 
   newWp.latitude += dx / RADIUS_EARTH;
   newWp.longitude += dy / RADIUS_EARTH / cos(newWp.latitude);
@@ -619,7 +610,7 @@ MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
 bool
 MetricsMission::uploadWaypoints(std::vector<WayPointSettings>* waypoints)
 {
-  std::cout << "Uploading waypoints..." << std::endl;
+  DSTATUS("Uploading waypoints...");
   for (auto waypoint : *waypoints)
   {
     ACK::WayPointIndex wpIndexACK =
@@ -643,7 +634,7 @@ MetricsMission::isInAir()
 bool
 MetricsMission::takeOff()
 {
-  std::cout << "Taking off..." << std::endl;
+  DSTATUS("Taking off...");
   ACK::ErrorCode ack = vehiclePtr->control->takeoff(responseTimeout);
   if (ACK::getError(ack) != ACK::SUCCESS)
   {
@@ -652,8 +643,8 @@ MetricsMission::takeOff()
     if (ack.info.cmd_set == OpenProtocolCMD::CMDSet::control &&
         ack.data == ErrorCode::CommonACK::START_MOTOR_FAIL_MOTOR_STARTED)
     {
-      DSTATUS("Take off command sent failed. Please Land the drone and disarm "
-              "the motors first.\n");
+      DERROR("Take off command sent failed. Please Land the drone and disarm "
+             "the motors first.\n");
     }
     return false;
   }
@@ -684,15 +675,15 @@ MetricsMission::waypointEventCallback(Vehicle*      vehiclePtr,
 
   if (recvFrame.recvData.wayPointReachedData.current_status == 4)
   {
-    DSTATUS("Waiting at waypoint %d",
-            recvFrame.recvData.wayPointReachedData.waypoint_index);
+    DDEBUG("Waiting at waypoint %d",
+           recvFrame.recvData.wayPointReachedData.waypoint_index);
     ((MetricsMission*)userData)->missionStatus = MissionStatus::waiting;
     return;
   }
   else if (recvFrame.recvData.wayPointReachedData.current_status == 6)
   {
-    DSTATUS("Departing from waypoint %d",
-            recvFrame.recvData.wayPointReachedData.waypoint_index);
+    DDEBUG("Departing from waypoint %d",
+           recvFrame.recvData.wayPointReachedData.waypoint_index);
     ((MetricsMission*)userData)->missionStatus = MissionStatus::enRoute;
     return;
   }
@@ -706,7 +697,7 @@ commitMetricsTimerCallback(const boost::system::error_code& ec,
 
   if (ec == boost::asio::error::operation_aborted)
   {
-    std::cout << "\nCtrl+C pressed, quit metrics loop" << std::endl;
+    DSTATUS("\nCtrl+C pressed, quit metrics loop");
     ref->flushMetrics();
     return;
   }
@@ -723,6 +714,7 @@ std::string
 MissionConfig::toString() const
 {
   std::stringstream ss;
+  ss << std::setprecision(2);
   ss << "Altitude: " << to_string(altitude) << ", Radius: " << to_string(radius)
      << ", NumStops: " << to_string(numStops)
      << ", WaitTime: " << to_string(waitTime);
@@ -745,9 +737,10 @@ operator<<(std::ostream& o, const MissionConfig& mission)
 std::ostream&
 operator<<(std::ostream& o, const WayPointSettings& waypoint)
 {
-  o << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t"
-    << waypoint.altitude << " m" << std::endl
-    << rad_to_deg(waypoint.latitude) << " deg\t"
+  o << std::setprecision(6) << waypoint.latitude << " rad\t"
+    << waypoint.longitude << " rad\t";
+  o << std::setprecision(2) << waypoint.altitude << " m" << std::endl;
+  o << std::setprecision(5) << rad_to_deg(waypoint.latitude) << " deg\t"
     << rad_to_deg(waypoint.longitude) << " deg";
   return o;
 }
@@ -758,13 +751,16 @@ waypoint_to_string(const WayPointSettings& waypoint, bool asRad)
   std::stringstream ss;
   if (asRad)
   {
+    ss << std::setprecision(6);
     ss << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t";
   }
   else
   {
+    ss << std::setprecision(5);
     ss << rad_to_deg(waypoint.latitude) << " deg\t"
        << rad_to_deg(waypoint.longitude) << " deg\t";
   }
+  ss << std::setprecision(2);
   ss << waypoint.altitude << " m";
   return ss.str();
 }
