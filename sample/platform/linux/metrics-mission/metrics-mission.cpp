@@ -49,7 +49,7 @@ MetricsMission::MetricsMission(Vehicle*            vehiclePtr,
 
   DSTATUS("Recording position...");
   centerPoint = getCurrentPoint();
-  DSTATUS("Center point is (LLA) %s", waypoint_to_string(centerPoint));
+  DSTATUS("Center point is (LLA) %s", waypoint_to_string(centerPoint).c_str());
 
   DSTATUS("Starting metrics timer...");
   metricsTimer.async_wait(boost::bind(
@@ -582,7 +582,7 @@ MetricsMission::createWaypoints(MissionConfig* mission)
     wp.commandParameter[0] = mission->waitTime * 250;
 
     waypoints.push_back(wp);
-    DDEBUG("Waypoint: %s", waypoint_to_string(wp));
+    DDEBUG("Waypoint: %s", waypoint_to_string(wp).c_str());
   }
   return waypoints;
 }
