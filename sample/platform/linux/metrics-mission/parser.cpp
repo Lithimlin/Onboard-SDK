@@ -76,6 +76,11 @@ load_mission_config(const std::string& filename)
     }
     return points;
   }
+
+  std::cerr << "No missions or points specified in mission config file. How "
+               "did we get here?"
+            << std::endl;
+  exit(-1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
@@ -132,5 +137,5 @@ parse_points(Json::Value*              rootVal,
 
     points->push_back(point);
   }
-  return false;
+  return true;
 }
