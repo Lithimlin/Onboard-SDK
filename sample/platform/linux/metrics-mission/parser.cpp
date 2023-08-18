@@ -6,14 +6,13 @@
 #include <jsoncpp/json/reader.h>
 #include <stdlib.h>
 
-std::vector<MissionConfig>
+std::variant<std::vector<MissionConfig>, std::vector<PointConfig>>
 load_mission_config(const std::string& filename)
 {
-  std::ifstream              file(filename);
-  Json::Value                root;
-  Json::CharReaderBuilder    rbuilder;
-  std::string                errs;
-  std::vector<MissionConfig> missions;
+  std::ifstream           file(filename);
+  Json::Value             root;
+  Json::CharReaderBuilder rbuilder;
+  std::string             errs;
 
   std::cout << "Loading missions from " << filename << std::endl;
 
@@ -48,12 +47,51 @@ load_mission_config(const std::string& filename)
     waitTime = root["waitTime"].asInt();
   }
 
-  if (!root.isMember("missions"))
+  if (!root.isMember("missions") || !root.isMember("points"))
   {
-    std::cerr << "No missions specified in mission config file: " << filename
-              << std::endl;
+    std::cerr << "No missions or points specified in mission config file: "
+              << filename << std::endl;
     exit(1);
   }
+
+  if (root.isMember("missions"))
+  {
+    std::vector<MissionConfig> missions;
+    bool status = parse_missions(&root, waitTime, &missions);
+    if (!status)
+    {
+      std::cerr << "Failed to parse missions" << std::endl;
+      exit(1);
+    }
+    return missions;
+  }
+  else if (root.isMember("points"))
+  {
+    std::vector<PointConfig> points;
+    bool                     status = parse_points(&root, waitTime, &points);
+    if (!status)
+    {
+      std::cerr << "Failed to parse points" << std::endl;
+      exit(1);
+    }
+    return points;
+  }
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+
+bool
+parse_missions(Json::Value*                rootVal,
+               uint8_t                     waitTime,
+               std::vector<MissionConfig>* missions)
+{
+  Json::Value root = *rootVal;
+
+  if (!root.isMember("missions"))
+  {
+    return false;
+  }
+
   for (Json::Value::const_iterator it = root["missions"].begin();
        it != root["missions"].end();
        ++it)
@@ -64,8 +102,35 @@ load_mission_config(const std::string& filename)
     uint8_t       numStops = obj["numStops"].asInt();
     MissionConfig mission(altitude, radius, numStops, waitTime);
 
-    missions.push_back(mission);
+    missions->push_back(mission);
   }
 
-  return missions;
+  return true;
+}
+
+bool
+parse_points(Json::Value*              rootVal,
+             uint8_t                   waitTime,
+             std::vector<PointConfig>* points)
+{
+  Json::Value root = *rootVal;
+
+  if (!root.isMember("points"))
+  {
+    return false;
+  }
+
+  for (Json::Value::const_iterator it = root["points"].begin();
+       it != root["points"].end();
+       ++it)
+  {
+    Json::Value obj      = *it;
+    float       altitude = obj["altitude"].asFloat();
+    float       dlat     = obj["dlat"].asFloat();
+    float       dlon     = obj["dlon"].asFloat();
+    PointConfig point(dlat, dlon, altitude, waitTime);
+
+    points->push_back(point);
+  }
+  return false;
 }

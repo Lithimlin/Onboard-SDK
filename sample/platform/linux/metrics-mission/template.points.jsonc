@@ -1,0 +1,25 @@
+{
+    "waitTime": 10, //optional
+    "points": [
+        {
+            "altitude": 3.0,
+            "dlat": 250.0, // in meters
+            "dlon": 0.0 // in meters
+        },
+        {
+            "altitude": 3.0,
+            "dlat": 0.0,
+            "dlon": 250.0
+        },
+        {
+            "altitude": 38.0,
+            "dlat": -247.0,
+            "dlon": 0.0
+        },
+        {
+            "altitude": 38.0,
+            "dlat": 0.0,
+            "dlon": -197.0
+        }
+    ]
+}

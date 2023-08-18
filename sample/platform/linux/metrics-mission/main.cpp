@@ -76,7 +76,10 @@ main(int argc, char** argv)
   // Read Missions
   std::cout << "Reading missions..." << std::endl;
   std::string                missionsPath = dotenv::env["MISSIONS_PATH"];
-  std::vector<MissionConfig> missions     = load_mission_config(missionsPath);
+  auto                       configs      = load_mission_config(missionsPath);
+  std::vector<MissionConfig> missions;
+  std::vector<PointConfig>   points;
+  bool                       status;
 
   // Init Missions
   std::cout << "Initializing missions..." << std::endl;
@@ -87,14 +90,33 @@ main(int argc, char** argv)
   vehiclePtr->flightController->obtainJoystickCtrlAuthoritySync(
     responseTimeout);
 
-  // Run Missions
-  bool status = mmPtr->initMissions(&missions);
-  if (!status)
+  if (std::holds_alternative<std::vector<MissionConfig>>(configs))
   {
-    std::cout << "Could not initialize missions, exiting." << std::endl;
+    missions = std::get<std::vector<MissionConfig>>(configs);
+    status   = mmPtr->initMission(&missions);
+    if (!status)
+    {
+      std::cout << "Could not initialize missions, exiting." << std::endl;
+      return -1;
+    }
+  }
+  else if (std::holds_alternative<std::vector<PointConfig>>(configs))
+  {
+    points = std::get<std::vector<PointConfig>>(configs);
+    status = mmPtr->initMission(&points);
+    if (!status)
+    {
+      std::cout << "Could not initialize points, exiting." << std::endl;
+      return -1;
+    }
+  }
+  else
+  {
+    std::cout << "Invalid mission or point config, exiting." << std::endl;
     return -1;
   }
 
+  // Run Missions
   status = mmPtr->runMissions();
   if (!status)
   {

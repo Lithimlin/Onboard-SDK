@@ -39,6 +39,21 @@ operator<<(std::ostream& o, const MissionConfig& mc);
 std::ostream&
 operator<<(std::ostream& o, const WayPointSettings& waypoint);
 
+struct PointConfig
+{
+  float   dlat, dlon;
+  float   altitude;
+  uint8_t waitTime;
+
+  PointConfig(float dlat, float dlon, float altitude, uint8_t waitTime)
+    : dlat(dlat)
+    , dlon(dlon)
+    , altitude(altitude)
+    , waitTime(waitTime)
+  {
+  }
+};
+
 enum MissionStatus
 {
   undefined,
@@ -61,7 +76,8 @@ public:
   ~MetricsMission();
 
   bool initMission(MissionConfig* mission);
-  bool initMissions(std::vector<MissionConfig>* missions);
+  bool initMission(std::vector<MissionConfig>* missions);
+  bool initMission(std::vector<PointConfig>* points);
   bool runMissions();
   void runContext();
   bool stopMission();
@@ -90,6 +106,7 @@ private:
   bool initWaypointMission(MissionConfig* mission);
   bool initHotpointMission(MissionConfig* mission);
   bool initWaypointMissions(std::vector<MissionConfig>* missions);
+  bool initWaypointMission(std::vector<PointConfig>* points);
   bool runWaypointMissions();
   bool runHotpointMissions();
   bool stopWaypointMission();
@@ -104,6 +121,19 @@ private:
   static void setWaypointInitDefaults(WayPointInitSettings* fdata);
 
   std::vector<WayPointSettings> createWaypoints(MissionConfig* mission);
+
+  /**
+   * @brief This function is used to generate a new waypoint that is displaced
+   * from another waypoint by a radius and angle.
+   * @param oldWp Pointer to the old waypoint to take as a base
+   * @param dlat The displacement in meters along the latitude
+   * @param dlon The displacement in meters along the longitude
+   * @return A new waypoint struct containing the displacement
+   */
+  static WayPointSettings newDisplacedWaypoint(const WayPointSettings* oldWp,
+                                               float                   dlat,
+                                               float                   dlon);
+
   /**
    * @brief This function is used to generate a new waypoint that is displaced
    * from another waypoint by a radius and angle.
@@ -112,9 +142,10 @@ private:
    * @param angle The angle of the displacement in degrees
    * @return A new waypoint struct containing the displacement
    */
-  static WayPointSettings newDisplacedWaypoint(WayPointSettings* oldWp,
-                                               float             radius,
-                                               float             angle);
+  static WayPointSettings newDisplacedWaypointRadial(
+    const WayPointSettings* oldWp,
+    float                   radius,
+    float                   angle);
   bool uploadWaypoints(std::vector<WayPointSettings>* waypoints);
 
   bool isInAir();

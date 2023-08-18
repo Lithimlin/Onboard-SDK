@@ -89,12 +89,24 @@ MetricsMission::initMission(MissionConfig* mission)
 }
 
 bool
-MetricsMission::initMissions(std::vector<MissionConfig>* missions)
+MetricsMission::initMission(std::vector<MissionConfig>* missions)
 {
   switch (missionType)
   {
     case DJI_MISSION_TYPE::WAYPOINT:
       return initWaypointMissions(missions);
+    default:
+      return false;
+  }
+}
+
+bool
+MetricsMission::initMission(std::vector<PointConfig>* points)
+{
+  switch (missionType)
+  {
+    case DJI_MISSION_TYPE::WAYPOINT:
+      return initWaypointMission(points);
     default:
       return false;
   }
@@ -348,6 +360,41 @@ MetricsMission::initWaypointMissions(std::vector<MissionConfig>* missions)
 }
 
 bool
+MetricsMission::initWaypointMission(std::vector<PointConfig>* points)
+{
+  WayPointInitSettings fdata;
+  setWaypointInitDefaults(&fdata);
+  fdata.indexNumber = points->size();
+
+  ACK::ErrorCode ack =
+    vehiclePtr->missionManager->init(missionType, responseTimeout, &fdata);
+
+  if (ACK::getError(ack) != ACK::SUCCESS)
+  {
+    ACK::getErrorCodeMessage(ack, __func__);
+    return false;
+  }
+  vehiclePtr->missionManager->printInfo();
+
+  vehiclePtr->missionManager->wpMission->setWaypointEventCallback(
+    &waypointEventCallback, this);
+
+  std::vector<WayPointSettings> waypoints;
+  waypoints.reserve(points->size());
+
+  for (auto& point : *points)
+  {
+    WayPointSettings wp =
+      newDisplacedWaypoint(&centerPoint, point.dlat, point.dlon);
+    wp.altitude            = point.altitude;
+    wp.commandParameter[0] = point.waitTime * 250;
+    waypoints.push_back(wp);
+  }
+
+  return false;
+}
+
+bool
 MetricsMission::runWaypointMissions()
 {
   DSTATUS("Starting waypoint mission...");
@@ -575,8 +622,8 @@ MetricsMission::createWaypoints(MissionConfig* mission)
 
   for (size_t i = 0; i < mission->numStops; ++i)
   {
-    WayPointSettings wp =
-      newDisplacedWaypoint(&centerPoint, mission->radius, angleIncrement * i);
+    WayPointSettings wp = newDisplacedWaypointRadial(
+      &centerPoint, mission->radius, angleIncrement * i);
     wp.index               = i;
     wp.altitude            = mission->altitude;
     wp.commandParameter[0] = mission->waitTime * 250;
@@ -588,24 +635,33 @@ MetricsMission::createWaypoints(MissionConfig* mission)
 }
 
 WayPointSettings
-MetricsMission::newDisplacedWaypoint(WayPointSettings* oldWp,
-                                     float             radius,
-                                     float             angle)
+MetricsMission::newDisplacedWaypoint(const WayPointSettings* oldWp,
+                                     float                   dlat,
+                                     float                   dlon)
 {
   WayPointSettings newWp;
   copyWaypointSettings(&newWp, oldWp);
-  float dx = cos(angle) * radius;
-  float dy = sin(angle) * radius;
 
   DDEBUG("Displacing waypoint by (%5.2f m,\t%5.2f m)\t(%6.5f deg,\t%6.5f deg)",
-         dx,
-         dy,
-         rad_to_deg(dx / RADIUS_EARTH),
-         rad_to_deg(dy / RADIUS_EARTH));
+         dlat,
+         dlon,
+         rad_to_deg(dlat / RADIUS_EARTH),
+         rad_to_deg(dlon / RADIUS_EARTH));
 
-  newWp.latitude += dx / RADIUS_EARTH;
-  newWp.longitude += dy / RADIUS_EARTH / cos(newWp.latitude);
+  newWp.latitude += dlat / RADIUS_EARTH;
+  newWp.longitude += dlon / RADIUS_EARTH / cos(newWp.latitude);
   return newWp;
+}
+
+WayPointSettings
+MetricsMission::newDisplacedWaypointRadial(const WayPointSettings* oldWp,
+                                           float                   radius,
+                                           float                   angle)
+{
+  float dlat = cos(angle) * radius;
+  float dlon = sin(angle) * radius;
+
+  return newDisplacedWaypoint(oldWp, dlat, dlon);
 }
 
 bool
