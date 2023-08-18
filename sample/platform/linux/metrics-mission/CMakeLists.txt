@@ -37,10 +37,14 @@ if (OSDK_HOTPLUG)
     FILE(GLOB SOURCE_FILES ${SOURCE_FILES} ${CMAKE_CURRENT_SOURCE_DIR}/../hal/hotplug/*.c)
 endif ()
 
+add_subdirectory(cpp-dotenv)
+
 find_package(InfluxDB REQUIRED)
 include_directories(/usr/include/influxdb-cxx)
 
-add_subdirectory(cpp-dotenv)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(JSONCPP jsoncpp IMPORTED_TARGET GLOBAL)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB cpp_dotenv jsoncpp_lib)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE InfluxData::InfluxDB cpp_dotenv PkgConfig::JSONCPP)
