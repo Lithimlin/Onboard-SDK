@@ -6,6 +6,16 @@
 #include <jsoncpp/json/reader.h>
 #include <stdlib.h>
 
+bool
+parse_missions(Json::Value*                rootVal,
+               uint8_t                     waitTime,
+               std::vector<MissionConfig>* missions);
+
+bool
+parse_points(Json::Value*              rootVal,
+             uint8_t                   waitTime,
+             std::vector<PointConfig>* points);
+
 std::variant<std::vector<MissionConfig>, std::vector<PointConfig>>
 load_mission_config(const std::string& filename)
 {
