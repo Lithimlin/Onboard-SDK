@@ -57,13 +57,6 @@ load_mission_config(const std::string& filename)
     waitTime = root["waitTime"].asInt();
   }
 
-  if (!root.isMember("missions") || !root.isMember("points"))
-  {
-    std::cerr << "No missions or points specified in mission config file: "
-              << filename << std::endl;
-    exit(1);
-  }
-
   if (root.isMember("missions"))
   {
     std::vector<MissionConfig> missions;
@@ -87,10 +80,9 @@ load_mission_config(const std::string& filename)
     return points;
   }
 
-  std::cerr << "No missions or points specified in mission config file. How "
-               "did we get here?"
-            << std::endl;
-  exit(-1);
+  std::cerr << "No missions or points specified in mission config file: "
+            << filename << std::endl;
+  exit(1);
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
