@@ -26,7 +26,6 @@ printUserData(Vehicle* vehiclePtr, RecvContainer recvFrame, UserData userData);
 int
 main(int argc, char** argv)
 {
-  signal(SIGINT, INThandler);
 
   dotenv::env.load_dotenv();
   int responseTimeout = 1;
@@ -115,6 +114,9 @@ main(int argc, char** argv)
     std::cout << "Invalid mission or point config, exiting." << std::endl;
     return -1;
   }
+
+  // Enable custom interrupt
+  signal(SIGINT, INThandler);
 
   // Run Missions
   status = mmPtr->runMissions();
