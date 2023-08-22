@@ -787,14 +787,14 @@ rad_to_deg(float rad)
 }
 
 std::ostream&
-operator<<(auto o, const MissionConfig& mission)
+operator<<(std::ostream& o, const MissionConfig& mission)
 {
   o << mission.toString();
   return o;
 }
 
 std::ostream&
-operator<<(auto o, const WayPointSettings& waypoint)
+operator<<(std::ostream& o, const WayPointSettings& waypoint)
 {
   o << "wp[" << waypoint.index << "]:\t";
   o << std::setprecision(6) << waypoint.latitude << " rad\t"
