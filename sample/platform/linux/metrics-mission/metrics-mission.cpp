@@ -391,7 +391,7 @@ MetricsMission::initWaypointMission(std::vector<PointConfig>* points)
     waypoints.push_back(wp);
   }
 
-  return false;
+  return true;
 }
 
 bool
