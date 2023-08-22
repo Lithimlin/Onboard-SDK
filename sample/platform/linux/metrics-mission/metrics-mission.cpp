@@ -381,6 +381,7 @@ MetricsMission::initWaypointMission(std::vector<PointConfig>* points)
 
   std::vector<WayPointSettings> waypoints;
   waypoints.reserve(points->size());
+  size_t index = 0;
 
   for (auto& point : *points)
   {
@@ -388,6 +389,7 @@ MetricsMission::initWaypointMission(std::vector<PointConfig>* points)
       newDisplacedWaypoint(&centerPoint, point.dlat, point.dlon);
     wp.altitude            = point.altitude;
     wp.commandParameter[0] = point.waitTime * 250;
+    wp.index               = index++;
     waypoints.push_back(wp);
   }
 
@@ -670,7 +672,7 @@ MetricsMission::uploadWaypoints(std::vector<WayPointSettings>* waypoints)
   DSTATUS("Uploading waypoints...");
   for (auto waypoint : *waypoints)
   {
-    DDEBUG("Waypoint: %s", waypoint_to_string(waypoint).c_str());
+    DDEBUG("Uploading waypoint: %s", waypoint_to_string(waypoint).c_str());
     ACK::WayPointIndex wpIndexACK =
       vehiclePtr->missionManager->wpMission->uploadIndexData(&waypoint,
                                                              responseTimeout);
