@@ -672,7 +672,7 @@ MetricsMission::uploadWaypoints(std::vector<WayPointSettings>* waypoints)
   DSTATUS("Uploading waypoints...");
   for (auto waypoint : *waypoints)
   {
-    DDEBUG("Uploading waypoint: %s", waypoint_to_string(waypoint).c_str());
+    // DDEBUG("Uploading waypoint: %s", waypoint_to_string(waypoint).c_str());
     ACK::WayPointIndex wpIndexACK =
       vehiclePtr->missionManager->wpMission->uploadIndexData(&waypoint,
                                                              responseTimeout);

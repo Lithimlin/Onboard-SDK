@@ -49,7 +49,7 @@ main(int argc, char** argv)
   }
 
   // Extra logging setup
-  DJI::OSDK::Log::instance().enableDebugLogging();
+  // DJI::OSDK::Log::instance().enableDebugLogging();
 
   // Obtain Mission Type
   std::string      missionTypeStr = dotenv::env["MISSION_TYPE"];
