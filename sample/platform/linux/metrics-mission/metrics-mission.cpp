@@ -670,6 +670,7 @@ MetricsMission::uploadWaypoints(std::vector<WayPointSettings>* waypoints)
   DSTATUS("Uploading waypoints...");
   for (auto waypoint : *waypoints)
   {
+    DDEBUG("Waypoint: %s", waypoint_to_string(waypoint).c_str());
     ACK::WayPointIndex wpIndexACK =
       vehiclePtr->missionManager->wpMission->uploadIndexData(&waypoint,
                                                              responseTimeout);
@@ -784,15 +785,16 @@ rad_to_deg(float rad)
 }
 
 std::ostream&
-operator<<(std::ostream& o, const MissionConfig& mission)
+operator<<(auto o, const MissionConfig& mission)
 {
   o << mission.toString();
   return o;
 }
 
 std::ostream&
-operator<<(std::ostream& o, const WayPointSettings& waypoint)
+operator<<(auto o, const WayPointSettings& waypoint)
 {
+  o << "wp[" << waypoint.index << "]:\t";
   o << std::setprecision(6) << waypoint.latitude << " rad\t"
     << waypoint.longitude << " rad\t";
   o << std::setprecision(2) << waypoint.altitude << " m" << std::endl;
@@ -805,6 +807,7 @@ std::string
 waypoint_to_string(const WayPointSettings& waypoint, bool asRad)
 {
   std::stringstream ss;
+  ss << "wp[" << waypoint.index << "]:\t";
   if (asRad)
   {
     ss << waypoint.latitude << " rad\t" << waypoint.longitude << " rad\t";
